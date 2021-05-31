@@ -1,6 +1,6 @@
 import { Autowired, Optional, PostConstruct } from '../context/context';
 import { Events } from '../events';
-import { IRangeController } from '../interfaces/iRangeController';
+import { IRangeService } from '../interfaces/IRangeService';
 import { IContextMenuFactory } from '../interfaces/iContextMenuFactory';
 import { GridApi } from '../gridApi';
 import { Component } from '../widgets/component';
@@ -16,11 +16,11 @@ import {
     CSS_CLASS_CELL_SELECTABLE,
     CSS_CLASS_COLUMN_MOVING,
     CSS_CLASS_FORCE_VERTICAL_SCROLL,
-    GridBodyController,
-    GridBodyView,
+    GridBodyCtrl,
+    IGridBodyComp,
     RowAnimationCssClasses
-} from "./gridBodyController";
-import { RowContainerNames } from "./rowContainer/rowContainerController";
+} from "./gridBodyCtrl";
+import { RowContainerNames } from "./rowContainer/rowContainerCtrl";
 
 const GRID_BODY_TEMPLATE = /* html */
     `<div class="ag-root ag-unselectable" role="grid" unselectable="on">
@@ -54,7 +54,7 @@ export class GridBodyComp extends Component {
     @Autowired('$scope') private $scope: any;
     @Autowired('resizeObserverService') private resizeObserverService: ResizeObserverService;
 
-    @Optional('rangeController') private rangeController: IRangeController;
+    @Optional('rangeService') private rangeService: IRangeService;
     @Optional('contextMenuFactory') private contextMenuFactory: IContextMenuFactory;
     @Optional('menuFactory') private menuFactory: IMenuFactory;
 
@@ -63,7 +63,7 @@ export class GridBodyComp extends Component {
     @RefSelector('eBottom') private eBottom: HTMLElement;
     @RefSelector('headerRoot') headerRootComp: HeaderRootComp;
 
-    private controller: GridBodyController;
+    private ctrl: GridBodyCtrl;
 
     constructor() {
         super(GRID_BODY_TEMPLATE);
@@ -78,7 +78,7 @@ export class GridBodyComp extends Component {
             element.style.height = heightString;
         };
 
-        const view: GridBodyView = {
+        const compProxy: IGridBodyComp = {
             setRowAnimationCssOnBodyViewport: this.setRowAnimationCssOnBodyViewport.bind(this),
             setColumnCount: count => setAriaColCount(this.getGui(), count),
             setRowCount: count => setAriaRowCount(this.getGui(), count),
@@ -112,8 +112,8 @@ export class GridBodyComp extends Component {
             },
         };
 
-        this.controller = this.createManagedBean(new GridBodyController());
-        this.controller.setView(view, this.getGui(), this.eBodyViewport, this.eTop, this.eBottom);
+        this.ctrl = this.createManagedBean(new GridBodyCtrl());
+        this.ctrl.setComp(compProxy, this.getGui(), this.eBodyViewport, this.eTop, this.eBottom);
 
         if (this.$scope) {
             this.addAngularApplyCheck();
@@ -128,10 +128,10 @@ export class GridBodyComp extends Component {
             this.menuFactory.registerGridComp(this);
         }
 
-        if (this.rangeController || this.gridOptionsWrapper.isRowSelectionMulti()) {
+        if (this.rangeService || this.gridOptionsWrapper.isRowSelectionMulti()) {
             setAriaMultiSelectable(this.getGui(), true);
-            if (this.rangeController) {
-                this.rangeController.registerGridComp(this);
+            if (this.rangeService) {
+                this.rangeService.registerGridComp(this);
             }
         }
 
@@ -177,12 +177,12 @@ export class GridBodyComp extends Component {
         return [this.eTop, this.eBottom];
     }
 
-    // + rangeController
+    // + rangeService
     public addScrollEventListener(listener: () => void): void {
         this.eBodyViewport.addEventListener('scroll', listener);
     }
 
-    // + rangeController
+    // + focusService
     public removeScrollEventListener(listener: () => void): void {
         this.eBodyViewport.removeEventListener('scroll', listener);
     }

@@ -7,15 +7,15 @@ import {
     CellPosition,
     CellPositionUtils,
     Column,
-    ColumnController,
+    ColumnModel,
     Component,
-    FocusController,
+    FocusService,
     GetContextMenuItems,
     GetContextMenuItemsParams,
     GridBodyComp,
     IAfterGuiAttachedParams,
     IContextMenuFactory,
-    IRangeController,
+    IRangeService,
     MenuItemDef,
     ModuleNames,
     ModuleRegistry,
@@ -35,8 +35,8 @@ const CSS_CONTEXT_MENU_OPEN = ' ag-context-menu-open';
 export class ContextMenuFactory extends BeanStub implements IContextMenuFactory {
 
     @Autowired('popupService') private popupService: PopupService;
-    @Optional('rangeController') private rangeController: IRangeController;
-    @Autowired('columnController') private columnController: ColumnController;
+    @Optional('rangeService') private rangeService: IRangeService;
+    @Autowired('columnModel') private columnModel: ColumnModel;
 
     private activeMenu: ContextMenu | null;
     private gridBodyComp: GridBodyComp;
@@ -62,11 +62,11 @@ export class ContextMenuFactory extends BeanStub implements IContextMenuFactory 
         if (this.gridOptionsWrapper.isEnableCharts() &&
             ModuleRegistry.isRegistered(ModuleNames.RangeSelectionModule) &&
             ModuleRegistry.isRegistered(ModuleNames.GridChartsModule)) {
-            if (this.columnController.isPivotMode()) {
+            if (this.columnModel.isPivotMode()) {
                 defaultMenuOptions.push('pivotChart');
             }
 
-            if (this.rangeController && !this.rangeController.isEmpty()) {
+            if (this.rangeService && !this.rangeService.isEmpty()) {
                 defaultMenuOptions.push('chartRange');
             }
         }
@@ -211,7 +211,7 @@ export class ContextMenuFactory extends BeanStub implements IContextMenuFactory 
 class ContextMenu extends Component {
 
     @Autowired('menuItemMapper') private menuItemMapper: MenuItemMapper;
-    @Autowired('focusController') private focusController: FocusController;
+    @Autowired('focusService') private focusService: FocusService;
     @Autowired('cellPositionUtils') private cellPositionUtils: CellPositionUtils;
 
     private menuItems: (MenuItemDef | string)[];
@@ -241,22 +241,22 @@ class ContextMenu extends Component {
             this.addDestroyFunc(params.hidePopup);
         }
 
-        this.focusedCell = this.focusController.getFocusedCell();
+        this.focusedCell = this.focusService.getFocusedCell();
 
         if (this.menuList) {
-            this.focusController.focusInto(this.menuList.getGui());
+            this.focusService.focusInto(this.menuList.getGui());
         }
     }
 
     private restoreFocusedCell(): void {
-        const currentFocusedCell = this.focusController.getFocusedCell();
+        const currentFocusedCell = this.focusService.getFocusedCell();
 
         if (currentFocusedCell && this.focusedCell && this.cellPositionUtils.equals(currentFocusedCell, this.focusedCell)) {
             const { rowIndex, rowPinned, column } = this.focusedCell;
             const doc = this.gridOptionsWrapper.getDocument();
 
             if (doc.activeElement === doc.body) {
-                this.focusController.setFocusedCell(rowIndex, column, rowPinned, true);
+                this.focusService.setFocusedCell(rowIndex, column, rowPinned, true);
             }
         }
     }

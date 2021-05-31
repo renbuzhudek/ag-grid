@@ -99,7 +99,7 @@ export class FillHandle extends AbstractSelectionHandle {
         let finalRange: CellRange | undefined;
 
         if (!this.isUp && !this.isLeft) {
-            finalRange = this.rangeController.createCellRangeFromCellRangeParams({
+            finalRange = this.rangeService.createCellRangeFromCellRangeParams({
                 rowStartIndex: rangeStartRow.rowIndex,
                 rowStartPinned: rangeStartRow.rowPinned,
                 columnStart: initialRange.columns[0],
@@ -110,7 +110,7 @@ export class FillHandle extends AbstractSelectionHandle {
         } else {
             const startRow = isX ? rangeStartRow : this.lastCellMarked;
 
-            finalRange = this.rangeController.createCellRangeFromCellRangeParams({
+            finalRange = this.rangeService.createCellRangeFromCellRangeParams({
                 rowStartIndex: startRow!.rowIndex,
                 rowStartPinned: startRow!.rowPinned,
                 columnStart: isX ? this.lastCellMarked!.column : initialRange.columns[0],
@@ -125,7 +125,7 @@ export class FillHandle extends AbstractSelectionHandle {
             this.raiseFillStartEvent();
 
             this.handleValueChanged(initialRange, finalRange, e);
-            this.rangeController.setCellRanges([finalRange]);
+            this.rangeService.setCellRanges([finalRange]);
 
             this.raiseFillEndEvent(initialRange, finalRange);
         }
@@ -152,10 +152,10 @@ export class FillHandle extends AbstractSelectionHandle {
     }
 
     private handleValueChanged(initialRange: CellRange, finalRange: CellRange, e: MouseEvent) {
-        const initialRangeEndRow = this.rangeController.getRangeEndRow(initialRange);
-        const initialRangeStartRow = this.rangeController.getRangeStartRow(initialRange);
-        const finalRangeEndRow = this.rangeController.getRangeEndRow(finalRange);
-        const finalRangeStartRow = this.rangeController.getRangeStartRow(finalRange);
+        const initialRangeEndRow = this.rangeService.getRangeEndRow(initialRange);
+        const initialRangeStartRow = this.rangeService.getRangeStartRow(initialRange);
+        const finalRangeEndRow = this.rangeService.getRangeEndRow(finalRange);
+        const finalRangeStartRow = this.rangeService.getRangeStartRow(finalRange);
         const isVertical = this.dragAxis === 'y';
 
         // if the range is being reduced in size, all we need to do is
@@ -387,7 +387,7 @@ export class FillHandle extends AbstractSelectionHandle {
             const currentColumn = currentPosition.column;
 
             if (initialColumn === currentColumn) { return; }
-            const displayedColumns = this.columnController.getAllDisplayedColumns();
+            const displayedColumns = this.columnModel.getAllDisplayedColumns();
             const initialIndex = displayedColumns.indexOf(initialColumn);
             const currentIndex = displayedColumns.indexOf(currentColumn);
 
@@ -403,7 +403,7 @@ export class FillHandle extends AbstractSelectionHandle {
     }
 
     private extendVertical(initialPosition: CellPosition, endPosition: CellPosition, isMovingUp?: boolean) {
-        const { rowRenderer, rangeController } = this;
+        const { rowRenderer, rangeService } = this;
         let row: RowPosition | null = initialPosition;
 
         do {
@@ -414,7 +414,7 @@ export class FillHandle extends AbstractSelectionHandle {
                 const column = cellRange.columns[i];
                 const rowPos = { rowIndex: row.rowIndex, rowPinned: row.rowPinned };
                 const cellPos = { ...rowPos, column };
-                const cellInRange = rangeController.isCellInSpecificRange(cellPos, cellRange);
+                const cellInRange = rangeService.isCellInSpecificRange(cellPos, cellRange);
                 const isInitialRow = this.rowPositionUtils.sameRow(row, initialPosition);
 
                 if (isMovingUp) { this.isUp = true; }
@@ -480,7 +480,7 @@ export class FillHandle extends AbstractSelectionHandle {
     }
 
     private extendHorizontal(initialPosition: CellPosition, endPosition: CellPosition, isMovingLeft?: boolean) {
-        const allCols = this.columnController.getAllDisplayedColumns();
+        const allCols = this.columnModel.getAllDisplayedColumns();
         const startCol = allCols.indexOf(isMovingLeft ? endPosition.column : initialPosition.column);
         const endCol = allCols.indexOf(isMovingLeft ? this.getCellRange().columns[0] : endPosition.column);
         const offset = isMovingLeft ? 0 : 1;
@@ -521,7 +521,7 @@ export class FillHandle extends AbstractSelectionHandle {
     }
 
     private reduceHorizontal(initialPosition: CellPosition, endPosition: CellPosition) {
-        const allCols = this.columnController.getAllDisplayedColumns();
+        const allCols = this.columnModel.getAllDisplayedColumns();
         const startCol = allCols.indexOf(endPosition.column);
         const endCol = allCols.indexOf(initialPosition.column);
 
@@ -554,7 +554,7 @@ export class FillHandle extends AbstractSelectionHandle {
     }
 
     public refresh(cellComp: CellComp) {
-        const cellRange = this.rangeController.getCellRanges()[0];
+        const cellRange = this.rangeService.getCellRanges()[0];
         const isColumnRange = !cellRange.startRow || !cellRange.endRow;
 
         if (isColumnRange) {

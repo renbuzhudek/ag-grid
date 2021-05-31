@@ -8,13 +8,13 @@ globalObj.HTMLInputElement = typeof HTMLInputElement === 'undefined' ? {} : HTML
 globalObj.Node = typeof Node === 'undefined' ? {} : Node;
 globalObj.MouseEvent = typeof MouseEvent === 'undefined' ? {} : MouseEvent;
 
-// columnController
-export { ColumnFactory } from "./columnController/columnFactory";
-export { ColumnController, ColumnState } from "./columnController/columnController";
-export { ColumnKeyCreator } from "./columnController/columnKeyCreator";
-export { ColumnUtils } from "./columnController/columnUtils";
-export { DisplayedGroupCreator } from "./columnController/displayedGroupCreator";
-export { GroupInstanceIdCreator } from "./columnController/groupInstanceIdCreator";
+// columns
+export { ColumnFactory } from "./columns/columnFactory";
+export { ColumnModel, ColumnState } from "./columns/columnModel";
+export { ColumnKeyCreator } from "./columns/columnKeyCreator";
+export { ColumnUtils } from "./columns/columnUtils";
+export { DisplayedGroupCreator } from "./columns/displayedGroupCreator";
+export { GroupInstanceIdCreator } from "./columns/groupInstanceIdCreator";
 
 // headless
 export { HeadlessService, RowContainerSt, HeaderRowSt, CellSt, ColumnSt, RowSt } from "./headless/headlessService";
@@ -122,7 +122,7 @@ export { FloatingFilterMapper } from './filter/floating/floatingFilterMapper';
 
 // gridPanel
 export { GridBodyComp } from "./gridBodyComp/gridBodyComp";
-export { GridBodyController } from "./gridBodyComp/gridBodyController";
+export { GridBodyCtrl } from "./gridBodyComp/gridBodyCtrl";
 export { ScrollVisibleService } from "./gridBodyComp/scrollVisibleService";
 export { MouseEventService } from "./gridBodyComp/mouseEventService";
 
@@ -134,7 +134,7 @@ export { HeaderContainer } from "./headerRendering/headerContainer";
 export { HeaderRootComp, HeaderContainerPosition } from "./headerRendering/headerRootComp";
 export { HeaderRowComp } from "./headerRendering/headerRowComp";
 export { HorizontalResizeService } from "./headerRendering/horizontalResizeService";
-export { MoveColumnController } from "./headerRendering/moveColumnController";
+export { MoveColumnFeature } from "./headerRendering/moveColumnFeature";
 export { StandardMenuFactory } from "./headerRendering/standardMenu";
 
 // layout
@@ -181,7 +181,7 @@ export { SetLeftFeature } from "./rendering/features/setLeftFeature";
 export { AutoWidthCalculator } from "./rendering/autoWidthCalculator";
 export { CheckboxSelectionComponent } from "./rendering/checkboxSelectionComponent";
 export { CellComp } from "./rendering/cellComp";
-export { RowController } from "./rendering/row/rowController";
+export { RowCtrl } from "./rendering/row/rowCtrl";
 export { RowRenderer } from "./rendering/rowRenderer";
 export { ValueFormatterService } from "./rendering/valueFormatterService";
 export { ILoadingCellRenderer, ILoadingCellRendererParams } from "./rendering/cellRenderers/loadingCellRenderer";
@@ -236,9 +236,9 @@ export { VirtualList, VirtualListModel } from "./widgets/virtualList";
 
 // range
 export {
-    CellRange, CellRangeParams, CellRangeType, RangeSelection, AddRangeSelectionParams, IRangeController,
+    CellRange, CellRangeParams, CellRangeType, RangeSelection, AddRangeSelectionParams, IRangeService,
     ISelectionHandle, SelectionHandleType, ISelectionHandleFactory
-} from "./interfaces/iRangeController";
+} from "./interfaces/IRangeService";
 export { IChartService, ChartModel, GetChartImageDataUrlParams } from "./interfaces/IChartService";
 
 // exporter
@@ -260,7 +260,7 @@ export { KeyName } from "./constants/keyName";
 export { Grid, GridParams, GridCoreCreator } from "./grid";
 export { GridApi, RedrawRowsParams, RefreshCellsParams, StartEditingCellParams, DetailGridInfo, CreateRangeChartParams, CreatePivotChartParams, CreateCrossFilterChartParams } from "./gridApi";
 export { Events } from "./eventKeys";
-export { FocusController } from "./focusController";
+export { FocusService } from "./focusService";
 export { defaultGroupComparator } from "./functions";
 export { GridOptionsWrapper } from "./gridOptionsWrapper";
 export { EventService } from "./eventService";
@@ -268,9 +268,9 @@ export { SelectableService } from "./rowNodes/selectableService";
 export { RowNodeSorter, SortedRowNode, SortOption } from "./rowNodes/rowNodeSorter";
 export { ControllersService } from "./controllersService";
 export { GridComp } from "./gridComp/gridComp";
-export { GridCompController, GridCompView } from "./gridComp/gridCompController";
+export { GridCtrl, IGridComp } from "./gridComp/gridCtrl";
 export { Logger, LoggerFactory } from "./logger";
-export { SelectionController } from "./selectionController";
+export { SelectionService } from "./selectionService";
 export { SortController, SortModelItem } from "./sortController";
 export { TemplateService } from "./templateService";
 export * from "./utils";
@@ -359,7 +359,7 @@ export { IComponent } from "./interfaces/iComponent";
 export { IEventEmitter } from "./interfaces/iEventEmitter";
 export { IHeaderParams, IHeader } from "./headerRendering/header/headerComp";
 export { IHeaderGroupParams, IHeaderGroup } from "./headerRendering/headerGroup/headerGroupComp";
-export { ColumnApi } from "./columnController/columnApi";
+export { ColumnApi } from "./columns/columnApi";
 export { IRichCellEditorParams } from "./interfaces/iRichCellEditorParams";
 export { WrapableInterface, BaseComponentWrapper, FrameworkComponentWrapper } from "./components/framework/frameworkComponentWrapper";
 export { IFrameworkOverrides } from "./interfaces/iFrameworkOverrides";

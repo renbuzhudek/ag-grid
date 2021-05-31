@@ -3,15 +3,15 @@ import {
     VerticalDirection
 } from "../dragAndDrop/dragAndDropService";
 import { Autowired, Optional, PostConstruct } from "../context/context";
-import { ColumnController } from "../columnController/columnController";
-import { FocusController } from "../focusController";
-import { IRangeController } from "../interfaces/iRangeController";
+import { ColumnModel } from "../columns/columnModel";
+import { FocusService } from "../focusService";
+import { IRangeService } from "../interfaces/IRangeService";
 import { RowDragEvent, RowDragEnterEvent, RowDragLeaveEvent, RowDragMoveEvent, RowDragEndEvent } from "../events";
 import { Events } from "../eventKeys";
 import { IRowModel } from "../interfaces/iRowModel";
 import { IClientSideRowModel } from "../interfaces/iClientSideRowModel";
 import { RowNode } from "../entities/rowNode";
-import { SelectionController } from "../selectionController";
+import { SelectionService } from "../selectionService";
 import { MouseEventService } from "./mouseEventService";
 import { last } from '../utils/array';
 import { SortController } from "../sortController";
@@ -39,12 +39,12 @@ export class RowDragFeature extends BeanStub implements DropTarget {
     // this feature is only created when row model is ClientSide, so we can type it as ClientSide
     @Autowired('rowModel') private rowModel: IRowModel;
     @Autowired('paginationProxy') private paginationProxy: PaginationProxy;
-    @Autowired('columnController') private columnController: ColumnController;
-    @Autowired('focusController') private focusController: FocusController;
+    @Autowired('columnModel') private columnModel: ColumnModel;
+    @Autowired('focusService') private focusService: FocusService;
     @Autowired('sortController') private sortController: SortController;
     @Autowired('filterManager') private filterManager: FilterManager;
-    @Autowired('selectionController') private selectionController: SelectionController;
-    @Optional('rangeController') private rangeController: IRangeController;
+    @Autowired('selectionService') private selectionService: SelectionService;
+    @Optional('rangeService') private rangeService: IRangeService;
     @Autowired('mouseEventService') private mouseEventService: MouseEventService;
     @Autowired('controllersService') private controllersService: ControllersService;
 
@@ -89,7 +89,7 @@ export class RowDragFeature extends BeanStub implements DropTarget {
     }
 
     private onRowGroupChanged(): void {
-        const rowGroups = this.columnController.getRowGroupColumns();
+        const rowGroups = this.columnModel.getRowGroupColumns();
         this.isRowGroupActive = !missingOrEmpty(rowGroups);
     }
 
@@ -121,7 +121,7 @@ export class RowDragFeature extends BeanStub implements DropTarget {
         }
 
         const enableMultiRowDragging = this.gridOptionsWrapper.isEnableMultiRowDragging();
-        const selectedNodes = this.selectionController.getSelectedNodes();
+        const selectedNodes = this.selectionService.getSelectedNodes();
         const currentNode = draggingEvent.dragItem.rowNode!;
 
         if (enableMultiRowDragging && selectedNodes.indexOf(currentNode) !== -1) {
@@ -188,7 +188,7 @@ export class RowDragFeature extends BeanStub implements DropTarget {
             rowNodes = [draggingEvent.dragItem.rowNode!];
 
             if (this.isMultiRowDrag) {
-                rowNodes = [...this.selectionController.getSelectedNodes()].sort(
+                rowNodes = [...this.selectionService.getSelectedNodes()].sort(
                     (a, b) => this.getRowIndexNumber(a) - this.getRowIndexNumber(b)
                 );
             }
@@ -262,9 +262,9 @@ export class RowDragFeature extends BeanStub implements DropTarget {
         const rowWasMoved = this.clientSideRowModel.ensureRowsAtPixel(rowNodes, pixel, increment);
 
         if (rowWasMoved) {
-            this.focusController.clearFocusedCell();
-            if (this.rangeController) {
-                this.rangeController.removeAllCellRanges();
+            this.focusService.clearFocusedCell();
+            if (this.rangeService) {
+                this.rangeService.removeAllCellRanges();
             }
         }
     }

@@ -5,7 +5,7 @@ import {
     DragService,
     Component,
     MouseEventService,
-    ColumnController,
+    ColumnModel,
     CellNavigationService,
     CellRange,
     RowPosition,
@@ -17,15 +17,15 @@ import {
     SelectionHandleType,
     ControllersService
 } from "@ag-grid-community/core";
-import { RangeController } from "./rangeController";
+import { RangeService } from "./rangeService";
 
 export abstract class AbstractSelectionHandle extends Component implements ISelectionHandle {
 
     @Autowired("rowRenderer") protected rowRenderer: RowRenderer;
     @Autowired("dragService") protected dragService: DragService;
-    @Autowired("rangeController") protected rangeController: RangeController;
+    @Autowired("rangeService") protected rangeService: RangeService;
     @Autowired("mouseEventService") protected mouseEventService: MouseEventService;
-    @Autowired("columnController") protected columnController: ColumnController;
+    @Autowired("columnModel") protected columnModel: ColumnModel;
     @Autowired("cellNavigationService") protected cellNavigationService: CellNavigationService;
     @Autowired('rowPositionUtils') protected rowPositionUtils: RowPositionUtils;
     @Autowired('controllersService') protected controllersService: ControllersService;
@@ -52,7 +52,7 @@ export abstract class AbstractSelectionHandle extends Component implements ISele
             onDragStart: this.onDragStart.bind(this),
             onDragging: (e: MouseEvent | Touch) => {
                 this.dragging = true;
-                this.rangeController.autoScrollService.check(e as MouseEvent);
+                this.rangeService.autoScrollService.check(e as MouseEvent);
 
                 if (this.changedCalculatedValues) {
                     this.onDrag(e);
@@ -63,7 +63,7 @@ export abstract class AbstractSelectionHandle extends Component implements ISele
                 this.dragging = false;
                 this.onDragEnd(e);
                 this.clearValues();
-                this.rangeController.autoScrollService.ensureCleared();
+                this.rangeService.autoScrollService.ensureCleared();
 
                 // TODO: this causes a bug where if there are multiple grids in the same page, all of them will
                 // be affected by a drag on any. Move it to the root element.
@@ -161,7 +161,7 @@ export abstract class AbstractSelectionHandle extends Component implements ISele
         const oldCellComp = this.getCellComp();
         const eGui = this.getGui();
 
-        const cellRange = _.last(this.rangeController.getCellRanges());
+        const cellRange = _.last(this.rangeService.getCellRanges());
 
         const start = cellRange.startRow;
         const end = cellRange.endRow;

@@ -4,7 +4,7 @@ import {
     Bean,
     BeanStub,
     Column,
-    ColumnController,
+    ColumnModel,
     ColumnGroup,
     ColumnGroupChild,
     Constants,
@@ -17,7 +17,7 @@ import {
     PinnedRowModel,
     ProcessGroupHeaderForExportParams,
     RowNode,
-    SelectionController,
+    SelectionService,
     ShouldRowBeSkippedParams
 } from "@ag-grid-community/core";
 import { GridSerializingSession, RowAccumulator, RowSpanningAccumulator } from "./interfaces";
@@ -30,10 +30,10 @@ export enum RowType { HEADER_GROUPING, HEADER, BODY }
 export class GridSerializer extends BeanStub {
 
     @Autowired('displayedGroupCreator') private displayedGroupCreator: DisplayedGroupCreator;
-    @Autowired('columnController') private columnController: ColumnController;
+    @Autowired('columnModel') private columnModel: ColumnModel;
     @Autowired('rowModel') private rowModel: IRowModel;
     @Autowired('pinnedRowModel') private pinnedRowModel: PinnedRowModel;
-    @Autowired('selectionController') private selectionController: SelectionController;
+    @Autowired('selectionService') private selectionService: SelectionService;
 
     public serialize<T>(gridSerializingSession: GridSerializingSession<T>, params: ExportParams<T> = {}): string {
         const columnsToExport = this.getColumnsToExport(params.allColumns, params.columnKeys);
@@ -62,7 +62,7 @@ export class GridSerializer extends BeanStub {
         const skipSingleChildrenGroup = gridOptionsWrapper.isGroupRemoveSingleChildren();
         const hideOpenParents = gridOptionsWrapper.isGroupHideOpenParents();
         const skipLowestSingleChildrenGroup = gridOptionsWrapper.isGroupRemoveLowestSingleChildren();
-        const isLeafNode = this.columnController.isPivotMode() ? node.leafGroup : !node.group;
+        const isLeafNode = this.columnModel.isPivotMode() ? node.leafGroup : !node.group;
         const skipRowGroups = params.skipGroups || params.skipRowGroups;
         const shouldSkipLowestGroup = skipLowestSingleChildrenGroup && node.leafGroup;
         const shouldSkipCurrentGroup = node.allChildrenCount === 1 && (skipSingleChildrenGroup || shouldSkipLowestGroup);
@@ -142,7 +142,7 @@ export class GridSerializer extends BeanStub {
                 const groupInstanceIdCreator: GroupInstanceIdCreator = new GroupInstanceIdCreator();
                 const displayedGroups: ColumnGroupChild[] = this.displayedGroupCreator.createDisplayedGroups(
                     columnsToExport,
-                    this.columnController.getGridBalancedTree(),
+                    this.columnModel.getGridBalancedTree(),
                     groupInstanceIdCreator,
                     null
                 );
@@ -186,7 +186,7 @@ export class GridSerializer extends BeanStub {
             const onlySelectedNonStandardModel = !usingCsrm && params.onlySelected;
             const processRow = this.processRow.bind(this, gridSerializingSession, params, columnsToExport);
 
-            if (this.columnController.isPivotMode()) {
+            if (this.columnModel.isPivotMode()) {
                 if (usingCsrm) {
                     (rowModel as IClientSideRowModel).forEachPivotNode(processRow);
                 } else {
@@ -200,7 +200,7 @@ export class GridSerializer extends BeanStub {
                 // onlySelectedNonStandardModel: if user wants selected in non standard row model
                 // (eg viewport) then again RowModel cannot be used, so need to use selected instead.
                 if (params.onlySelectedAllPages || onlySelectedNonStandardModel) {
-                    const selectedNodes = this.selectionController.getSelectedNodes();
+                    const selectedNodes = this.selectionService.getSelectedNodes();
                     selectedNodes.forEach(processRow);
                 } else {
                     // here is everything else - including standard row model and selected. we don't use
@@ -228,22 +228,22 @@ export class GridSerializer extends BeanStub {
     }
 
     private getColumnsToExport(allColumns: boolean = false, columnKeys?: (string | Column)[]): Column[] {
-        const isPivotMode = this.columnController.isPivotMode();
+        const isPivotMode = this.columnModel.isPivotMode();
 
         if (columnKeys && columnKeys.length) {
-            return this.columnController.getGridColumns(columnKeys);
+            return this.columnModel.getGridColumns(columnKeys);
         }
 
         if (allColumns && !isPivotMode) {
             // add auto group column for tree data
            const columns = this.gridOptionsWrapper.isTreeData()
-                ? this.columnController.getGridColumns([Constants.GROUP_AUTO_COLUMN_ID])
+                ? this.columnModel.getGridColumns([Constants.GROUP_AUTO_COLUMN_ID])
                 : [];
 
-            return columns.concat(this.columnController.getAllPrimaryColumns() || []);
+            return columns.concat(this.columnModel.getAllPrimaryColumns() || []);
         }
 
-        return this.columnController.getAllDisplayedColumns();
+        return this.columnModel.getAllDisplayedColumns();
     }
 
     private recursivelyAddHeaderGroups<T>(displayedGroups: ColumnGroupChild[], gridSerializingSession: GridSerializingSession<T>, processGroupHeaderCallback: ProcessGroupHeaderCallback | undefined): void {
@@ -280,7 +280,7 @@ export class GridSerializer extends BeanStub {
                     context: this.gridOptionsWrapper.getContext()
                 });
             } else {
-                name = this.columnController.getDisplayNameForColumnGroup(columnGroup, 'header')!;
+                name = this.columnModel.getDisplayNameForColumnGroup(columnGroup, 'header')!;
             }
 
             gridRowIterator.onColumn(name || '', columnIndex++, columnGroup.getLeafColumns().length - 1);

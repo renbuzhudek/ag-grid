@@ -12,7 +12,7 @@ import { ColDef } from '../../entities/colDef';
 import { IFilterComp, IFilterDef } from '../../interfaces/iFilter';
 import { UserComponentFactory } from '../../components/framework/userComponentFactory';
 import { GridApi } from '../../gridApi';
-import { ColumnApi } from '../../columnController/columnApi';
+import { ColumnApi } from '../../columns/columnApi';
 import { FilterManager } from './../filterManager';
 import { ReadOnlyFloatingFilter } from './provided/readOnlyFloatingFilter';
 import { ModuleNames } from '../../modules/moduleNames';
@@ -80,7 +80,7 @@ export class FloatingFilterWrapper extends AbstractHeaderWrapper {
 
         e.preventDefault();
 
-        const nextFocusableEl = this.focusController.findNextFocusableElement(eGui, null, e.shiftKey);
+        const nextFocusableEl = this.focusService.findNextFocusableElement(eGui, null, e.shiftKey);
 
         if (nextFocusableEl) {
             nextFocusableEl.focus();
@@ -106,7 +106,7 @@ export class FloatingFilterWrapper extends AbstractHeaderWrapper {
                 e.stopPropagation();
             case KeyCode.ENTER:
                 if (wrapperHasFocus) {
-                    if (this.focusController.focusInto(eGui)) {
+                    if (this.focusService.focusInto(eGui)) {
                         e.preventDefault();
                     }
                 }
@@ -123,7 +123,7 @@ export class FloatingFilterWrapper extends AbstractHeaderWrapper {
 
         if (!eGui.contains(e.relatedTarget as HTMLElement)) {
             const headerRow = this.getParentComponent() as HeaderRowComp;
-            this.beans.focusController.setFocusedHeader(headerRow.getRowIndex(), this.getColumn());
+            this.beans.focusService.setFocusedHeader(headerRow.getRowIndex(), this.getColumn());
         }
     }
 

@@ -1,8 +1,8 @@
 import { GridOptions } from "./entities/gridOptions";
 import { GridOptionsWrapper } from "./gridOptionsWrapper";
-import { SelectionController } from "./selectionController";
-import { ColumnApi } from "./columnController/columnApi";
-import { ColumnController } from "./columnController/columnController";
+import { SelectionService } from "./selectionService";
+import { ColumnApi } from "./columns/columnApi";
+import { ColumnModel } from "./columns/columnModel";
 import { RowRenderer } from "./rendering/rowRenderer";
 import { HeaderRootComp } from "./headerRendering/headerRootComp";
 import { FilterManager } from "./filter/filterManager";
@@ -10,13 +10,13 @@ import { ValueService } from "./valueService/valueService";
 import { EventService } from "./eventService";
 import { GridBodyComp } from "./gridBodyComp/gridBodyComp";
 import { GridApi } from "./gridApi";
-import { ColumnFactory } from "./columnController/columnFactory";
-import { DisplayedGroupCreator } from "./columnController/displayedGroupCreator";
+import { ColumnFactory } from "./columns/columnFactory";
+import { DisplayedGroupCreator } from "./columns/displayedGroupCreator";
 import { ExpressionService } from "./valueService/expressionService";
 import { TemplateService } from "./templateService";
 import { PopupService } from "./widgets/popupService";
 import { Logger, LoggerFactory } from "./logger";
-import { ColumnUtils } from "./columnController/columnUtils";
+import { ColumnUtils } from "./columns/columnUtils";
 import { AutoWidthCalculator } from "./rendering/autoWidthCalculator";
 import { HorizontalResizeService } from "./headerRendering/horizontalResizeService";
 import { ComponentMeta, Context, ContextParams } from "./context/context";
@@ -25,7 +25,7 @@ import { StandardMenuFactory } from "./headerRendering/standardMenu";
 import { DragAndDropService } from "./dragAndDrop/dragAndDropService";
 import { DragService } from "./dragAndDrop/dragService";
 import { SortController } from "./sortController";
-import { FocusController } from "./focusController";
+import { FocusService } from "./focusService";
 import { MouseEventService } from "./gridBodyComp/mouseEventService";
 import { CellNavigationService } from "./cellNavigationService";
 import { Events, GridReadyEvent } from "./events";
@@ -38,7 +38,7 @@ import { ScrollVisibleService } from "./gridBodyComp/scrollVisibleService";
 import { StylingService } from "./styling/stylingService";
 import { ColumnHoverService } from "./rendering/columnHoverService";
 import { ColumnAnimationService } from "./rendering/columnAnimationService";
-import { AutoGroupColService } from "./columnController/autoGroupColService";
+import { AutoGroupColService } from "./columns/autoGroupColService";
 import { PaginationProxy } from "./pagination/paginationProxy";
 import { PaginationAutoPageSizeService } from "./pagination/paginationAutoPageSizeService";
 import { IRowModel } from "./interfaces/iRowModel";
@@ -86,12 +86,12 @@ import { HeaderPositionUtils } from "./headerRendering/header/headerPosition";
 import { HeaderNavigationService } from "./headerRendering/header/headerNavigationService";
 import { exists, missing } from "./utils/generic";
 import { assign, iterateObject } from "./utils/object";
-import { ColumnDefFactory } from "./columnController/columnDefFactory";
+import { ColumnDefFactory } from "./columns/columnDefFactory";
 import { RowCssClassCalculator } from "./rendering/row/rowCssClassCalculator";
 import { RowNodeBlockLoader } from "./rowNodeCache/rowNodeBlockLoader";
 import { RowNodeSorter } from "./rowNodes/rowNodeSorter";
 import { ControllersService } from "./controllersService";
-import { FakeHorizontalScrollComp } from "./gridBodyComp/fakeHorizontalScrollComp";
+import { FakeHScrollComp } from "./gridBodyComp/fakeHScrollComp";
 import { PinnedWidthService } from "./gridBodyComp/pinnedWidthService";
 import { RowContainerComp } from "./gridBodyComp/rowContainer/rowContainerComp";
 
@@ -273,7 +273,7 @@ export class GridCoreCreator {
             { componentName: 'AgPanel', componentClass: AgPanel },
             { componentName: 'AgDialog', componentClass: AgDialog },
             { componentName: 'AgRowContainer', componentClass: RowContainerComp },
-            { componentName: 'AgFakeHorizontalScroll', componentClass: FakeHorizontalScrollComp }
+            { componentName: 'AgFakeHorizontalScroll', componentClass: FakeHScrollComp }
         ];
 
         const moduleAgStackComps = this.extractModuleEntity(registeredModules,
@@ -297,11 +297,11 @@ export class GridCoreCreator {
             ComponentMetadataProvider, ResizeObserverService, UserComponentFactory,
             RowContainerHeightService, AutoHeightCalculator, HorizontalResizeService,
             PinnedRowModel, DragService, DisplayedGroupCreator, EventService, GridOptionsWrapper,
-            PopupService, SelectionController, FilterManager, ColumnController, HeaderNavigationService,
+            PopupService, SelectionService, FilterManager, ColumnModel, HeaderNavigationService,
             PaginationProxy, RowRenderer, ExpressionService, ColumnFactory, TemplateService,
             AlignedGridsService, NavigationService, ValueCache, ValueService, LoggerFactory,
             ColumnUtils, AutoWidthCalculator, StandardMenuFactory, DragAndDropService, ColumnApi,
-            FocusController, MouseEventService, Environment, CellNavigationService, ValueFormatterService,
+            FocusService, MouseEventService, Environment, CellNavigationService, ValueFormatterService,
             StylingService, ScrollVisibleService, SortController, ColumnHoverService, ColumnAnimationService,
             SelectableService, AutoGroupColService, ChangeDetectionService, AnimationFrameService,
             DetailRowCompCache, UndoRedoService, AgStackComponentsRegistry, ColumnDefFactory,
@@ -330,10 +330,10 @@ export class GridCoreCreator {
 
     private setColumnsAndData(context: Context): void {
         const gridOptionsWrapper: GridOptionsWrapper = context.getBean('gridOptionsWrapper');
-        const columnController: ColumnController = context.getBean('columnController');
+        const columnModel: ColumnModel = context.getBean('columnModel');
         const columnDefs = gridOptionsWrapper.getColumnDefs();
 
-        columnController.setColumnDefs(columnDefs || [], "gridInitializing");
+        columnModel.setColumnDefs(columnDefs || [], "gridInitializing");
 
         const rowModel: IRowModel = context.getBean('rowModel');
         rowModel.start();

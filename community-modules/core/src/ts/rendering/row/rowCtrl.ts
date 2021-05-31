@@ -63,7 +63,7 @@ export const FullWidthKeys: Map<RowType, string> = convertToMap([
 
 let instanceIdSequence = 0;
 
-export class RowController extends BeanStub {
+export class RowCtrl extends BeanStub {
 
     public static DOM_DATA_KEY_RENDERED_ROW = 'renderedRow';
 
@@ -132,7 +132,7 @@ export class RowController extends BeanStub {
 
         this.setAnimateFlags(animateIn);
 
-        this.rowFocused = this.beans.focusController.isRowFocused(this.rowNode.rowIndex!, this.rowNode.rowPinned);
+        this.rowFocused = this.beans.focusService.isRowFocused(this.rowNode.rowIndex!, this.rowNode.rowPinned);
         this.setupAngular1Scope();
         this.rowLevel = this.beans.rowCssClassCalculator.calculateRowLevel(this.rowNode);
 
@@ -231,7 +231,7 @@ export class RowController extends BeanStub {
         const isStub = this.rowNode.stub;
         const isFullWidthCell = this.rowNode.isFullWidthCell();
         const isDetailCell = this.beans.doingMasterDetail && this.rowNode.detail;
-        const pivotMode = this.beans.columnController.isPivotMode();
+        const pivotMode = this.beans.columnModel.isPivotMode();
         // we only use full width for groups, not footers. it wouldn't make sense to include footers if not looking
         // for totals. if users complain about this, then we should introduce a new property 'footerUseEntireRow'
         // so each can be set independently (as a customer complained about footers getting full width, hence
@@ -280,13 +280,13 @@ export class RowController extends BeanStub {
     private updateColumnListsImpl(): void {
         this.updateColumnListsPending = false;
         if (this.printLayout) {
-            this.centerCols = this.beans.columnController.getAllDisplayedColumns();
+            this.centerCols = this.beans.columnModel.getAllDisplayedColumns();
             this.leftCols = [];
             this.rightCols = [];
         } else {
-            this.centerCols = this.beans.columnController.getViewportCenterColumnsForRow(this.rowNode);
-            this.leftCols = this.beans.columnController.getDisplayedLeftColumnsForRow(this.rowNode);
-            this.rightCols = this.beans.columnController.getDisplayedRightColumnsForRow(this.rowNode);
+            this.centerCols = this.beans.columnModel.getViewportCenterColumnsForRow(this.rowNode);
+            this.leftCols = this.beans.columnModel.getDisplayedLeftColumnsForRow(this.rowNode);
+            this.rightCols = this.beans.columnModel.getDisplayedRightColumnsForRow(this.rowNode);
         }
         this.allRowComps.forEach(rc => rc.onColumnChanged());
     }
@@ -485,7 +485,7 @@ export class RowController extends BeanStub {
         if (!isFullWidthContainerFocused) { return; }
 
         const node = this.rowNode;
-        const lastFocusedCell = this.beans.focusController.getFocusedCell();
+        const lastFocusedCell = this.beans.focusService.getFocusedCell();
         const cellPosition: CellPosition = {
             rowIndex: node.rowIndex!,
             rowPinned: node.rowPinned,
@@ -504,7 +504,7 @@ export class RowController extends BeanStub {
         let nextEl: HTMLElement | null = null;
 
         if (!isFullWidthContainerFocused) {
-            nextEl = this.beans.focusController.findNextFocusableElement(currentFullWidthContainer!, false, keyboardEvent.shiftKey);
+            nextEl = this.beans.focusService.findNextFocusableElement(currentFullWidthContainer!, false, keyboardEvent.shiftKey);
         }
 
         if ((this.isFullWidth() && isFullWidthContainerFocused) || !nextEl) {
@@ -579,11 +579,11 @@ export class RowController extends BeanStub {
         if (!this.isFullWidth()) { return; }
 
         const node = this.rowNode;
-        const columnController = this.beans.columnController;
+        const columnModel = this.beans.columnModel;
 
-        this.beans.focusController.setFocusedCell(
+        this.beans.focusService.setFocusedCell(
             node.rowIndex!,
-            columnController.getAllDisplayedColumns()[0],
+            columnModel.getAllDisplayedColumns()[0],
             node.rowPinned, true
         );
 
@@ -1037,7 +1037,7 @@ export class RowController extends BeanStub {
     }
 
     private onCellFocusChanged(): void {
-        const rowFocused = this.beans.focusController.isRowFocused(this.rowNode.rowIndex!, this.rowNode.rowPinned);
+        const rowFocused = this.beans.focusService.isRowFocused(this.rowNode.rowIndex!, this.rowNode.rowPinned);
 
         if (rowFocused !== this.rowFocused) {
             this.allRowComps.forEach(rowComp => {

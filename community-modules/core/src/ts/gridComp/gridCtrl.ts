@@ -1,7 +1,7 @@
 import { Autowired, Optional, PostConstruct } from "../context/context";
 import { GridApi } from "../gridApi";
 import { PopupService } from "../widgets/popupService";
-import { FocusController } from "../focusController";
+import { FocusService } from "../focusService";
 import { BeanStub } from "../context/beanStub";
 import { ModuleRegistry } from "../modules/moduleRegistry";
 import { ModuleNames } from "../modules/moduleNames";
@@ -11,15 +11,15 @@ import { Events } from "../eventKeys";
 import { Logger, LoggerFactory } from "../logger";
 import { ResizeObserverService } from "../misc/resizeObserverService";
 import { GridSizeChangedEvent } from "../events";
-import { ColumnApi } from "../columnController/columnApi";
+import { ColumnApi } from "../columns/columnApi";
 import { findIndex } from "../utils/array";
 import { Column } from "../entities/column";
 import { ColumnGroup } from "../entities/columnGroup";
-import { ColumnController } from "../columnController/columnController";
+import { ColumnModel } from "../columns/columnModel";
 import { ControllersService } from "../controllersService";
 import { MouseEventService } from "../gridBodyComp/mouseEventService";
 
-export interface GridCompView extends LayoutView {
+export interface IGridComp extends LayoutView {
     setRtlClass(cssClass: string): void;
     destroyGridUi(): void;
     forceFocusOutOfContainer(up: boolean): void;
@@ -27,20 +27,20 @@ export interface GridCompView extends LayoutView {
     getFocusableContainers(): HTMLElement[];
 }
 
-export class GridCompController extends BeanStub {
+export class GridCtrl extends BeanStub {
 
     @Autowired('columnApi') private columnApi: ColumnApi;
     @Autowired('gridApi') private gridApi: GridApi;
     @Autowired('popupService') private popupService: PopupService;
-    @Autowired('focusController') protected readonly focusController: FocusController;
+    @Autowired('focusService') protected readonly focusService: FocusService;
     @Optional('clipboardService') private clipboardService: IClipboardService;
     @Autowired('loggerFactory') loggerFactory: LoggerFactory;
     @Autowired('resizeObserverService') private resizeObserverService: ResizeObserverService;
-    @Autowired('columnController') private columnController: ColumnController;
+    @Autowired('columnModel') private columnModel: ColumnModel;
     @Autowired('controllersService') private controllersService: ControllersService;
     @Autowired('mouseEventService') private mouseEventService: MouseEventService;
 
-    private view: GridCompView;
+    private view: IGridComp;
     private eGridHostDiv: HTMLElement;
     private eGui: HTMLElement;
 
@@ -58,7 +58,7 @@ export class GridCompController extends BeanStub {
         [
             this.gridApi,
             this.popupService,
-            this.focusController,
+            this.focusService,
             this.controllersService
         ].forEach(service => service.registerGridCompController(this));
 
@@ -67,7 +67,7 @@ export class GridCompController extends BeanStub {
         }
     }
 
-    public setView(view: GridCompView, eGridDiv: HTMLElement, eGui: HTMLElement): void {
+    public setComp(view: IGridComp, eGridDiv: HTMLElement, eGui: HTMLElement): void {
         this.view = view;
         this.eGridHostDiv = eGridDiv;
         this.eGui = eGui;
@@ -146,18 +146,18 @@ export class GridCompController extends BeanStub {
             return this.focusGridHeader();
         }
 
-        return this.focusController.focusInto(focusableContainers[nextIdx]);
+        return this.focusService.focusInto(focusableContainers[nextIdx]);
     }
 
     public focusGridHeader(): boolean {
-        let firstColumn: Column | ColumnGroup = this.columnController.getAllDisplayedColumns()[0];
+        let firstColumn: Column | ColumnGroup = this.columnModel.getAllDisplayedColumns()[0];
         if (!firstColumn) { return false; }
 
         if (firstColumn.getParent()) {
-            firstColumn = this.columnController.getColumnGroupAtLevel(firstColumn, 0)!;
+            firstColumn = this.columnModel.getColumnGroupAtLevel(firstColumn, 0)!;
         }
 
-        this.focusController.focusHeaderPosition(
+        this.focusService.focusHeaderPosition(
             { headerRowIndex: 0, column: firstColumn }
         );
 

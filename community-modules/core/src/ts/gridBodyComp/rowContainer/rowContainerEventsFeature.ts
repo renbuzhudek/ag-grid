@@ -2,7 +2,7 @@ import { BeanStub } from "../../context/beanStub";
 import { getComponentForEvent, getTarget, isStopPropagationForAgGrid } from "../../utils/event";
 import { Autowired, Optional, PostConstruct } from "../../context/context";
 import { MouseEventService } from "./../mouseEventService";
-import { RowController } from "../../rendering/row/rowController";
+import { RowCtrl } from "../../rendering/row/rowCtrl";
 import { CellComp } from "../../rendering/cellComp";
 import { ValueService } from "../../valueService/valueService";
 import { Column } from "../../entities/column";
@@ -14,16 +14,16 @@ import { isUserSuppressingKeyboardEvent } from "../../utils/keyboard";
 import { CellKeyDownEvent, CellKeyPressEvent, Events, FullWidthCellKeyDownEvent, FullWidthCellKeyPressEvent } from "../../events";
 import { KeyName } from "../../constants/keyName";
 import { NavigationService } from "./../navigationService";
-import { FocusController } from "../../focusController";
+import { FocusService } from "../../focusService";
 import { KeyCode } from "../../constants/keyCode";
 import { UndoRedoService } from "../../undoRedo/undoRedoService";
 import { Constants } from "../../constants/constants";
 import { missingOrEmpty } from "../../utils/generic";
 import { last } from "../../utils/array";
-import { ColumnController } from "../../columnController/columnController";
+import { ColumnModel } from "../../columns/columnModel";
 import { PaginationProxy } from "../../pagination/paginationProxy";
 import { PinnedRowModel } from "../../pinnedRowModel/pinnedRowModel";
-import { IRangeController } from "../../interfaces/iRangeController";
+import { IRangeService } from "../../interfaces/IRangeService";
 import { ModuleRegistry } from "../../modules/moduleRegistry";
 import { ModuleNames } from "../../modules/moduleNames";
 import { IClipboardService } from "../../interfaces/iClipboardService";
@@ -35,12 +35,12 @@ export class RowContainerEventsFeature extends BeanStub {
     @Optional('contextMenuFactory') private contextMenuFactory: IContextMenuFactory;
     @Autowired('controllersService') private controllersService: ControllersService;
     @Autowired('navigationService') private navigationService: NavigationService;
-    @Autowired('focusController') private focusController: FocusController;
+    @Autowired('focusService') private focusService: FocusService;
     @Autowired('undoRedoService') private undoRedoService: UndoRedoService;
-    @Autowired('columnController') private columnController: ColumnController;
+    @Autowired('columnModel') private columnModel: ColumnModel;
     @Autowired('paginationProxy') private paginationProxy: PaginationProxy;
     @Autowired('pinnedRowModel') private pinnedRowModel: PinnedRowModel;
-    @Optional('rangeController') private rangeController: IRangeController;
+    @Optional('rangeService') private rangeService: IRangeService;
     @Optional('clipboardService') private clipboardService: IClipboardService;
 
     private element: HTMLElement;
@@ -114,11 +114,11 @@ export class RowContainerEventsFeature extends BeanStub {
         this.addDestroyFunc(() => touchListener.destroy());
     }
 
-    private getRowForEvent(event: Event): RowController | null {
+    private getRowForEvent(event: Event): RowCtrl | null {
         let sourceElement: Element | null = getTarget(event);
 
         while (sourceElement) {
-            const rowCon = this.gridOptionsWrapper.getDomData(sourceElement, RowController.DOM_DATA_KEY_RENDERED_ROW);
+            const rowCon = this.gridOptionsWrapper.getDomData(sourceElement, RowCtrl.DOM_DATA_KEY_RENDERED_ROW);
             if (rowCon) {
                 return rowCon;
             }
@@ -129,7 +129,7 @@ export class RowContainerEventsFeature extends BeanStub {
         return null;
     }
 
-    private handleContextMenuMouseEvent(mouseEvent: MouseEvent | null, touchEvent: TouchEvent | null, rowComp: RowController | null, cellComp: CellComp) {
+    private handleContextMenuMouseEvent(mouseEvent: MouseEvent | null, touchEvent: TouchEvent | null, rowComp: RowCtrl | null, cellComp: CellComp) {
         const rowNode = rowComp ? rowComp.getRowNode() : null;
         const column = cellComp ? cellComp.getColumn() : null;
         let value = null;
@@ -151,7 +151,7 @@ export class RowContainerEventsFeature extends BeanStub {
 
     private processKeyboardEvent(eventName: string, keyboardEvent: KeyboardEvent): void {
         const cellComp = getComponentForEvent<CellComp>(this.gridOptionsWrapper, keyboardEvent, 'cellComp');
-        const rowComp = getComponentForEvent<RowController>(this.gridOptionsWrapper, keyboardEvent, 'renderedRow');
+        const rowComp = getComponentForEvent<RowCtrl>(this.gridOptionsWrapper, keyboardEvent, 'renderedRow');
 
         if (keyboardEvent.defaultPrevented) { return; }
         if (cellComp) {
@@ -200,9 +200,9 @@ export class RowContainerEventsFeature extends BeanStub {
         }
     }
 
-    private processFullWidthRowKeyboardEvent(rowComp: RowController, eventName: string, keyboardEvent: KeyboardEvent) {
+    private processFullWidthRowKeyboardEvent(rowComp: RowCtrl, eventName: string, keyboardEvent: KeyboardEvent) {
         const rowNode = rowComp.getRowNode();
-        const focusedCell = this.focusController.getFocusedCell();
+        const focusedCell = this.focusService.getFocusedCell();
         const column = (focusedCell && focusedCell.column) as Column;
         const gridProcessingAllowed = !isUserSuppressingKeyboardEvent(this.gridOptionsWrapper, keyboardEvent, rowNode, column, false);
 
@@ -263,10 +263,10 @@ export class RowContainerEventsFeature extends BeanStub {
 
     private onCtrlAndA(event: KeyboardEvent): void {
 
-        const { pinnedRowModel, paginationProxy, rangeController } = this;
+        const { pinnedRowModel, paginationProxy, rangeService } = this;
         const { PINNED_BOTTOM, PINNED_TOP } = Constants;
 
-        if (rangeController && paginationProxy.isRowsToRender()) {
+        if (rangeService && paginationProxy.isRowsToRender()) {
             const [isEmptyPinnedTop, isEmptyPinnedBottom] = [
                 pinnedRowModel.isEmpty(PINNED_TOP),
                 pinnedRowModel.isEmpty(PINNED_BOTTOM)
@@ -284,10 +284,10 @@ export class RowContainerEventsFeature extends BeanStub {
                 rowEnd = pinnedRowModel.getPinnedBottomRowData().length - 1;
             }
 
-            const allDisplayedColumns = this.columnController.getAllDisplayedColumns();
+            const allDisplayedColumns = this.columnModel.getAllDisplayedColumns();
             if (missingOrEmpty(allDisplayedColumns)) { return; }
 
-            rangeController.setCellRange({
+            rangeService.setCellRange({
                 rowStartIndex: 0,
                 rowStartPinned: floatingStart,
                 rowEndIndex: rowEnd,

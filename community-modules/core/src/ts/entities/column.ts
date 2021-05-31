@@ -12,11 +12,11 @@ import {
 import { EventService } from "../eventService";
 import { Autowired, Context, PostConstruct } from "../context/context";
 import { GridOptionsWrapper } from "../gridOptionsWrapper";
-import { ColumnUtils } from "../columnController/columnUtils";
+import { ColumnUtils } from "../columns/columnUtils";
 import { RowNode } from "./rowNode";
 import { IEventEmitter } from "../interfaces/iEventEmitter";
 import { ColumnEvent, ColumnEventType } from "../events";
-import { ColumnApi } from "../columnController/columnApi";
+import { ColumnApi } from "../columns/columnApi";
 import { GridApi } from "../gridApi";
 import { ColumnGroup } from "./columnGroup";
 import { OriginalColumnGroup } from "./originalColumnGroup";
@@ -694,7 +694,7 @@ export class Column implements ColumnGroupChild, OriginalColumnGroupChild, IEven
         return this.flex || 0;
     }
 
-    // this method should only be used by the columnController to
+    // this method should only be used by the columnModel to
     // change flex when required by the setColumnState method.
     public setFlex(flex: number | null) {
         if (this.flex !== flex) { this.flex = flex; }

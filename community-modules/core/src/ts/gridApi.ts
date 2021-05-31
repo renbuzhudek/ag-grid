@@ -1,8 +1,8 @@
 import { RowRenderer } from "./rendering/rowRenderer";
 import { FilterManager } from "./filter/filterManager";
-import { ColumnController, ColumnState } from "./columnController/columnController";
-import { ColumnApi } from "./columnController/columnApi";
-import { SelectionController } from "./selectionController";
+import { ColumnModel, ColumnState } from "./columns/columnModel";
+import { ColumnApi } from "./columns/columnApi";
+import { SelectionService } from "./selectionService";
 import { GridOptionsWrapper } from "./gridOptionsWrapper";
 import { GridBodyComp } from "./gridBodyComp/gridBodyComp";
 import { ValueService } from "./valueService/valueService";
@@ -14,8 +14,8 @@ import { Column } from "./entities/column";
 import { Autowired, Bean, Context, Optional, PostConstruct, PreDestroy } from "./context/context";
 import { IRowModel } from "./interfaces/iRowModel";
 import { SortController } from "./sortController";
-import { FocusController } from "./focusController";
-import { CellRange, CellRangeParams, IRangeController } from "./interfaces/iRangeController";
+import { FocusService } from "./focusService";
+import { CellRange, CellRangeParams, IRangeService } from "./interfaces/IRangeService";
 import { CellPosition } from "./entities/cellPosition";
 import { IClipboardService } from "./interfaces/iClipboardService";
 import { IViewportDatasource } from "./interfaces/iViewportDatasource";
@@ -90,10 +90,10 @@ import { RowNodeBlockLoader } from "./rowNodeCache/rowNodeBlockLoader";
 import { ServerSideTransaction, ServerSideTransactionResult } from "./interfaces/serverSideTransaction";
 import { ServerSideStoreState } from "./interfaces/IServerSideStore";
 import { HeadlessService } from "./headless/headlessService";
-import { GridCompController } from "./gridComp/gridCompController";
+import { GridCtrl } from "./gridComp/gridCtrl";
 import { ISideBar } from "./interfaces/iSideBar";
 import { ControllersService } from "./controllersService";
-import { GridBodyController } from "./gridBodyComp/gridBodyController";
+import { GridBodyCtrl } from "./gridBodyComp/gridBodyCtrl";
 import { OverlayWrapperComponent } from "./rendering/overlays/overlayWrapperComponent";
 import { HeaderPosition } from "./headerRendering/header/headerPosition";
 
@@ -176,8 +176,8 @@ export class GridApi {
     @Optional('excelCreator') private excelCreator: IExcelCreator;
     @Autowired('rowRenderer') private rowRenderer: RowRenderer;
     @Autowired('filterManager') private filterManager: FilterManager;
-    @Autowired('columnController') private columnController: ColumnController;
-    @Autowired('selectionController') private selectionController: SelectionController;
+    @Autowired('columnModel') private columnModel: ColumnModel;
+    @Autowired('selectionService') private selectionService: SelectionService;
     @Autowired('gridOptionsWrapper') private gridOptionsWrapper: GridOptionsWrapper;
     @Autowired('valueService') private valueService: ValueService;
     @Autowired('alignedGridsService') private alignedGridsService: AlignedGridsService;
@@ -187,9 +187,9 @@ export class GridApi {
     @Autowired('rowModel') private rowModel: IRowModel;
     @Autowired('sortController') private sortController: SortController;
     @Autowired('paginationProxy') private paginationProxy: PaginationProxy;
-    @Autowired('focusController') private focusController: FocusController;
+    @Autowired('focusService') private focusService: FocusService;
     @Autowired('dragAndDropService') private dragAndDropService: DragAndDropService;
-    @Optional('rangeController') private rangeController: IRangeController;
+    @Optional('rangeService') private rangeService: IRangeService;
     @Optional('clipboardService') private clipboardService: IClipboardService;
     @Optional('aggFuncService') private aggFuncService: IAggFuncService;
     @Autowired('menuFactory') private menuFactory: IMenuFactory;
@@ -206,8 +206,8 @@ export class GridApi {
 
     private overlayWrapperComp: OverlayWrapperComponent;
     private gridBodyComp: GridBodyComp;
-    private gridBodyCon: GridBodyController;
-    private gridCompController: GridCompController;
+    private gridBodyCon: GridBodyCtrl;
+    private gridCompController: GridCtrl;
     private sideBarComp: ISideBar;
 
     private headerRootComp: HeaderRootComp;
@@ -228,7 +228,7 @@ export class GridApi {
         this.overlayWrapperComp = overlayWrapperComp;
     }
 
-    public registerGridCompController(gridCompController: GridCompController): void {
+    public registerGridCompController(gridCompController: GridCtrl): void {
         this.gridCompController = gridCompController;
     }
 
@@ -403,7 +403,7 @@ export class GridApi {
                     this.rowRenderer.refreshFullWidthRows(nodeTransaction.update);
                 }
             } else {
-                this.selectionController.reset();
+                this.selectionService.reset();
                 this.clientSideRowModel.setRowData(rowData);
             }
         } else {
@@ -472,7 +472,7 @@ export class GridApi {
     }
 
     public setColumnDefs(colDefs: (ColDef | ColGroupDef)[], source: ColumnEventType = "api") {
-        this.columnController.setColumnDefs(colDefs, source);
+        this.columnModel.setColumnDefs(colDefs, source);
     }
 
     public setAutoGroupColumnDef(colDef: ColDef, source: ColumnEventType = "api") {
@@ -702,7 +702,7 @@ export class GridApi {
         if (suppressEvents) {
             console.warn('AG Grid: suppressEvents is no longer supported, stop listening for the event if you no longer want it');
         }
-        this.selectionController.selectIndex(index, tryMulti);
+        this.selectionService.selectIndex(index, tryMulti);
     }
 
     public deselectIndex(index: number, suppressEvents: boolean = false) {
@@ -710,7 +710,7 @@ export class GridApi {
         if (suppressEvents) {
             console.warn('AG Grid: suppressEvents is no longer supported, stop listening for the event if you no longer want it');
         }
-        this.selectionController.deselectIndex(index);
+        this.selectionService.deselectIndex(index);
     }
 
     public selectNode(node: RowNode, tryMulti: boolean = false, suppressEvents: boolean = false) {
@@ -730,19 +730,19 @@ export class GridApi {
     }
 
     public selectAll() {
-        this.selectionController.selectAllRowNodes();
+        this.selectionService.selectAllRowNodes();
     }
 
     public deselectAll() {
-        this.selectionController.deselectAllRowNodes();
+        this.selectionService.deselectAllRowNodes();
     }
 
     public selectAllFiltered() {
-        this.selectionController.selectAllRowNodes(true);
+        this.selectionService.selectAllRowNodes(true);
     }
 
     public deselectAllFiltered() {
-        this.selectionController.deselectAllRowNodes(true);
+        this.selectionService.deselectAllRowNodes(true);
     }
 
     public recomputeAggregates(): void {
@@ -778,15 +778,15 @@ export class GridApi {
     }
 
     public getSelectedNodes(): RowNode[] {
-        return this.selectionController.getSelectedNodes();
+        return this.selectionService.getSelectedNodes();
     }
 
     public getSelectedRows(): any[] {
-        return this.selectionController.getSelectedRows();
+        return this.selectionService.getSelectedRows();
     }
 
     public getBestCostNodeSelection() {
-        return this.selectionController.getBestCostNodeSelection();
+        return this.selectionService.getBestCostNodeSelection();
     }
 
     public getRenderedNodes() {
@@ -836,7 +836,7 @@ export class GridApi {
     }
 
     public getFilterInstance(key: string | Column, callback?: (filter: IFilterComp) => void): IFilterComp | null | undefined {
-        const column = this.columnController.getPrimaryColumn(key);
+        const column = this.columnModel.getPrimaryColumn(key);
 
         if (column) {
             const filterPromise = this.filterManager.getFilterComponent(column, 'NO_UI');
@@ -860,7 +860,7 @@ export class GridApi {
     }
 
     public destroyFilter(key: string | Column) {
-        const column = this.columnController.getPrimaryColumn(key);
+        const column = this.columnModel.getPrimaryColumn(key);
         if (column) {
             return this.filterManager.destroyFilter(column, "filterDestroyed");
         }
@@ -873,14 +873,14 @@ export class GridApi {
     }
 
     public getColumnDef(key: string | Column) {
-        const column = this.columnController.getPrimaryColumn(key);
+        const column = this.columnModel.getPrimaryColumn(key);
         if (column) {
             return column.getColDef();
         }
         return null;
     }
 
-    public getColumnDefs(): (ColDef | ColGroupDef)[] { return this.columnController.getColumnDefs(); }
+    public getColumnDefs(): (ColDef | ColGroupDef)[] { return this.columnModel.getColumnDefs(); }
 
     public onFilterChanged() {
         this.filterManager.onFilterChanged();
@@ -902,12 +902,12 @@ export class GridApi {
                 });
             });
         }
-        this.columnController.applyColumnState({ state: columnState, defaultState: { sort: null } });
+        this.columnModel.applyColumnState({ state: columnState, defaultState: { sort: null } });
     }
 
     public getSortModel() {
         console.warn('AG Grid: as of version 24.0.0, getSortModel() is deprecated, sort information is now part of Column State. Please use columnApi.getColumnState() instead.');
-        const columnState = this.columnController.getColumnState();
+        const columnState = this.columnModel.getColumnState();
         const filteredStates = columnState.filter(item => item.sort != null);
 
         const indexes: { [colId: string]: number; } = {};
@@ -935,15 +935,15 @@ export class GridApi {
     }
 
     public getFocusedCell(): CellPosition | null {
-        return this.focusController.getFocusedCell();
+        return this.focusService.getFocusedCell();
     }
 
     public clearFocusedCell(): void {
-        return this.focusController.clearFocusedCell();
+        return this.focusService.clearFocusedCell();
     }
 
     public setFocusedCell(rowIndex: number, colKey: string | Column, floating?: string) {
-        this.focusController.setFocusedCell(rowIndex, colKey, floating, true);
+        this.focusService.setFocusedCell(rowIndex, colKey, floating, true);
     }
 
     public setSuppressRowDrag(value: boolean): void {
@@ -1236,9 +1236,9 @@ export class GridApi {
     }
 
     public getValue(colKey: string | Column, rowNode: RowNode): any {
-        let column = this.columnController.getPrimaryColumn(colKey);
+        let column = this.columnModel.getPrimaryColumn(colKey);
         if (missing(column)) {
-            column = this.columnController.getGridColumn(colKey);
+            column = this.columnModel.getGridColumn(colKey);
         }
         if (missing(column)) {
             return null;
@@ -1314,8 +1314,8 @@ export class GridApi {
     }
 
     public getCellRanges(): CellRange[] | null {
-        if (this.rangeController) {
-            return this.rangeController.getCellRanges();
+        if (this.rangeService) {
+            return this.rangeService.getCellRanges();
         }
 
         console.warn('AG Grid: cell range selection is only available in AG Grid Enterprise');
@@ -1331,13 +1331,13 @@ export class GridApi {
     }
 
     public addCellRange(params: CellRangeParams): void {
-        if (!this.rangeController) { console.warn('AG Grid: cell range selection is only available in AG Grid Enterprise'); }
-        this.rangeController.addCellRange(params);
+        if (!this.rangeService) { console.warn('AG Grid: cell range selection is only available in AG Grid Enterprise'); }
+        this.rangeService.addCellRange(params);
     }
 
     public clearRangeSelection(): void {
-        if (!this.rangeController) { console.warn('AG Grid: cell range selection is only available in AG Grid Enterprise'); }
-        this.rangeController.removeAllCellRanges();
+        if (!this.rangeService) { console.warn('AG Grid: cell range selection is only available in AG Grid Enterprise'); }
+        this.rangeService.removeAllCellRanges();
     }
 
     public undoCellEditing(): void {
@@ -1408,16 +1408,16 @@ export class GridApi {
 
     public showColumnMenuAfterButtonClick(colKey: string | Column, buttonElement: HTMLElement): void {
         // use grid column so works with pivot mode
-        const column = this.columnController.getGridColumn(colKey);
+        const column = this.columnModel.getGridColumn(colKey);
         this.menuFactory.showMenuAfterButtonClick(column, buttonElement);
     }
 
     public showColumnMenuAfterMouseClick(colKey: string | Column, mouseEvent: MouseEvent | Touch): void {
         // use grid column so works with pivot mode
-        let column = this.columnController.getGridColumn(colKey);
+        let column = this.columnModel.getGridColumn(colKey);
 
         if (!column) {
-            column = this.columnController.getPrimaryColumn(colKey);
+            column = this.columnModel.getPrimaryColumn(colKey);
         }
 
         if (!column) {
@@ -1466,7 +1466,7 @@ export class GridApi {
     }
 
     public startEditingCell(params: StartEditingCellParams): void {
-        const column = this.columnController.getGridColumn(params.colKey);
+        const column = this.columnModel.getGridColumn(params.colKey);
         if (!column) {
             console.warn(`AG Grid: no column found for ${params.colKey}`);
             return;

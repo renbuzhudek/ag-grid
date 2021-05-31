@@ -5,7 +5,7 @@ import {
     BeanStub,
     ChangedPath,
     ColumnApi,
-    ColumnController,
+    ColumnModel,
     Constants,
     Events,
     ExpandCollapseAllEvent,
@@ -25,7 +25,7 @@ import {
     RowDataUpdatedEvent,
     RowNode,
     RowNodeTransaction,
-    SelectionController,
+    SelectionService,
     ValueCache,
     AsyncTransactionsFlushed,
     AnimationFrameService
@@ -46,9 +46,9 @@ export interface RowNodeMap {
 @Bean('rowModel')
 export class ClientSideRowModel extends BeanStub implements IClientSideRowModel {
 
-    @Autowired('columnController') private columnController: ColumnController;
+    @Autowired('columnModel') private columnModel: ColumnModel;
     @Autowired('$scope') private $scope: any;
-    @Autowired('selectionController') private selectionController: SelectionController;
+    @Autowired('selectionService') private selectionService: SelectionService;
     @Autowired('valueCache') private valueCache: ValueCache;
     @Autowired('columnApi') private columnApi: ColumnApi;
     @Autowired('gridApi') private gridApi: GridApi;
@@ -105,8 +105,8 @@ export class ClientSideRowModel extends BeanStub implements IClientSideRowModel 
 
         this.rootNode = new RowNode();
         this.nodeManager = new ClientSideNodeManager(this.rootNode, this.gridOptionsWrapper,
-            this.getContext(), this.eventService, this.columnController, this.gridApi, this.columnApi,
-            this.selectionController);
+            this.getContext(), this.eventService, this.columnModel, this.gridApi, this.columnApi,
+            this.selectionService);
 
         this.createBean(this.rootNode);
     }
@@ -201,11 +201,11 @@ export class ClientSideRowModel extends BeanStub implements IClientSideRowModel 
                     // a group is not open this time, it was not open last time. so we know all closed groups
                     // already have their top positions cleared. so there is no need to traverse all the way
                     // when changedPath is active and the rowNode is not expanded.
-                    const skipChildren = changedPath.isActive() && !rowNode.expanded;
+                    const isRootNode = rowNode.level == -1; // we need to give special consideration for root node,
+                                                            // as expanded=undefined for root node
+                    const skipChildren = changedPath.isActive() && !isRootNode && !rowNode.expanded;
                     if (!skipChildren) {
-                        for (let i = 0; i < rowNode.childrenAfterGroup.length; i++) {
-                            recurse(rowNode.childrenAfterGroup[i]);
-                        }
+                        rowNode.childrenAfterGroup.forEach(recurse);
                     }
                 }
             }
@@ -379,7 +379,7 @@ export class ClientSideRowModel extends BeanStub implements IClientSideRowModel 
     }
 
     private onValueChanged(): void {
-        if (this.columnController.isPivotActive()) {
+        if (this.columnModel.isPivotActive()) {
             this.refreshModel({ step: ClientSideRowModelSteps.PIVOT });
         } else {
             this.refreshModel({ step: ClientSideRowModelSteps.AGGREGATE });
@@ -492,7 +492,7 @@ export class ClientSideRowModel extends BeanStub implements IClientSideRowModel 
 
     public isEmpty(): boolean {
         const rowsMissing = _.missing(this.rootNode.allLeafChildren) || this.rootNode.allLeafChildren.length === 0;
-        return _.missing(this.rootNode) || rowsMissing || !this.columnController.isReady();
+        return _.missing(this.rootNode) || rowsMissing || !this.columnModel.isReady();
     }
 
     public isRowsToRender(): boolean {
@@ -732,7 +732,7 @@ export class ClientSideRowModel extends BeanStub implements IClientSideRowModel 
                 });
             } else {
                 // groups are about to get disposed, so need to deselect any that are selected
-                this.selectionController.removeGroupsFromSelection();
+                this.selectionService.removeGroupsFromSelection();
                 this.groupStage.execute({
                     rowNode: this.rootNode,
                     changedPath: changedPath,
@@ -743,7 +743,7 @@ export class ClientSideRowModel extends BeanStub implements IClientSideRowModel 
             }
 
             if (this.gridOptionsWrapper.isGroupSelectsChildren()) {
-                this.selectionController.updateGroupsFromChildrenSelections(changedPath);
+                this.selectionService.updateGroupsFromChildrenSelections(changedPath);
             }
 
         } else {
@@ -787,7 +787,8 @@ export class ClientSideRowModel extends BeanStub implements IClientSideRowModel 
     }
 
     public getRowNode(id: string): RowNode | null {
-        const idIsGroup = id != null && id.indexOf(RowNode.ID_PREFIX_ROW_GROUP) == 0;
+        // although id is typed a string, this could be called by the user, and they could have passed a number
+        const idIsGroup = typeof id == 'string' && id.indexOf(RowNode.ID_PREFIX_ROW_GROUP) == 0;
         if (idIsGroup) {
             // only one users complained about getRowNode not working for groups, after years of
             // this working for normal rows. so have done quick implementation. if users complain
