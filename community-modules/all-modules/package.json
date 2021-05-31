@@ -6,13 +6,14 @@
   "module": "./dist/es6/main.js",
   "types": "./dist/cjs/main.d.ts",
   "scripts": {
+    "gulp": "gulp -f ./build.js",
     "build-cjs": "tsc -p tsconfig.json",
     "build-es6": "tsc -p tsconfig.es6.json",
     "build-css": "npx gulp copy-grid-core-styles",
     "build": "npm run build-cjs && npm run build-es6 && npm run build-css && npm run hash",
     "watchWebpack": "webpack --watch",
     "webpack-updater": "node webpackUpdater.js",
-    "rollup": "node ../../module-build/rollup/build.js --bundlePrefix ag-grid-community",
+    "rollup": "node ../../module-build/rollup/build.js --bundlePrefix ag-grid-community --umdModuleName umd-dev",
     "package": "npm run webpack-updater && npx gulp webpack-all-no-clean && npm run rollup",
     "xtest:e2e": "",
     "hash": "sh ../../scripts/hashDirectory.sh > .hash"
@@ -59,6 +60,7 @@
     "@ag-grid-community/infinite-row-model": "~25.3.0"
   },
   "devDependencies": {
+    "browserify": "^17.0.0",
     "css-loader": "^3.2.0",
     "cssnano": "^4.1.0",
     "cypress": "^4.3.0",
@@ -66,11 +68,15 @@
     "gulp-clean": "^0.4.0",
     "gulp-header": "^2.0.0",
     "gulp-sourcemaps": "^2.6.5",
+    "gulp-util": "^3.0.8",
     "merge2": "^1.2.0",
     "postcss-loader": "^3.0.0",
     "style-loader": "^1.0.0",
     "terser-webpack-plugin": "^2.0.1",
-    "typescript": "~3.6.5",
+    "tsify": "^5.0.4",
+    "typescript": "^4.3.2",
+    "vinyl-source-stream": "^2.0.0",
+    "watchify": "^4.0.0",
     "webpack": "^4.39.0",
     "webpack-stream": "5.0.0"
   },

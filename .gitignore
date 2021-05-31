@@ -84,3 +84,4 @@ charts-packages/ag-charts-react/lib
 charts-packages/ag-charts-react/umd
 charts-packages/ag-charts-vue/lib/**
 charts-packages/ag-charts-angular/dist
+styles

@@ -6,6 +6,7 @@
   "module": "./dist/es6/main.js",
   "types": "./dist/cjs/main.d.ts",
   "scripts": {
+    "gulp": "gulp -f ./build.js",
     "build-cjs": "tsc -p tsconfig.json",
     "build-es6": "tsc -p tsconfig.es6.json",
     "package": "node ../../module-build/rollup/build.js",
@@ -45,7 +46,14 @@
     "@ag-grid-community/core": "~25.3.0"
   },
   "devDependencies": {
-    "typescript": "~3.6.5"
+    "browserify": "^17.0.0",
+    "gulp": "^4.0.2",
+    "gulp-clean": "^0.4.0",
+    "gulp-util": "^3.0.8",
+    "tsify": "^5.0.4",
+    "typescript": "~3.6.5",
+    "vinyl-source-stream": "^2.0.0",
+    "watchify": "^4.0.0"
   },
   "publishConfig": {
     "access": "public"
