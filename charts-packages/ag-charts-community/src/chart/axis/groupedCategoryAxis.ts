@@ -25,7 +25,7 @@ class GroupedCategoryAxisLabel extends AxisLabel {
  * The generic `D` parameter is the type of the domain of the axis' scale.
  * The output range of the axis' scale is always numeric (screen coordinates).
  */
-export class GroupedCategoryAxis extends ChartAxis {
+export class GroupedCategoryAxis extends ChartAxis<BandScale<string | number>> {
     // debug (bbox)
     // private bboxRect = (() => {
     //     const rect = new Rect();
@@ -42,7 +42,6 @@ export class GroupedCategoryAxis extends ChartAxis {
     readonly id = createId(this);
     // Label scale (labels are positionsed between ticks, tick count = label count + 1).
     // We don't call is `labelScale` for consistency with other axes.
-    readonly scale: BandScale<string | number>;
     readonly tickScale = new BandScale<string | number>();
     readonly group = new Group();
 
@@ -54,13 +53,15 @@ export class GroupedCategoryAxis extends ChartAxis {
     private longestSeparatorLength = 0;
 
     constructor() {
-        super(new BandScale<string | number>());
+        super();
 
-        const { group, scale, tickScale } = this;
+        const { group, tickScale } = this;
 
+        const scale = new BandScale<string | number>();
         scale.paddingOuter = 0.1;
         scale.paddingInner = scale.paddingOuter * 2;
         this.requestedRange = scale.range.slice();
+        this.scale = scale;
 
         tickScale.paddingInner = 1;
         tickScale.paddingOuter = 0;

@@ -44,7 +44,7 @@
         @each $selector in $selectors {
             .#{$selector}:focus {
                 outline: none;
-                &:after {
+                &::after {
                     content: '';
                     position: absolute;
                     background-color: transparent;
@@ -108,7 +108,7 @@
 
 @mixin ag-icon-element($icon, $code) {
   .ag-icon-#{$icon} {
-      &:before {
+      &::before {
           content: $code;
       }
   }
@@ -156,7 +156,9 @@
   @include ag-icon-element('contracted', ag-icon-char(contracted));
   @include ag-icon-element('copy', ag-icon-char(copy));
   @include ag-icon-element('cross', ag-icon-char(cross));
+  @include ag-icon-element('csv', ag-icon-char(csv));
   @include ag-icon-element('desc', ag-icon-char(desc));
+  @include ag-icon-element('excel', ag-icon-char(excel));
   @include ag-icon-element('expanded', ag-icon-char(expanded));
   @include ag-icon-element('eye-slash', ag-icon-char(eye-slash));
   @include ag-icon-element('eye', ag-icon-char(eye));
@@ -190,15 +192,15 @@
   @include ag-icon-element('tree-open', ag-icon-char(tree-open));
   @include ag-icon-element('unlinked', ag-icon-char(unlinked));
 
-  .ag-icon-row-drag:before {
+  .ag-icon-row-drag::before {
       content: ag-icon-char(grip);
   }
 
-  .ag-left-arrow:before {
+  .ag-left-arrow::before {
       content: ag-icon-char(left);
   }
 
-  .ag-right-arrow:before {
+  .ag-right-arrow::before {
       content: ag-icon-char(right);
   }
 

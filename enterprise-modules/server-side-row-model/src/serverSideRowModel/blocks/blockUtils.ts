@@ -6,7 +6,7 @@ import {
     Bean,
     BeanStub,
     Column,
-    ColumnController,
+    ColumnModel,
     PostConstruct,
     RowNode,
     ValueService,
@@ -18,7 +18,7 @@ import { NodeManager } from "../nodeManager";
 export class BlockUtils extends BeanStub {
 
     @Autowired('valueService') private valueService: ValueService;
-    @Autowired('columnController') private columnController: ColumnController;
+    @Autowired('columnModel') private columnModel: ColumnModel;
     @Autowired('ssrmNodeManager') private nodeManager: NodeManager;
 
     private rowHeight: number;
@@ -71,7 +71,7 @@ export class BlockUtils extends BeanStub {
         // this is needed, so row render knows to fade out the row, otherwise it
         // sees row top is present, and thinks the row should be shown. maybe
         // rowNode should have a flag on whether it is visible???
-        rowNode.clearRowTop();
+        rowNode.clearRowTopAndRowIndex();
         if (rowNode.id != null) {
             this.nodeManager.removeNode(rowNode);
         }
@@ -139,7 +139,7 @@ export class BlockUtils extends BeanStub {
     }
 
     private setGroupDataIntoRowNode(rowNode: RowNode): void {
-        const groupDisplayCols: Column[] = this.columnController.getGroupDisplayColumns();
+        const groupDisplayCols: Column[] = this.columnModel.getGroupDisplayColumns();
 
         const usingTreeData = this.gridOptionsWrapper.isTreeData();
 
@@ -157,8 +157,7 @@ export class BlockUtils extends BeanStub {
     }
 
     public clearDisplayIndex(rowNode: RowNode): void {
-        rowNode.clearRowTop();
-        rowNode.setRowIndex();
+        rowNode.clearRowTopAndRowIndex();
 
         const hasChildStore = rowNode.group && _.exists(rowNode.childStore);
         if (hasChildStore) {
@@ -168,8 +167,7 @@ export class BlockUtils extends BeanStub {
 
         const hasDetailNode = rowNode.master && rowNode.detailNode;
         if (hasDetailNode) {
-            rowNode.detailNode.clearRowTop();
-            rowNode.detailNode.setRowIndex();
+            rowNode.detailNode.clearRowTopAndRowIndex();
         }
     }
 
@@ -187,8 +185,7 @@ export class BlockUtils extends BeanStub {
                 rowNode.detailNode.setRowTop(nextRowTop.value);
                 nextRowTop.value += rowNode.detailNode.rowHeight!;
             } else if (rowNode.detailNode) {
-                rowNode.detailNode.clearRowTop();
-                rowNode.detailNode.setRowIndex();
+                rowNode.detailNode.clearRowTopAndRowIndex();
             }
         }
 
@@ -243,7 +240,7 @@ export class BlockUtils extends BeanStub {
             } else if (currentRowNode.rowIndex! > displayRowIndex) {
                 topPointer = midPointer - 1;
             } else {
-                console.warn(`ag-Grid: error: unable to locate rowIndex = ${displayRowIndex} in cache`);
+                console.warn(`AG Grid: error: unable to locate rowIndex = ${displayRowIndex} in cache`);
                 return null;
             }
         }
@@ -271,7 +268,7 @@ export class BlockUtils extends BeanStub {
         }
     }
 
-    public getIndexAtPixel(rowNode: RowNode, pixel: number): number | undefined {
+    public getIndexAtPixel(rowNode: RowNode, pixel: number): number | null {
         // first check if pixel is in range of current row
         if (rowNode.isPixelInRange(pixel)) {
             return rowNode.rowIndex;
@@ -291,6 +288,7 @@ export class BlockUtils extends BeanStub {
             }
         }
 
+        return null
         // pixel is not within this row node or it's children / detail, so return undefined
     }
 
@@ -300,16 +298,15 @@ export class BlockUtils extends BeanStub {
 
         // pull keys from all parent nodes, but do not include the root node
         while (rowNode && rowNode.level >= 0) {
-            parts.push(rowNode.key);
+            parts.push(rowNode.key!);
             rowNode = rowNode.parent;
         }
 
         if (parts.length > 0) {
             return parts.reverse().join('-');
-        } else {
-            // no prefix, so node id's are left as they are
-            return undefined;
         }
+        // no prefix, so node id's are left as they are
+        return undefined;
     }
 
     public checkOpenByDefault(rowNode: RowNode): void {

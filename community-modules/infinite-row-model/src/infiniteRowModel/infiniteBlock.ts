@@ -1,20 +1,16 @@
 import {
     _,
-    Autowired,
     IGetRowsParams,
     NumberSequence,
     PostConstruct,
     PreDestroy,
     RowNode,
     RowNodeBlock,
-    RowRenderer,
     LoadSuccessParams
 } from "@ag-grid-community/core";
 import { InfiniteCache, InfiniteCacheParams } from "./infiniteCache";
 
 export class InfiniteBlock extends RowNodeBlock {
-
-    @Autowired('rowRenderer') private rowRenderer: RowRenderer;
 
     private readonly startRow: number;
     private readonly endRow: number;
@@ -70,7 +66,7 @@ export class InfiniteBlock extends RowNodeBlock {
     protected loadFromDatasource(): void {
         const params = this.createLoadParams();
         if (_.missing(this.params.datasource.getRows)) {
-            console.warn(`ag-Grid: datasource is missing getRows method`);
+            console.warn(`AG Grid: datasource is missing getRows method`);
             return;
         }
 
@@ -143,29 +139,18 @@ export class InfiniteBlock extends RowNodeBlock {
             rowNode.setRowHeight(this.params.rowHeight);
             rowNode.uiLevel = 0;
             rowNode.setRowIndex(rowIndex);
-            rowNode.rowTop = this.params.rowHeight * rowIndex;
+            rowNode.setRowTop(this.params.rowHeight * rowIndex);
 
             this.rowNodes.push(rowNode);
         }
     }
 
     protected processServerResult(params: LoadSuccessParams): void {
-        const rowNodesToRefresh: RowNode[] = [];
-
         this.rowNodes.forEach((rowNode: RowNode, index: number) => {
             const data = params.rowData ? params.rowData[index] : undefined;
-            if (rowNode.stub) {
-                rowNodesToRefresh.push(rowNode);
-            }
             this.setDataAndId(rowNode, data, this.startRow + index);
         });
-
-        if (rowNodesToRefresh.length > 0) {
-            this.rowRenderer.redrawRows(rowNodesToRefresh);
-        }
-
         const finalRowCount = params.rowCount != null && params.rowCount >= 0 ? params.rowCount : undefined;
-
         this.parentCache.pageLoaded(this, finalRowCount);
     }
 
@@ -173,9 +158,8 @@ export class InfiniteBlock extends RowNodeBlock {
     private destroyRowNodes(): void {
         this.rowNodes.forEach(rowNode => {
             // this is needed, so row render knows to fade out the row, otherwise it
-            // sees row top is present, and thinks the row should be shown. maybe
-            // rowNode should have a flag on whether it is visible???
-            rowNode.clearRowTop();
+            // sees row top is present, and thinks the row should be shown.
+            rowNode.clearRowTopAndRowIndex();
         });
     }
 }

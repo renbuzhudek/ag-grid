@@ -154,7 +154,7 @@ export class Events {
      * or the user has moved to a different page. */
     public static EVENT_PAGINATION_CHANGED = 'paginationChanged';
 
-    /** Only used by React, Angular 2+, Web Components and VueJS ag-Grid components
+    /** Only used by React, Angular 2+, Web Components and VueJS AG Grid components
      * (not used if doing plain JavaScript or Angular 1.x). If the grid receives changes due
      * to bound properties, this event fires after the grid has finished processing the change. */
     public static EVENT_COMPONENT_STATE_CHANGED = 'componentStateChanged';
@@ -167,6 +167,12 @@ export class Events {
     public static EVENT_COLUMN_HOVER_CHANGED = 'columnHoverChanged';
     public static EVENT_FLASH_CELLS = 'flashCells';
     public static EVENT_PAGINATION_PIXEL_OFFSET_CHANGED = 'paginationPixelOffsetChanged';
+    public static EVENT_DISPLAYED_ROWS_CHANGED = 'displayedRowsChanged';
+
+    public static EVENT_LEFT_PINNED_WIDTH_CHANGED = 'leftPinnedWidthChanged';
+    public static EVENT_RIGHT_PINNED_WIDTH_CHANGED = 'rightPinnedWidthChanged';
+
+    public static EVENT_ROW_CONTAINER_HEIGHT_CHANGED = 'rowContainerHeightChanged';
 
     public static EVENT_ROW_DRAG_ENTER = 'rowDragEnter';
     public static EVENT_ROW_DRAG_MOVE = 'rowDragMove';

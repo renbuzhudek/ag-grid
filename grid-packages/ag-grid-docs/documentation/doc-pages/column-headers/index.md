@@ -24,167 +24,93 @@ The following example shows how you can provide a unique look and feel to the he
 
 - The header heights have all been changed via grid options:
 
-    [[only-javascript]]
-    | ```js
-    | const gridOptions = {
-    |     /* Group columns */
-    |     groupHeaderHeight: 75,
-    | 
-    |     /* Label columns */
-    |     headerHeight: 150,
-    | 
-    |     /* Floating filter */
-    |     floatingFiltersHeight: 50,
-    |  
-    |     /* Pivoting, requires turning on pivot mode. Label columns */
-    |     pivotHeaderHeight: 100,
-    | 
-    |     /* Pivoting, requires turning on pivot mode. Group columns */
-    |     pivotGroupHeaderHeight: 50,
-    |
-    |     // other grid options ...
-    | }
-    | ```
-
-    [[only-angular]]
-    | ```js
-    | <ag-grid-angular
-    |     [groupHeaderHeight]="groupHeaderHeight"
-    |     [headerHeight]="headerHeight"
-    |     [floatingFiltersHeight]="floatingFiltersHeight"
-    |     [pivotHeaderHeight]="pivotHeaderHeight"
-    |     [pivotGroupHeaderHeight]="pivotGroupHeaderHeight"
-    |     // other grid options ...>
-    | </ag-grid-angular>
-    |   
-    | /* Group columns */
-    | this.groupHeaderHeight = 75;
-    |
-    | /* Label columns */
-    | this.headerHeight = 150;
-    |
-    | /* Floating filter */
-    | this.floatingFiltersHeight = 50;
-    |
-    | /* Pivoting, requires turning on pivot mode. Label columns */
-    | this.pivotHeaderHeight = 100;
-    | 
-    | /* Pivoting, requires turning on pivot mode. Group columns */
-    | this.pivotGroupHeaderHeight = 50;
-    | ```
-
-    [[only-react]]
-    | ```js
-    | <AgGridReact
-    |     groupHeaderHeight={75}
-    |     headerHeight={150}
-    |     floatingFiltersHeight={50}
-    |     pivotHeaderHeight={100}
-    |     pivotGroupHeaderHeight={50}
-    |     // other grid options ...>
-    | </AgGridReact>
-    | ```
-
-    [[only-vue]]
-    | ```js
-    | <ag-grid-vue
-    |     :groupHeaderHeight="groupHeaderHeight"
-    |     :headerHeight="headerHeight"
-    |     :floatingFiltersHeight="floatingFiltersHeight"
-    |     :pivotHeaderHeight="pivotHeaderHeight"
-    |     :pivotGroupHeaderHeight="pivotGroupHeaderHeight"
-    |     // other grid options ...>
-    | </ag-grid-vue>
-    |   
-    | /* Group columns */
-    | this.groupHeaderHeight = 75;
-    |
-    | /* Label columns */
-    | this.headerHeight = 150;
-    |
-    | /* Floating filter */
-    | this.floatingFiltersHeight = 50;
-    |
-    | /* Pivoting, requires turning on pivot mode. Label columns */
-    | this.pivotHeaderHeight = 100;
-    |
-    | /* Pivoting, requires turning on pivot mode. Group columns */
-    | this.pivotGroupHeaderHeight = 50;
-    | ```
-  
+<snippet spaceBetweenProperties="true">
+    const gridOptions = {
+        // Group columns
+        groupHeaderHeight: 75,
+        // Label columns
+        headerHeight: 150,
+        // Floating filter
+        floatingFiltersHeight: 50,
+        // Pivoting, requires turning on pivot mode. Label columns
+        pivotHeaderHeight: 100,
+        // Pivoting, requires turning on pivot mode. Group columns
+        pivotGroupHeaderHeight: 50,
+    }
+</snippet>
 
 - The grouped column header `Athlete Details` has a specific style applied to it to make it bigger. Note that the style is slightly different depending if pivoting or not:
 
-    ```css
-        .ag-pivot-off .ag-header-group-cell {
-            font-size: 50px;
-            color: red;
-        }
+```css
+.ag-pivot-off .ag-header-group-cell {
+    font-size: 50px;
+    color: red;
+}
 
-        .ag-pivot-on .ag-header-group-cell {
-            font-size: 25px;
-            color: green;
-        }
-    ```
+.ag-pivot-on .ag-header-group-cell {
+    font-size: 25px;
+    color: green;
+}
+```
 
 - The column labels have CSS applied to them so they are displayed vertically.
 
-    ```css
-        .ag-cell-label-container {
-            /* Necessary to allow for text to grow vertically */
-            height: 100%;
-        }
+```css
+.ag-cell-label-container {
+    /* Necessary to allow for text to grow vertically */
+    height: 100%;
+}
 
-        .ag-header-cell-label {
-            /* Necessary to allow for text to grow vertically */
-            height: 100%;
-            padding: 0 !important;
-        }
+.ag-header-cell-label {
+    /* Necessary to allow for text to grow vertically */
+    height: 100%;
+    padding: 0 !important;
+}
 
-        .ag-header-cell-label .ag-header-cell-text {
-            /* Force the width corresponding at how much width
-            we need once the text is laid out vertically */
-            width: 30px;
-            transform: rotate(90deg);
-            margin-top: 50px;
-            /* Since we are rotating a span */
-            display: inline-block;
-        }
-    ```
+.ag-header-cell-label .ag-header-cell-text {
+    /* Force the width corresponding at how much width
+    we need once the text is laid out vertically */
+    width: 30px;
+    transform: rotate(90deg);
+    margin-top: 50px;
+    /* Since we are rotating a span */
+    display: inline-block;
+}
+```
 
 - The floating filters are using a much bigger area and the font used is bigger and bolder.
 
-    ```css
-        .ag-floating-filter-body input {
-            height: 49px;
-        }
+```css
+.ag-floating-filter-body input {
+    height: 49px;
+}
 
-        .ag-floating-filter-button {
-            margin-top: -49px;
-        }
+.ag-floating-filter-button {
+    margin-top: -49px;
+}
 
-        .ag-floating-filter-button button {
-            height: 49px
-        }
+.ag-floating-filter-button button {
+    height: 49px
+}
 
-        .ag-floating-filter-body input {
-            font-size: 15px;
-            font-weight: bold;
-        }
-    ```
+.ag-floating-filter-body input {
+    font-size: 15px;
+    font-weight: bold;
+}
+```
 
 - The styling of the column labels have also been tweaked depending if pivoting or not.
 
-    ```css
-        .ag-pivot-off .ag-header-cell-label {
-            color: #8a6d3b;
-        }
+```css
+.ag-pivot-off .ag-header-cell-label {
+    color: #8a6d3b;
+}
 
-        .ag-pivot-on .ag-header-cell-label {
-            color: #1b6d85;
-            font-weight: bold;
-        }
-    ```
+.ag-pivot-on .ag-header-cell-label {
+    color: #1b6d85;
+    font-weight: bold;
+}
+```
 
 <grid-example title='Header Height and Text Orientation' name='text-orientation' type='generated' options='{ "enterprise": true }'></grid-example>
 
@@ -196,7 +122,7 @@ As you can see in the example below, if you change any of the header heights, th
 
 ## Custom Header
 
-Header templates are meant to be used for simple UI customisation, if you need to have more control over the header check how to create your own [Header Components](../component-header/).
+Header templates are meant to be used for simple UI customisation, if you need to have more control over the header check how to create your own [Header Components](/component-header/).
 
 ## Header Tooltips
 
@@ -211,9 +137,9 @@ The example below shows header tooltips. Note the following:
 
 ## Header Templates
 
-You can provide a header template used by the default header component for simple layout changes. If you want to change the behaviour, please look at creating your own [Custom Header Component](../component-header/). The template for the default header is specified in `columnDef.headerComponentParams.template`.
+You can provide a header template used by the default header component for simple layout changes. If you want to change the behaviour, please look at creating your own [Custom Header Component](/component-header/). The template for the default header is specified in `columnDef.headerComponentParams.template`.
 
-This is the default template used in ag-Grid:
+This is the default template used in AG Grid:
 
 ```html
 <div class="ag-cell-label-container" role="presentation">
@@ -244,112 +170,33 @@ When you provide your own template, everything should work as expected as long a
 The ref parameters are used by the grid to identify elements to add functionality to. If you leave an element out of your template, the functionality will not be added. For example if you do not specify `eLabel` then the column will not react to click events for sorting.
 
 [[note]]
-| Templates are not meant to let you configure icons. If you are looking to change the icons, check our [icon docs](../custom-icons/).
+| Templates are not meant to let you configure icons. If you are looking to change the icons, check our [icon docs](/custom-icons/).
 
 ### Example: Simple Header Templates
 
 In the following example you can see how we are reusing the default grid template to change the layout of the elements.
 
-
-[[only-javascript]]
-| ```js
-| const gridOptions = {
-|     defaultColDef: {
-|         width: 100,
-|         headerComponentParams: {
-|             template:
-|                 '<div class="ag-cell-label-container" role="presentation">' +
-|                 '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
-|                 '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
-|                 '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
-|                 '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
-|                 '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
-|                 '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
-|                 '    ** <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
-|                 '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
-|                 '  </div>' +
-|                 '</div>'
-|         }
-|     }
-|     // other grid options ...
-| }
-| ```
-
-[[only-angular]]
-| ```js
-| <ag-grid-angular
-|     [defaultColDef]="defaultColDef"
-|     // other grid options ...>
-| </ag-grid-angular>
-|
-| this.defaultColDef = {
-|     width: 100,
-|     headerComponentParams: {
-|         template:
-|             '<div class="ag-cell-label-container" role="presentation">' +
-|             '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
-|             '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
-|             '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
-|             '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
-|             '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
-|             '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
-|             '    ** <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
-|             '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
-|             '  </div>' +
-|             '</div>'
-|     }     
-| };
-| ```
-
-[[only-react]]
-| ```js
-| <AgGridReact
-|     defaultColDef = {{
-|         width: 100,
-|         headerComponentParams: {
-|             template:
-|                 '<div class="ag-cell-label-container" role="presentation">' +
-|                 '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
-|                 '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
-|                 '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
-|                 '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
-|                 '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
-|                 '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
-|                 '    ** <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
-|                 '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
-|                 '  </div>' +
-|                 '</div>'
-|     }}
-|     // other grid options ...>
-| </AgGridReact>
-| ```
-
-
-[[only-vue]]
-| ```js
-| <ag-grid-vue
-|     :defaultColDef="defaultColDef"
-|     // other grid options ...>
-| </ag-grid-vue>
-|
-| this.defaultColDef = {
-|     width: 100,
-|     headerComponentParams: {
-|         template:
-|             '<div class="ag-cell-label-container" role="presentation">' +
-|             '  <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>' +
-|             '  <div ref="eLabel" class="ag-header-cell-label" role="presentation">' +
-|             '    <span ref="eSortOrder" class="ag-header-icon ag-sort-order"></span>' +
-|             '    <span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"></span>' +
-|             '    <span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"></span>' +
-|             '    <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"></span>' +
-|             '    ** <span ref="eText" class="ag-header-cell-text" role="columnheader"></span>' +
-|             '    <span ref="eFilter" class="ag-header-icon ag-filter-icon"></span>' +
-|             '  </div>' +
-|             '</div>'
-|     }     
-| };
-| ```
+<snippet>
+const gridOptions = {
+    defaultColDef: {
+        width: 100,
+        headerComponentParams: {
+            template:
+                '&lt;div class="ag-cell-label-container" role="presentation"&gt;' +
+                '  &lt;span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"&gt;&lt;/span&gt;' +
+                '  &lt;div ref="eLabel" class="ag-header-cell-label" role="presentation"&gt;' +
+                '    &lt;span ref="eSortOrder" class="ag-header-icon ag-sort-order"&gt;&lt;/span&gt;' +
+                '    &lt;span ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon"&gt;&lt;/span&gt;' +
+                '    &lt;span ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon"&gt;&lt;/span&gt;' +
+                '    &lt;span ref="eSortNone" class="ag-header-icon ag-sort-none-icon"&gt;&lt;/span&gt;' +
+                '    ** &lt;span ref="eText" class="ag-header-cell-text" role="columnheader"&gt;&lt;/span&gt;' +
+                '    &lt;span ref="eFilter" class="ag-header-icon ag-filter-icon"&gt;&lt;/span&gt;' +
+                '  &lt;/div&gt;' +
+                '&lt;/div&gt;'
+        }
+    }
+}
+</snippet>
 
 Note that specifying your own templates is compatible with other configurations:
 

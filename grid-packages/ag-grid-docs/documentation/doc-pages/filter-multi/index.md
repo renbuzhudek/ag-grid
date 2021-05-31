@@ -3,7 +3,7 @@ title: "Multi Filter"
 enterprise: true
 ---
 
-The Multi Filter allows multiple [Provided Filters](../filter-provided/) or [Custom Filters](../component-filter/) to be used on the same column. This provides greater flexibility when filtering data in the grid.
+The Multi Filter allows multiple [Provided Filters](/filter-provided/) or [Custom Filters](/component-filter/) to be used on the same column. This provides greater flexibility when filtering data in the grid.
 
 <image-caption src="filter-multi/resources/multi-filter.png" alt="Multi Filter" width="34rem" centered="true"></image-caption>
 
@@ -11,20 +11,21 @@ The Multi Filter allows multiple [Provided Filters](../filter-provided/) or [Cus
 
 To use a Multi Filter, specify the following in your Column Definition:
 
-```js
-// ColDef
-{
-    filter: 'agMultiColumnFilter'
+<snippet>
+const gridOptions = {
+    columnDefs: [
+        // column configured to use the Multi Filter
+        { field: 'athlete', filter: 'agMultiColumnFilter' },
+    ]
 }
-```
+</snippet>
 
-By default the Multi Filter will show a [Text Filter](../filter-text/) and [Set Filter](../filter-set/), but you can specify which filters you would like to use in the `filters` array. The filters will be displayed in the same order as they are specified.
+By default the Multi Filter will show a [Text Filter](/filter-text/) and [Set Filter](/filter-set/), but you can specify which filters you would like to use in the `filters` array. The filters will be displayed in the same order as they are specified.
 
 The example below shows the Multi Filter in action. Note the following:
 
-
 - The **Athlete** has a Multi Filter with default behaviour.
-- The **Country**, **Gold** and **Date** columns have Multi Filters with the child filters configured explicitly, using the [Text](../filter-text/), [Number](../filter-number/) and [Date](../filter-date/) Simple Filters respectively.
+- The **Country**, **Gold** and **Date** columns have Multi Filters with the child filters configured explicitly, using the [Text](/filter-text/), [Number](/filter-number/) and [Date](/filter-date/) Simple Filters respectively.
 - Different `filterParams` can be supplied to each child filter:<br />
     - The Text Filter in the Country column has a different default option (`'startsWith'`)
     - The Date Filter in the Date column has a custom comparator to compare dates correctly
@@ -34,7 +35,7 @@ The example below shows the Multi Filter in action. Note the following:
 
 ## Floating Filters
 
-When [Floating Filters](../floating-filters/) are used, the Floating Filter shown is for the child filter in the Multi Filter that was most recently applied and is still active. If no child filters are active, the Floating Filter for the first child filter in the Multi Filter is shown instead.
+When [Floating Filters](/floating-filters/) are used, the Floating Filter shown is for the child filter in the Multi Filter that was most recently applied and is still active. If no child filters are active, the Floating Filter for the first child filter in the Multi Filter is shown instead.
 
 The example below shows Floating Filters enabled for all columns. Note how the Floating Filters change when you apply different child filters from the Multi Filter.
 
@@ -44,23 +45,27 @@ The example below shows Floating Filters enabled for all columns. Note how the F
 
 By default, all filters in the Multi Filter are shown inline in the same view, so that the user has easy, immediate access. However, you can change how filters are presented, by either using sub-menus or accordions to wrap each filter. To do this, you can set `display` to the style of how you would like a particular filter to be displayed:
 
-```js
-// ColDef
-{
-    filter: 'agMultiColumnFilter',
-    filterParams: {
-        filters: [
-            {
-                filter: 'agTextColumnFilter',
-                display: 'subMenu',
-            },
-            {
-                filter: 'agSetColumnFilter',
+<snippet>
+const gridOptions = {
+    columnDefs: [
+        {
+            field: 'athlete',
+            filter: 'agMultiColumnFilter',
+            filterParams: {
+                filters: [
+                    {
+                        filter: 'agTextColumnFilter',
+                        display: 'subMenu',
+                    },
+                    {
+                        filter: 'agSetColumnFilter',
+                    }
+                ]
             }
-        ]
-    }
+        }
+    ]
 }
-```
+</snippet>
 
 The options for `display` are `'inline'`, `'subMenu'` or `'accordion'`.
 
@@ -80,9 +85,9 @@ The following example demonstrates the different display styles.
 
 ## Custom Filters
 
-You can use your own [Custom Filters](../filter-custom/) with the Multi Filter.
+You can use your own [Custom Filters](/filter-custom/) with the Multi Filter.
 
-The example below shows a Custom Filter in use on the **Year** column, used alongside the grid-provided [Number Filter](../filter-number/).
+The example below shows a Custom Filter in use on the **Year** column, used alongside the grid-provided [Number Filter](/filter-number/).
 
 <grid-example title='Custom Filters' name='custom-filter' type='generated' options='{ "enterprise": true, "exampleHeight": 635 }'></grid-example>
 
@@ -101,15 +106,19 @@ The `filterType` will always be set to `'multi'`. The models array is the same l
 
 For example, if the Multi Filter has the default Text Filter and Set Filter, and the Set Filter is active, the Multi Filter model might look something like this:
 
-```js
-{
-    filterType: 'multi'
-    filterModels: [
-        null,
-        { filterType: 'set', values: ['A', 'B', 'C'] }
+<snippet>
+const gridOptions = {
+    columnDefs: [
+        {
+            filterType: 'multi',
+            filterModels: [
+                null,
+                { filterType: 'set', values: ['A', 'B', 'C'] }
+            ]
+        }
     ]
 }
-```
+</snippet>
 
 The example below allows you to see the Multi Filter Model in use. You can print the current filter state to the console and save/restore it using the buttons at the top of the grid
 
@@ -128,8 +137,12 @@ The example below shows how you can access child filter instances and call metho
 
 ## Multi Filter Parameters
 
-<api-documentation source='filter-multi/resources/multiFilter.json' section='filterParams'></api-documentation>
+<api-documentation source='filter-multi/resources/multi-filter.json' section='filterParams'></api-documentation>
+
+### IFilterDef
+
+<api-documentation source='filter-multi/resources/multi-filter.json' section='filterDef'></api-documentation>
 
 ## Multi Filter API
 
-<api-documentation sources='["filter-api/resources/filterApi.json", "filter-multi/resources/multiFilter.json"]' section='api'></api-documentation>
+<api-documentation sources='["filter-api/resources/filter-api.json", "filter-multi/resources/multi-filter.json"]' section='api'></api-documentation>

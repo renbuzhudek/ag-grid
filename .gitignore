@@ -6,6 +6,8 @@
 /.idea/atlassian-ide-plugin.xml
 .vscode
 
+grid-packages/ag-grid-docs/src/jira_reports/prod/credentials.json
+
 .lernaBuildChain.cache.json
 
 .DS_Store
@@ -22,6 +24,9 @@ docs_are_running
 **/cypress/videos
 
 .hash
+
+release*.zip
+archive*.zip
 
 # latest only
 dist
@@ -70,8 +75,10 @@ grid-packages/ag-grid-angular/exports.metadata.json
 grid-packages/ag-grid-community/src/styles
 
 community-modules/core/typings
+community-modules/csv-export/typings
 enterprise-modules/core/typings
 enterprise-modules/set-filter/typings
+enterprise-modules/excel-export/typings
 
 charts-packages/ag-charts-react/lib
 charts-packages/ag-charts-react/umd

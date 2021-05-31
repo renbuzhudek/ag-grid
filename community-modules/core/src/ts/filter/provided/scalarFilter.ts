@@ -39,7 +39,7 @@ export abstract class ScalarFilter<M extends ISimpleFilterModel, T> extends Simp
 
     private checkDeprecatedParams(): void {
         if (this.scalarFilterParams.nullComparator) {
-            console.warn('ag-Grid: Since v21.0, the property filterParams.nullComparator is deprecated. ' +
+            console.warn('AG Grid: Since v21.0, the property filterParams.nullComparator is deprecated. ' +
                 'Please use filterParams.includeBlanksInEquals, filterParams.includeBlanksInLessThan and ' +
                 'filterParams.includeBlanksInGreaterThan instead.');
 
@@ -127,7 +127,8 @@ export abstract class ScalarFilter<M extends ISimpleFilterModel, T> extends Simp
             }
 
             default:
-                throw new Error('Unexpected type of filter: ' + filterType);
+                console.warn('AG Grid: Unexpected type of filter "' + filterType + '", it looks like the filter was configured with incorrect Filter Options');
+                return true;
         }
     }
 }

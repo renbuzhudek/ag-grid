@@ -53,7 +53,7 @@ from the other grid.
 
 - New rows can be created by clicking on the red, green and blue buttons.
 
-<grid-example title='Two Grids with Drop Position' name='two-grids-with-drop-position' type='vanilla' options='{ "extras": ["fontawesome"] }'></grid-example>
+<grid-example title='Two Grids with Drop Position' name='two-grids-with-drop-position' type='multi' options='{ "extras": ["fontawesome"] }'></grid-example>
 
 ## Dragging Multiple Records Between Grids
 
@@ -61,9 +61,9 @@ It is possible to drag multiple records at once from one grid to another.
 
 In the example below, note the following:
 
-- This example allows for `enableMultiRowDragging`, between grids. For more info on `multiRowDrag` within the grid see the [Multi-Row Dragging](../row-dragging/#multi-row-dragging) section in the Row Dragging documentation.
+- This example allows for `enableMultiRowDragging`, between grids. For more info on `multiRowDrag` within the grid see the [Multi-Row Dragging](/row-dragging/#multi-row-dragging) section in the Row Dragging documentation.
 
-- This example allows you to toggle between regular `multiRow` selection and `checkboxSelection`. For more info see the [Row Selection](../row-selection/) documentation.
+- This example allows you to toggle between regular `multiRow` selection and `checkboxSelection`. For more info see the [Row Selection](/row-selection/) documentation.
 
 - When `Remove Source Rows` is selected, the rows will be removed from the **Athletes** grid once they are dropped onto the **Selected Athletes** grid.
 
@@ -71,5 +71,5 @@ In the example below, note the following:
 
 - If `None` is selected, the rows will be copied from one grid to another and the source grid will stay as is.
 
-<grid-example title='Multiple Records with Drop Position' name='two-grids-with-multiple-records' type='vanilla' options='{ "extras": ["fontawesome", "bootstrap"] }'></grid-example>
+<grid-example title='Multiple Records with Drop Position' name='two-grids-with-multiple-records' type='multi' options='{ "extras": ["fontawesome", "bootstrap"] }'></grid-example>
 

@@ -8,13 +8,17 @@ globalObj.HTMLInputElement = typeof HTMLInputElement === 'undefined' ? {} : HTML
 globalObj.Node = typeof Node === 'undefined' ? {} : Node;
 globalObj.MouseEvent = typeof MouseEvent === 'undefined' ? {} : MouseEvent;
 
-// columnController
-export { ColumnFactory } from "./columnController/columnFactory";
-export { ColumnController, ColumnState } from "./columnController/columnController";
-export { ColumnKeyCreator } from "./columnController/columnKeyCreator";
-export { ColumnUtils } from "./columnController/columnUtils";
-export { DisplayedGroupCreator } from "./columnController/displayedGroupCreator";
-export { GroupInstanceIdCreator } from "./columnController/groupInstanceIdCreator";
+// columns
+export { ColumnFactory } from "./columns/columnFactory";
+export { ColumnModel, ColumnState } from "./columns/columnModel";
+export { ColumnKeyCreator } from "./columns/columnKeyCreator";
+export { ColumnUtils } from "./columns/columnUtils";
+export { DisplayedGroupCreator } from "./columns/displayedGroupCreator";
+export { GroupInstanceIdCreator } from "./columns/groupInstanceIdCreator";
+
+// headless
+export { HeadlessService, RowContainerSt, HeaderRowSt, CellSt, ColumnSt, RowSt } from "./headless/headlessService";
+export { TestHeadless } from "./headless/testHeadless";
 
 // components
 export { ComponentUtil } from "./components/componentUtil";
@@ -43,6 +47,8 @@ export { QuerySelector, GuiListener, RefSelector, GridListener } from "./widgets
 
 // excel
 export {
+    ColumnWidthCallbackParams,
+    RowHeightCallbackParams,
     IExcelCreator,
     ExcelAlignment,
     ExcelBorder,
@@ -53,6 +59,13 @@ export {
     ExcelData,
     ExcelDataType,
     ExcelExportParams,
+    ExcelHeaderFooterConfig,
+    ExcelHeaderFooter,
+    ExcelHeaderFooterContent,
+    ExcelImage,
+    ExcelSheetMargin,
+    ExcelExportMultipleSheetParams,
+    ExcelSheetPageSetup,
     ExcelFont,
     ExcelInterior,
     ExcelNumberFormat,
@@ -60,6 +73,7 @@ export {
     ExcelOOXMLTemplate,
     ExcelProtection,
     ExcelRelationship,
+    ExcelFactoryMode,
     ExcelRow,
     ExcelStyle,
     ExcelTable,
@@ -77,6 +91,7 @@ export {
     DragSource,
     DraggingEvent
 } from "./dragAndDrop/dragAndDropService";
+export { RowDropZoneParams } from "./gridBodyComp/rowDragFeature";
 export { DragService } from "./dragAndDrop/dragService";
 export { IRowDragItem } from "./rendering/row/rowDragComp";
 
@@ -106,9 +121,10 @@ export { FloatingFilterWrapper } from './filter/floating/floatingFilterWrapper';
 export { FloatingFilterMapper } from './filter/floating/floatingFilterMapper';
 
 // gridPanel
-export { GridPanel } from "./gridPanel/gridPanel";
-export { ScrollVisibleService } from "./gridPanel/scrollVisibleService";
-export { MouseEventService } from "./gridPanel/mouseEventService";
+export { GridBodyComp } from "./gridBodyComp/gridBodyComp";
+export { GridBodyCtrl } from "./gridBodyComp/gridBodyCtrl";
+export { ScrollVisibleService } from "./gridBodyComp/scrollVisibleService";
+export { MouseEventService } from "./gridBodyComp/mouseEventService";
 
 // headerRendering
 export { BodyDropPivotTarget } from "./headerRendering/bodyDropPivotTarget";
@@ -118,7 +134,7 @@ export { HeaderContainer } from "./headerRendering/headerContainer";
 export { HeaderRootComp, HeaderContainerPosition } from "./headerRendering/headerRootComp";
 export { HeaderRowComp } from "./headerRendering/headerRowComp";
 export { HorizontalResizeService } from "./headerRendering/horizontalResizeService";
-export { MoveColumnController } from "./headerRendering/moveColumnController";
+export { MoveColumnFeature } from "./headerRendering/moveColumnFeature";
 export { StandardMenuFactory } from "./headerRendering/standardMenu";
 
 // layout
@@ -128,6 +144,7 @@ export { TabbedLayout, TabbedItem } from "./layout/tabbedLayout";
 export { simpleHttpRequest } from "./misc/simpleHttpRequest";
 export { ResizeObserverService } from "./misc/resizeObserverService";
 export { IImmutableService } from "./interfaces/iImmutableService";
+export { AnimationFrameService } from "./misc/animationFrameService";
 
 // editing / cellEditors
 export { ICellEditor, ICellEditorComp, ICellEditorParams } from "./interfaces/iCellEditor";
@@ -164,7 +181,7 @@ export { SetLeftFeature } from "./rendering/features/setLeftFeature";
 export { AutoWidthCalculator } from "./rendering/autoWidthCalculator";
 export { CheckboxSelectionComponent } from "./rendering/checkboxSelectionComponent";
 export { CellComp } from "./rendering/cellComp";
-export { RowComp } from "./rendering/row/rowComp";
+export { RowCtrl } from "./rendering/row/rowCtrl";
 export { RowRenderer } from "./rendering/rowRenderer";
 export { ValueFormatterService } from "./rendering/valueFormatterService";
 export { ILoadingCellRenderer, ILoadingCellRendererParams } from "./rendering/cellRenderers/loadingCellRenderer";
@@ -178,8 +195,7 @@ export { ChangedPath } from "./utils/changedPath";
 export { RowNodeBlock, LoadCompleteEvent, LoadSuccessParams } from "./rowNodeCache/rowNodeBlock";
 export { RowNodeBlockLoader } from "./rowNodeCache/rowNodeBlockLoader";
 export { PaginationProxy } from "./pagination/paginationProxy";
-export { RefreshModelParams } from "./interfaces/refreshModelParams";
-export { IClientSideRowModel } from "./interfaces/iClientSideRowModel";
+export { IClientSideRowModel, ClientSideRowModelSteps, RefreshModelParams } from "./interfaces/iClientSideRowModel";
 export { IInfiniteRowModel } from "./interfaces/iInfiniteRowModel";
 
 export { ColumnVO } from "./interfaces/iColumnVO";
@@ -193,6 +209,7 @@ export { IGetRowsParams, IDatasource } from "./interfaces/iDatasource";
 
 //styling
 export { StylingService } from "./styling/stylingService";
+export { UpdateLayoutClassesParams, LayoutCssClasses } from "./styling/layoutFeature";
 
 // widgets
 export { AgAbstractField, FieldElement } from "./widgets/agAbstractField";
@@ -213,21 +230,22 @@ export { AgPanel } from "./widgets/agPanel";
 export { Component, VisibleChangedEvent } from "./widgets/component";
 export { ManagedFocusComponent } from "./widgets/managedFocusComponent";
 export { PopupComponent } from "./widgets/popupComponent";
-export { PopupService,  } from "./widgets/popupService";
+export { PopupService } from "./widgets/popupService";
 export { TouchListener, TapEvent, LongTapEvent } from "./widgets/touchListener";
 export { VirtualList, VirtualListModel } from "./widgets/virtualList";
 
 // range
 export {
-    CellRange, CellRangeParams, CellRangeType, RangeSelection, AddRangeSelectionParams, IRangeController,
+    CellRange, CellRangeParams, CellRangeType, RangeSelection, AddRangeSelectionParams, IRangeService,
     ISelectionHandle, SelectionHandleType, ISelectionHandleFactory
-} from "./interfaces/iRangeController";
+} from "./interfaces/IRangeService";
 export { IChartService, ChartModel, GetChartImageDataUrlParams } from "./interfaces/IChartService";
 
 // exporter
 export {
-    CsvExportParams, CsvCustomContent, ExportParams, ProcessCellForExportParams, ProcessHeaderForExportParams,
-    ProcessGroupHeaderForExportParams, ProcessRowGroupForExportParams, ShouldRowBeSkippedParams, BaseExportParams
+    CsvExportParams, CsvCell, CsvCellData, CsvCustomContent, ExportParams, PackageFileParams,
+    ProcessCellForExportParams, ProcessHeaderForExportParams, ProcessGroupHeaderForExportParams,
+    ProcessRowGroupForExportParams, ShouldRowBeSkippedParams, BaseExportParams
 } from "./interfaces/exportParams";
 export { HeaderElement, PrefixedXmlAttributes, XmlElement } from "./interfaces/iXmlFactory";
 export { ICsvCreator } from "./interfaces/iCsvCreator";
@@ -239,18 +257,20 @@ export { AlignedGridsService } from "./alignedGridsService";
 export { Constants } from "./constants/constants";
 export { KeyCode } from "./constants/keyCode";
 export { KeyName } from "./constants/keyName";
-export { Grid, GridParams } from "./grid";
+export { Grid, GridParams, GridCoreCreator } from "./grid";
 export { GridApi, RedrawRowsParams, RefreshCellsParams, StartEditingCellParams, DetailGridInfo, CreateRangeChartParams, CreatePivotChartParams, CreateCrossFilterChartParams } from "./gridApi";
 export { Events } from "./eventKeys";
-export { FocusController } from "./focusController";
+export { FocusService } from "./focusService";
 export { defaultGroupComparator } from "./functions";
 export { GridOptionsWrapper } from "./gridOptionsWrapper";
 export { EventService } from "./eventService";
 export { SelectableService } from "./rowNodes/selectableService";
 export { RowNodeSorter, SortedRowNode, SortOption } from "./rowNodes/rowNodeSorter";
-export { GridCore } from "./gridCore";
+export { ControllersService } from "./controllersService";
+export { GridComp } from "./gridComp/gridComp";
+export { GridCtrl, IGridComp } from "./gridComp/gridCtrl";
 export { Logger, LoggerFactory } from "./logger";
-export { SelectionController } from "./selectionController";
+export { SelectionService } from "./selectionService";
 export { SortController, SortModelItem } from "./sortController";
 export { TemplateService } from "./templateService";
 export * from "./utils";
@@ -284,12 +304,21 @@ export {
     NewValueParams,
     CellClassParams,
     GetQuickFilterTextParams,
+    ColumnFunctionCallbackParams,
+    CheckboxSelectionCallbackParams,
+    RowDragCallbackParams,
+    DndSourceCallbackParams,
+    EditableCallbackParams,
+    SuppressPasteCallbackParams,
+    SuppressNavigableCallbackParams,
+    // deprecated params
     IsColumnFunc,
-    IsColumnFuncParams,
+    IsColumnFuncParams
 } from "./entities/colDef";
 export {
     GridOptions,
     IsServerSideGroupOpenByDefaultParams,
+    IsGroupOpenByDefaultParams,
     IsApplyServerSideTransactionParams,
     IsApplyServerSideTransaction,
     GetContextMenuItemsParams,
@@ -312,6 +341,7 @@ export {
     ChartRef,
     ProcessChartOptionsParams,
     ProcessChartParams,
+    RowClassParams,
     ServerSideStoreType,
     ServerSideStoreParams,
     GetServerSideStoreParamsParams
@@ -329,7 +359,7 @@ export { IComponent } from "./interfaces/iComponent";
 export { IEventEmitter } from "./interfaces/iEventEmitter";
 export { IHeaderParams, IHeader } from "./headerRendering/header/headerComp";
 export { IHeaderGroupParams, IHeaderGroup } from "./headerRendering/headerGroup/headerGroupComp";
-export { ColumnApi } from "./columnController/columnApi";
+export { ColumnApi } from "./columns/columnApi";
 export { IRichCellEditorParams } from "./interfaces/iRichCellEditorParams";
 export { WrapableInterface, BaseComponentWrapper, FrameworkComponentWrapper } from "./components/framework/frameworkComponentWrapper";
 export { IFrameworkOverrides } from "./interfaces/iFrameworkOverrides";

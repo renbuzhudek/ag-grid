@@ -2,18 +2,22 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import ExampleStyle from './ExampleStyle';
 import Extras from './Extras';
-import { localPrefix, agGridVersion, agChartsVersion } from './consts';
+import { localPrefix, agGridVersion, agChartsVersion } from 'utils/consts';
 import { getCssFilePaths, isUsingPublishedPackages } from './helpers';
-import isDevelopment from '../../utils/is-development';
+import isDevelopment from 'utils/is-development';
 import Scripts from './Scripts';
 import Styles from './Styles';
+import MetaData from './MetaData';
 
 const getCacheBustingUrl = (url, timestamp) => `${url}?t=${timestamp}`;
 
-const VanillaTemplate = ({ modifiedTimeMs, library, appLocation, options, scriptFiles, styleFiles, indexFragment }) =>
+/**
+ * This is the template for executing vanilla JavaScript examples in the example runner.
+ */
+const VanillaTemplate = ({ isExecuting, modifiedTimeMs, library, appLocation, options, scriptFiles, styleFiles, indexFragment }) =>
     <html lang="en">
         <head>
-            <title>JavaScript example{isDevelopment() ? ` (${modifiedTimeMs})` : ''}</title>
+            <MetaData title="JavaScript example" modifiedTimeMs={modifiedTimeMs} isExecuting={isExecuting} />
             <ExampleStyle />
             <VanillaStyles library={library} files={isDevelopment() ? styleFiles.map(file => getCacheBustingUrl(file, modifiedTimeMs)) : styleFiles} />
             <Extras options={options} />
@@ -26,7 +30,6 @@ const VanillaTemplate = ({ modifiedTimeMs, library, appLocation, options, script
             indexFragment={indexFragment} />
     </html>;
 
-// we have to use this function to avoid a wrapping div around the fragment
 const VanillaBody = ({ library, appLocation, options, scriptFiles, indexFragment }) => {
     let scriptPath;
 
@@ -54,6 +57,7 @@ const VanillaBody = ({ library, appLocation, options, scriptFiles, indexFragment
         </>
     );
 
+    // Setting the HTML like this avoids a wrapping div around the fragment
     return <body dangerouslySetInnerHTML={{ __html: `${indexFragment}\n${bodySuffix}` }}></body>;
 };
 

@@ -16,62 +16,80 @@ const gridOptions = {
 }
 </snippet>
 
-See [Column Properties](../column-properties/) for a list of all properties that can be applied to a column.
+See [Column Properties](/column-properties/) for a list of all properties that can be applied to a column.
 
 If you want the columns to be grouped, you can include them as children like so:
 
-[[only-javascript]]
-| ```js
-| columnDefs: [
-|
-|     // put the three columns into a group
-|     {
-|         headerName: 'Group A',
-|         children: [
-|             { headerName: 'Athlete', field: 'athlete' },
-|             { headerName: 'Sport', field: 'sport' },
-|             { headerName: 'Age', field: 'age' },
-|         ]
-|     }
-| ]
-| ```
+<snippet suppressFrameworkContext="true">
+const gridOptions = {
+    // put the three columns into a group
+    columnDefs: [
+        {
+            headerName: 'Group A',
+            children: [
+                { headerName: 'Athlete', field: 'athlete' },
+                { headerName: 'Sport', field: 'sport' },
+                { headerName: 'Age', field: 'age' },
+            ]
+        }
+    ]
+}
+</snippet>
 
-[[only-angular-or-vue]]
-| ```js
-| this.columnDefs = [
-|     // put the three columns into a group
-|     {
-|         headerName: 'Group A',
-|         children: [
-|             { headerName: 'Athlete', field: 'athlete' },
-|             { headerName: 'Sport', field: 'sport' },
-|             { headerName: 'Age', field: 'age' },
-|         ]
-|     }
-| ];
-| ```
-
-[[only-react]]
-| ```js
-| // put the three columns into a group
-| <AgGridColumn headerName='Group A'>
-|     <AgGridColumn headerName='Athlete' field='athlete' />
-|     <AgGridColumn headerName='Sport' field='sport' />
-|     <AgGridColumn headerName='Age' field='age' />
-| </AgGridColumn>
-| ```
-
-Groups are explained in more detail in the section [Column Groups](../column-groups/).
-
-[[only-angular]]
-| ## Declarative Columns
-|
-| You can use the `ag-grid-column` element to declare your column definitions declaratively if you prefer.
+Groups are explained in more detail in the section [Column Groups](/column-groups/).
 
 [[only-react]]
 | ## Declarative Columns
 |
 | You can use the `AgGridColumn` element to declare your column definitions declaratively if you prefer.
+
+[[only-vue]]
+| ## Declarative Columns
+|
+| You can also define your grid column definition decoratively if you would prefer.
+|
+| You declare the grid as normal:
+|
+| ```jsx
+| <ag-grid-vue
+|         class="ag-theme-alpine"
+|         style="width: 700px; height: 400px;"
+|         :rowData="rowData"
+|         //...rest of definition
+| ```
+|
+| And within this component you can then define your column definitions:
+|
+| ```jsx
+| <ag-grid-vue
+|     //...rest of definition
+| >
+|     <ag-grid-column headerName="IT Skills">
+|         <ag-grid-column
+|             field="skills"
+|             :width="120"
+|             suppressSorting
+|             cellRendererFramework="SkillsCellRenderer"
+|             :menuTabs="['filterMenuTab']">
+|         </ag-grid-column>
+|         <ag-grid-column
+|             field="proficiency"
+|             :width="135"
+|             cellRendererFramework="ProficiencyCellRenderer"
+|             :menuTabs="['filterMenuTab']">
+|         </ag-grid-column>
+|     </ag-grid-column>
+| </ag-grid-vue>
+| ```
+|
+| In this example we're defining a grouped column with `IT Skills` having two
+| child columns `Skills and Proficiency`.
+|
+| Not that anything other than a string value will need to be bound (i.e. `:width="120"`) as
+| Vue will default to providing values as Strings.
+|
+| A full working example of defining a grid declaratively can be found in the
+| [Vue Playground Repo](https://github.com/seanlandsman/ag-grid-vue-playground).
 
 ## Custom Column Types {#default-column-definitions}
 
@@ -81,139 +99,47 @@ In addition to the above, the grid provides additional ways to help simplify and
 - `defaultColGroupDef`: contains properties that all column groups will inherit.
 - `columnTypes`: specific column types containing properties that column definitions can inherit.
 
-Default columns and column types can specify any of the [column properties](../column-properties/) available on a column.
+Default columns and column types can specify any of the [column properties](/column-properties/) available on a column.
 
 [[note]]
 | Column Types are designed to work on Columns only, i.e. they won't be applied to Column Groups.
 
 The following code snippet demonstrates these three properties:
 
-[[only-javascript]]
-| ```js
-| const gridOptions = {
-|     rowData: myRowData,
-| 
-|     // define columns
-|     columnDefs: [
-|         // uses the default column properties
-|         { headerName: 'Col A', field: 'a'},
-| 
-|         // overrides the default with a number filter
-|         { headerName: 'Col B', field: 'b', filter: 'agNumberColumnFilter' },
-| 
-|         // overrides the default using a column type
-|         { headerName: 'Col C', field: 'c', type: 'nonEditableColumn' },
-| 
-|         // overrides the default using a multiple column types
-|         { headerName: 'Col D', field: 'd', type: ['dateColumn', 'nonEditableColumn'] }
-|     ],
-| 
-|     // a default column definition with properties that get applied to every column
-|     defaultColDef: {
-|         // set every column width
-|         width: 100,
-|         // make every column editable
-|         editable: true,
-|         // make every column use 'text' filter by default
-|         filter: 'agTextColumnFilter'
-|     },
-| 
-|     // if we had column groups, we could provide default group items here
-|     defaultColGroupDef: {}
-| 
-|     // define a column type (you can define as many as you like)
-|     columnTypes: {
-|         'nonEditableColumn': { editable: false },
-|         'dateColumn': {
-|             filter: 'agDateColumnFilter',
-|             filterParams: { comparator: myDateComparator },
-|             suppressMenu: true
-|         }
-|     }
-| 
-|     // other grid options ...
-| }
-| ```
-
-[[only-angular-or-vue]]
-| ```js
-| // define columns
-| this.columnDefs = [
-|     // uses the default column properties
-|     { headerName: 'Col A', field: 'a'},
-|     // overrides the default with a number filter
-|     { headerName: 'Col B', field: 'b', filter: 'agNumberColumnFilter' },
-|     // overrides the default using a column type
-|     { headerName: 'Col C', field: 'c', type: 'nonEditableColumn' },
-|     // overrides the default using a multiple column types
-|     { headerName: 'Col D', field: 'd', type: ['dateColumn', 'nonEditableColumn'] }
-| ];
-|
-| // a default column definition with properties that get applied to every column
-| this.defaultColDef = {
-|     // set every column width
-|     width: 100,
-|     // make every column editable
-|     editable: true,
-|     // make every column use 'text' filter by default
-|     filter: 'agTextColumnFilter'
-| };
-|
-| // if we had column groups, we could provide default group items here
-| this.defaultColGroupDef = {};
-|
-| // define a column type (you can define as many as you like)
-| this.columnTypes = {
-|     'nonEditableColumn': { editable: false },
-|     'dateColumn': {
-|         filter: 'agDateColumnFilter',
-|         filterParams: { comparator: myDateComparator },
-|         suppressMenu: true
-|     }
-| };
-| ```
-
-
-[[only-react]]
-| ```js
-| <AgGridReact
-|     defaultColDef={{
-|         // set every column width 
-|         width: 100,
-|         // make every column editable
-|         editable: true,
-|         // make every column use 'text' filter by default
-|         filter: 'agTextColumnFilter'
-|     }}
-|     
-|     // if we had column groups, we could provide default group items here
-|     defaultColGroupDef = {};
-|     
-|     // define a column type (you can define as many as you like)
-|     columnTypes={{
-|         'nonEditableColumn': { editable: false },
-|         'dateColumn': {
-|             filter: 'agDateColumnFilter',
-|             filterParams: { comparator: myDateComparator },
-|             suppressMenu: true,
-|         }
-|  
-|     // other grid options ....
-| >
-|     // uses the default column properties
-|     <AgGridColumn headerName='Col A' field='a' />
-|
-|     // overrides the default with a number filter
-|     <AgGridColumn headerName='Col B' field='b' filter='agNumberColumnFilter' />
-|
-|     // overrides the default using a column type
-|     <AgGridColumn headerName='Col C' field='c' type='nonEditableColumn' />
-|
-|     // overrides the default using a multiple column types
-|     <AgGridColumn headerName='Col D' field='d' type={['dateColumn', 'nonEditableColumn']} />
-| </AgGridReact>
-| ```
-
+<snippet spaceBetweenProperties="true">
+const gridOptions = {
+    columnDefs: [
+        // uses the default column properties
+        { headerName: 'Col A', field: 'a'},
+        // overrides the default with a number filter
+        { headerName: 'Col B', field: 'b', filter: 'agNumberColumnFilter' },
+        // overrides the default using a column type
+        { headerName: 'Col C', field: 'c', type: 'nonEditableColumn' },
+        // overrides the default using a multiple column types
+        { headerName: 'Col D', field: 'd', type: ['dateColumn', 'nonEditableColumn'] }
+    ],
+    // a default column definition with properties that get applied to every column
+    defaultColDef: {
+        // set every column width
+        width: 100,
+        // make every column editable
+        editable: true,
+        // make every column use 'text' filter by default
+        filter: 'agTextColumnFilter',
+    },
+    // if we had column groups, we could provide default group items here
+    defaultColGroupDef: {},
+    // define a column type (you can define as many as you like)
+    columnTypes: {
+        nonEditableColumn: { editable: false },
+        dateColumn: {
+            filter: 'agDateColumnFilter',
+            filterParams: { comparator: myDateComparator },
+            suppressMenu: true
+        }
+    }
+}
+</snippet>
 
 When the grid creates a column it starts with the default column definition, then adds in anything from the column type, then finally adds in items from the specific column definition.
 
@@ -235,7 +161,7 @@ For example, the following is an outline of the steps used when creating 'Col C'
 
 The following example demonstrates the different configuration properties in action.
 
-<grid-example title="Column Definition Example" name="column-definition" type="generated"></grid-example>
+<grid-example title='Column Definition Example' name='column-definition' type='generated'></grid-example>
 
 ## Right Aligned and Numeric Columns
 
@@ -244,32 +170,15 @@ The grid provides a handy shortcut for aligning columns to the right. Setting th
 [[note]]
 | Because right alignment is used for numbers, we also provided an alias `numericColumn` that can be used to align the header and cell text to the right.
 
-[[only-javascript]]
-| ```js
-| const gridOptions = {
-|     columnDefs: [
-|         { headerName: 'Column A', field: 'a' },
-|         { headerName: 'Column B', field: 'b', type: 'rightAligned' },
-|         { headerName: 'Column C', field: 'c', type: 'numericColumn' }
-|     ]
-| }
-| ```
-
-[[only-angular-or-vue]]
-| ```js
-| this.columnDefs = [
-|     { headerName: 'Column A', field: 'a' },
-|     { headerName: 'Column B', field: 'b', type: 'rightAligned' },
-|     { headerName: 'Column C', field: 'c', type: 'numericColumn' }
-| ]
-| ```
-
-[[only-react]]
-| ```js
-| <AgGridColumn headerName='Column A' field='a' />
-| <AgGridColumn headerName='Column B' field='b' type='rightAligned' />
-| <AgGridColumn headerName='Column C' field='c' type='numericColumn' />
-| ```
+<snippet>
+const gridOptions = {
+    columnDefs: [
+        { headerName: 'Column A', field: 'a' },
+        { headerName: 'Column B', field: 'b', type: 'rightAligned' },
+        { headerName: 'Column C', field: 'c', type: 'numericColumn' },
+    ]
+}
+</snippet>
 
 ## Column IDs
 
@@ -285,4 +194,4 @@ In the example below, columns are set up to demonstrate the different ways IDs a
 - Col 3 and Col 4 both use `field`. The grid appends `'_1'` to Col 4 to make the ID unique.
 - Col 5 and Col 6 have neither `colId` or `field` so the grid generates column IDs.
 
-<grid-example title="Column IDs" name="column-ids" type="generated"></grid-example>
+<grid-example title='Column IDs' name='column-ids' type='generated'></grid-example>

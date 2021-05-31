@@ -100,11 +100,15 @@ class DeepValueStrategy implements ChangeDetectionStrategy {
             return b instanceof Date && a.valueOf() === b.valueOf();
         }
         if (typeof a === "function") {
-            return a.toString() === b.toString();
+            // false to allow for callbacks to be reactive...
+            return false;
         }
         if (typeof a !== "object" ||
             (a.$$typeof && a.$$typeof.toString() === "Symbol(react.element)")) {
             return a == b; //for boolean, number, string, function, xml
+        }
+        if(Object.isFrozen(a) || Object.isFrozen(b)) {
+            return a === b;
         }
 
         const newA = a.areEquivPropertyTracking === undefined,

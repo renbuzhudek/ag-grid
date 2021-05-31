@@ -11,20 +11,16 @@ the user navigate through the data.
 Pagination is enabled in the grid via the `pagination` grid option. The pagination page size is
 typically set alongside this using the `paginationPageSize` option. These options are shown below:
 
-
-```js
-gridOptions: {
+<snippet spaceBetweenProperties="true">
+const gridOptions = {
     // enables pagination in the grid
     pagination: true,
-
     // sets 10 rows per page (default is 100)
     paginationPageSize: 10,
-
-    // other options
 }
-```
+</snippet>
 
-For more configuration details see the section on [Pagination](../row-pagination/).
+For more configuration details see the section on [Pagination](/row-pagination/).
 
 ## Server Pagination
 
@@ -80,5 +76,5 @@ The example below demonstrates pagination with grouping and `paginateChildRows=t
 
 ## Next Up
 
-Continue to the next section to learn about [Row Selection](../server-side-model-selection/).
+Continue to the next section to learn about [Row Selection](/server-side-model-selection/).
 

@@ -3,14 +3,13 @@
  ************************************************************************************************/
 import { RowNode } from "./rowNode";
 import { GridApi } from "../gridApi";
-import { ColumnApi } from "../columnController/columnApi";
+import { ColumnApi } from "../columns/columnApi";
 import { Column } from "./column";
 import { IViewportDatasource } from "../interfaces/iViewportDatasource";
 import { ICellRenderer, ICellRendererComp, ICellRendererFunc } from "../rendering/cellRenderers/iCellRenderer";
 import { ColDef, ColGroupDef, IAggFunc, SuppressKeyboardEventParams } from "./colDef";
 import { IDatasource } from "../interfaces/iDatasource";
 import { CellPosition } from "./cellPosition";
-import { IDateComp } from "../rendering/dateComponent";
 import { IServerSideDatasource } from "../interfaces/iServerSideDatasource";
 import { CsvExportParams, ProcessCellForExportParams, ProcessHeaderForExportParams } from "../interfaces/exportParams";
 import {
@@ -92,6 +91,7 @@ import { ChartMenuOptions, ChartOptions, ChartType } from "../interfaces/iChartO
 import { AgChartOptions, AgChartTheme, AgChartThemeOverrides } from "../interfaces/iAgChartOptions";
 import { ServerSideTransaction } from "../interfaces/serverSideTransaction";
 import { HeaderPosition } from "../headerRendering/header/headerPosition";
+import { ExcelExportParams, ExcelStyle } from "../interfaces/iExcelCreator";
 
 export interface GridOptions {
     /*******************************************************************************************************
@@ -127,6 +127,7 @@ export interface GridOptions {
     accentedSort?: boolean;
     deltaSort?: boolean;
     suppressHorizontalScroll?: boolean;
+    alwaysShowHorizontalScroll?: boolean;
     alwaysShowVerticalScroll?: boolean;
     debounceVerticalScrollbar?: boolean;
     unSortIcon?: boolean;
@@ -148,11 +149,15 @@ export interface GridOptions {
     suppressMenuHide?: boolean;
     singleClickEdit?: boolean;
     suppressClickEdit?: boolean;
+    tabIndex?: number;
 
     /** Allows user to suppress certain keyboard events */
     suppressKeyboardEvent?: (params: SuppressKeyboardEventParams) => boolean;
 
+    /** @deprecated Use stopEditingWhenCellsLoseFocus instead */
     stopEditingWhenGridLosesFocus?: boolean;
+    stopEditingWhenCellsLoseFocus?: boolean;
+
     debug?: boolean;
     icons?: any; // should be typed
     angularCompileRows?: boolean;
@@ -199,6 +204,7 @@ export interface GridOptions {
 
     /** @deprecated - no longer needed, transaction updates keep group state */
     rememberGroupStateWhenNewData?: boolean;
+    suppressModelUpdateAfterUpdateTransaction?: boolean;
     viewportRowModelPageSize?: number;
     viewportRowModelBufferSize?: number;
     enableCellChangeFlash?: boolean;
@@ -224,6 +230,7 @@ export interface GridOptions {
     suppressRowTransform?: boolean;
     /** @deprecated */
     suppressSetColumnStateEvents?: boolean;
+    /** @deprecated */
     suppressColumnStateEvents?: boolean;
     allowDragFromColumnsToolPanel?: boolean;
     suppressMaxRenderedRowRestriction?: boolean;
@@ -249,8 +256,7 @@ export interface GridOptions {
     /** @deprecated */
     deprecatedEmbedFullWidthRows?: boolean;
 
-    //This is an array of ExcelStyle, but because that class lives on the enterprise project is referenced as any from the client project
-    excelStyles?: any[];
+    excelStyles?: ExcelStyle[];
     /** @deprecated Use floatingFilter on the colDef instead */
     floatingFilter?: boolean;
     suppressExcelExport?: boolean;
@@ -269,6 +275,7 @@ export interface GridOptions {
 
     getServerSideStoreParams?: (params: GetServerSideStoreParamsParams) => ServerSideStoreParams;
     isServerSideGroupOpenByDefault?: (params: IsServerSideGroupOpenByDefaultParams) => boolean;
+    isGroupOpenByDefault?: (params: IsGroupOpenByDefaultParams) => boolean;
 
     statusBar?: {
         statusPanels: StatusPanelDef[];
@@ -280,7 +287,11 @@ export interface GridOptions {
     suppressAnimationFrame?: boolean;
     defaultColGroupDef?: ColGroupDef;
     defaultColDef?: ColDef;
-    defaultExportParams?: CsvExportParams;
+
+    /** @deprecated Use defaultCsvExportParams or defaultExcelExportParams */
+    defaultExportParams?: CsvExportParams | ExcelExportParams;
+    defaultCsvExportParams?: CsvExportParams;
+    defaultExcelExportParams?: ExcelExportParams;
 
     pivotSuppressAutoColumn?: boolean;
     groupSuppressAutoColumn?: boolean;
@@ -355,8 +366,6 @@ export interface GridOptions {
     postProcessPopup?: (params: PostProcessPopupParams) => void;
     frameworkComponents?: { [p: string]: { new(): any; }; } | any;
     components?: { [p: string]: AgGridRegisteredComponentInput<IComponent<any>>; };
-    dateComponent?: string | { new(): IDateComp; };
-    dateComponentFramework?: any;
     groupRowRenderer?: { new(): ICellRendererComp; } | ICellRendererFunc | string;
     groupRowRendererFramework?: any;
     groupRowRendererParams?: any;
@@ -368,7 +377,6 @@ export interface GridOptions {
     fillOperation?: (params: FillOperationParams) => any;
 
     isExternalFilterPresent?(): boolean;
-
     doesExternalFilterPass?(node: RowNode): boolean;
 
     getRowStyle?: Function;
@@ -625,9 +633,9 @@ export interface IsApplyServerSideTransaction {
 }
 
 export interface IsApplyServerSideTransactionParams {
-    transaction: ServerSideTransaction,
-    parentNode: RowNode,
-    storeInfo: any
+    transaction: ServerSideTransaction;
+    parentNode: RowNode;
+    storeInfo: any;
 }
 
 export interface GetServerSideGroupKey {
@@ -640,6 +648,16 @@ export interface IsRowMaster {
 
 export interface IsRowSelectable {
     (node: RowNode): boolean;
+}
+
+export interface RowClassParams {
+    data: any;
+    node: RowNode;
+    rowIndex: number;
+    $scope: any;
+    api: GridApi;
+    columnApi: ColumnApi;
+    context: any;
 }
 
 export interface ProcessChartOptionsParams {
@@ -797,4 +815,12 @@ export interface GetServerSideStoreParamsParams {
 export interface IsServerSideGroupOpenByDefaultParams {
     data: any;
     rowNode: RowNode;
+}
+
+export interface IsGroupOpenByDefaultParams {
+    rowNode: RowNode;
+    rowGroupColumn: Column;
+    level: number;
+    field: string;
+    key: string;
 }

@@ -4,7 +4,6 @@ title: "Chart Events"
 
 There are several events which are raised at different points in the lifecycle of a chart.
 
-
 ## ChartCreated
 
 This event is raised whenever a chart is first created.
@@ -23,7 +22,6 @@ interface ChartCreated {
 
 This is raised any time that the data range used to render the chart from is changed, e.g. by using the range selection handle or by making changes in the Data tab of the configuration sidebar. This event contains a `cellRange` object that gives you information about the range, allowing you to recreate the chart.
 
-
 ```ts
 interface ChartRangeSelectionChanged {
     type: string; // 'chartRangeSelectionChanged'
@@ -36,11 +34,11 @@ interface ChartRangeSelectionChanged {
 
 interface CellRangeParams {
     // start row
-    rowStartIndex?: number;
+    rowStartIndex: number | null;
     rowStartPinned?: string;
 
     // end row
-    rowEndIndex?: number;
+    rowEndIndex: number | null;
     rowEndPinned?: string;
 
     // columns
@@ -51,7 +49,6 @@ interface CellRangeParams {
 ## ChartOptionsChanged
 
 Formatting changes made by users through the Format Panel will raise the `ChartOptionsChanged` event:
-
 
 ```ts
 interface ChartOptionsChanged {
@@ -82,8 +79,8 @@ type ChartType =
 ```
 
 Here the `chartThemeName` will be set to the name of the currently selected theme, which will be either
-one of the [Provided Themes](../integrated-charts-customisation/#provided-themes) or
-a [Custom Theme](../integrated-charts-customisation/#custom-chart-themes) if used.
+one of the [Provided Themes](/integrated-charts-customisation/#provided-themes) or
+a [Custom Theme](/integrated-charts-customisation/#custom-chart-themes) if used.
 
 ## ChartDestroyed
 
@@ -114,12 +111,11 @@ The following example demonstrates when the described events occur by writing to
 
 ## Accessing Chart Instance
 
-Charts in the grid are produced by the [ag-Charts](../charts-overview/) library, which is integrated
+Charts in the grid are produced by the [AG Charts](/charts-overview/) library, which is integrated
 directly into the grid for your convenience. In some advanced use cases, you may wish to access the chart
-instance that is produced by ag-Charts, in order to interact with the chart directly.
+instance that is produced by AG Charts, in order to interact with the chart directly.
 
 The chart instance can be found inside the `ChartModel`, which is provided in the [`ChartCreated`](#chartcreated) event.
-
 
 The example below shows how the chart instance can be used, creating a subtitle and updating
 it dynamically as you change the range selection.
@@ -128,10 +124,8 @@ it dynamically as you change the range selection.
 
 ## Other Resources
 
-To learn about series events refer to the standalone charting library [documentation](../integrated-charts-events/).
+To learn about series events refer to the standalone charting library [documentation](/integrated-charts-events/).
 
 ## Next Up
 
-Continue to the next section to learn about: [Third-Party Charting](../third-party-charting/).
-
-
+Continue to the next section to learn about: [Third-Party Charting](/third-party-charting/).

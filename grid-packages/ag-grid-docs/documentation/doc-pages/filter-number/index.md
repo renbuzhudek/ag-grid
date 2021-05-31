@@ -4,17 +4,17 @@ title: "Number Filter"
 
 Number filters allow you to filter number data.
 
-The [Provided Filters](../filter-provided/) and [Simple Filters](../filter-provided-simple/) pages explain the parts of the Number Filter that the same as the other Provided Filters. This page builds on that and explains some details that are specific to the Number Filter.
+The [Provided Filters](/filter-provided/) and [Simple Filters](/filter-provided-simple/) pages explain the parts of the Number Filter that the same as the other Provided Filters. This page builds on that and explains some details that are specific to the Number Filter.
 
 ## Number Filter Parameters
 
 Number Filters are configured though the `filterParams` attribute of the column definition. All of the parameters from Provided Filters are available:
 
-<api-documentation source='filter-provided/resources/providedFilters.json' section='filterParams'></api-documentation>
+<api-documentation source='filter-provided/resources/provided-filters.json' section='filterParams'></api-documentation>
 
 In addition, the following parameters are also available:
 
-<api-documentation source='filter-provided-simple/resources/simpleFilters.json' section='filterParams' names='["Number"]'></api-documentation>
+<api-documentation source='filter-provided-simple/resources/simple-filters.json' section='filterParams' names='["Number"]'></api-documentation>
 
 
 ## Custom Number Support
@@ -25,22 +25,26 @@ For these reasons, the Number Filter allows you to control what characters the u
 
 Custom number support is enabled by specifying configuration similar to the following:
 
-```js
-colDef: {
-    filter: 'agNumberColumnFilter',
-    filterParams: {
-        allowedCharPattern: '\\d\\-\\,', // note: ensure you escape as if you were creating a RegExp from a string
-        numberParser: function(text) {
-            return text == null ? null : parseFloat(text.replace(',', '.'));
+<snippet>
+const gridOptions = {
+    columnDefs: [
+        {
+            field: 'age',
+            filter: 'agNumberColumnFilter',
+            filterParams: {
+                allowedCharPattern: '\\d\\-\\,', // note: ensure you escape as if you were creating a RegExp from a string
+                numberParser: text => {
+                    return text == null ? null : parseFloat(text.replace(',', '.'));
+                }
+            }
         }
-    }
+    ]
 }
-```
+</snippet>
 
 The `allowedCharPattern` is a regex of all the characters that are allowed to be typed. This is surrounded by square brackets `[]` and used as a character class to be compared against each typed character individually and prevent the character from appearing in the input if it does not match, in supported browsers (all except Safari).
 
 The `numberParser` should take the user-entered text and return either a number if one can be interpreted, or `null` if not.
-
 
 The example below shows custom number support in action. The first column shows the default behaviour, and the second column uses commas for decimals and allows a dollar sign ($) to be included.
 

@@ -1,14 +1,17 @@
 import React from 'react';
-import { GlobalContextProvider } from '../components/GlobalContext';
-import HeaderNav from '../components/HeaderNav';
-import Menu from '../components/Menu';
-import Footer from '../components/footer/Footer';
-import Search from '../components/search/Search';
-import FrameworkSelector from '../components/FrameworkSelector';
-import { getPageName } from '../utils/get-page-name';
+import { Helmet } from 'react-helmet';
+import { GlobalContextProvider } from 'components/GlobalContext';
+import HeaderNav from 'components/HeaderNav';
+import Menu from 'components/Menu';
+import Footer from 'components/footer/Footer';
+import Search from 'components/search/Search';
+import FrameworkSelector from 'components/FrameworkSelector';
+import favIcons from '../images/favicons';
+import logo from '../images/ag-grid.svg';
 import styles from './index.module.scss';
+import './mailchimp.css';
 
-const TopBar = ({ frameworks, framework, path }) => (
+const TopBar = ({ frameworks, framework, path, rootPage }) => (
     <div className={styles['top-bar']}>
         <div className={styles['top-bar__wrapper']}>
             <div className={styles['top-bar__search']}>
@@ -21,32 +24,39 @@ const TopBar = ({ frameworks, framework, path }) => (
                     aria-label="Toggle navigation">
                     <span className={styles['top-bar__nav-button-icon']}></span>
                 </button>
-                <Search indices={[{ name: `ag-grid_${framework}`, title: "Documentation Pages" }]} />
+                <Search currentFramework={framework} />
             </div>
             <div className={styles['top-bar__framework-selector']}>
-                <FrameworkSelector frameworks={frameworks} path={path} currentFramework={framework} />
+                {!rootPage && <FrameworkSelector frameworks={frameworks} path={path} currentFramework={framework} />}
             </div>
         </div>
     </div>
 );
 
-export const Layout = ({ children, pageContext: { frameworks, framework = 'javascript', layout }, location: { pathname: path } }) => {
-    if (layout === 'bare') {
+/**
+ * This controls the layout template for all pages.
+ */
+export const Layout = ({ children, pageContext: { frameworks, framework = 'javascript', layout, pageName }, location: { pathname: path }, data }) => {
+    const rootPage = (data && data.markdownRemark) ? data.markdownRemark.frontmatter.rootPage : false;
+
+    if (layout === 'bare') { // only for on the fly example runner
         return children;
     }
 
-    const pageName = getPageName(path);
-
     return <GlobalContextProvider>
+        <Helmet>
+            {getFavicons()}
+            {getAppleTouchIcons()}
+        </Helmet>
         <div className={styles['main-container']}>
+            <Helmet htmlAttributes={{ lang: 'en' }} />
             <header className={styles.header}>
                 <div className={styles.header__wrapper}>
-                    {/* eslint-disable-next-line jsx-a11y/anchor-has-content */}
-                    <a href="/" aria-label="Home" className={styles['header__logo']}></a>
+                    <a href="/" aria-label="Home" className={styles['header__logo']}><img src={logo} alt="AG Grid" /></a>
                     <HeaderNav />
                 </div>
             </header>
-            <TopBar frameworks={frameworks} framework={framework} path={path} />
+            <TopBar frameworks={frameworks} framework={framework} path={path} rootPage={rootPage} />
             <div className={styles['content-viewport']}>
                 <aside className={`${styles['main-menu']}`}>
                     <Menu currentFramework={framework} currentPage={pageName} />
@@ -59,5 +69,11 @@ export const Layout = ({ children, pageContext: { frameworks, framework = 'javas
         <Footer framework={framework} />
     </GlobalContextProvider>;
 };
+
+const getFavicons = () =>
+    [196, 192, 180, 167, 152, 128, 32].map(size => <link key={size} rel="icon" type="image/png" sizes={`${size}x${size}`} href={favIcons[`favIcon${size}`]} />);
+
+const getAppleTouchIcons = () =>
+    [180, 167, 152].map(size => <link key={size} rel="apple-touch-icon" sizes={`${size}x${size}`} href={favIcons[`favIcon${size}Touch`]} />);
 
 export default Layout;

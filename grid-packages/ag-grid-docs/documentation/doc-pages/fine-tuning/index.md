@@ -3,158 +3,181 @@ title: "Fine Tuning"
 frameworks: ["react"]
 ---
 
-This section describes some of the finer grain tuning you might want to do with your React & ag-Grid application.
+This section describes some of the finer grain tuning you might want to do with your React & AG Grid application.
 
-## Styling React Components in ag-Grid
+## Avoiding Stale Closures (i.e. old props values)
 
-By default user supplied React components will be wrapped in a `div` but it is possible to have your component 
-wrapped in a container of your choice (i.e. a `span` etc), perhaps to override/control a third party component.
+A common issue that React hook users will encounter is capturing old values in a closure - this is not unique to React
+but is a common issue with JavaScript in general, but it is something that is more common when using Hooks.
 
-For example, assuming a user component as follows:
-
-```jsx
-const HelloWorldRenderer = () => <span>Hello World</span>;
-```
-
-The default behaviour will render the following within the grid:
-
-```html
-<div class="ag-react-container"><span>Hello World</span></div>
-```
-
-In order to override this default behaviour and can specify a `componentWrappingElement`:
+An example of this (in the context of using AG Grid) would be something like this:
 
 ```jsx
-<AgGridReact
-    onGridReady={ this.onGridReady }
-    rowData={ this.state.rowData }
-    componentWrappingElement='span'>
-</AgGridReact>
-```
+const KEY_LEFT = 37;
+const KEY_UP = 38;
+const KEY_RIGHT = 39;
+const KEY_DOWN = 40;
 
-Doing this would result in the following being rendered:
-```html
-<span class="ag-react-container"><span>Hello World</span></span>
-```
+const GridExample = () => {
+    const [gridApi, setGridApi] = useState(null);
+    const [rowData, setRowData] = useState([
+        { athlete: "Michael Phelps", age: 25 },
+        { athlete: "Michael Phelps", age: 30 }
+    ]);
 
-If you wish to override the style of the grid container you can either provide an implementation of the `ag-react-container` class, or via the `getReactContainerStyle` or `getReactContainerClasses` callbacks on your React component.
-
-### Styling a React Component:
-
-```jsx
-export default class CustomTooltip extends Component {
-    getReactContainerClasses() {
-        return ['custom-tooltip'];
+    function useDynamicCallback(callback) {
+        const ref = useRef();
+        ref.current = callback;
+        return useCallback((...args) => ref.current.apply(this, args), []);
     }
 
-    getReactContainerStyle() {
-        return {
-            display: 'inline-block',
-            height: '100%'
-        };
-    }
+    const onGridReady = params => {
+        setGridApi(params.api);
+    };
 
-    //...rest of the component
+    const navigateToNextCell = params => {
+        var previousCell = params.previousCellPosition,
+            suggestedNextCell = params.nextCellPosition,
+            nextRowIndex,
+            renderedRowCount;
+        switch (params.key) {
+            case KEY_DOWN:
+                nextRowIndex = previousCell.rowIndex - 1;
+                if (nextRowIndex < -1) {
+                    return null;
+                }
+                return {
+                    rowIndex: nextRowIndex,
+                    column: previousCell.column,
+                    floating: previousCell.floating
+                };
+            case KEY_UP:
+                nextRowIndex = previousCell.rowIndex + 1;
+                renderedRowCount = gridApi.getModel().getRowCount();
+                if (nextRowIndex >= renderedRowCount) {
+                    return null;
+                }
+                return {
+                    rowIndex: nextRowIndex,
+                    column: previousCell.column,
+                    floating: previousCell.floating
+                };
+            case KEY_LEFT:
+            case KEY_RIGHT:
+                return suggestedNextCell;
+            default:
+                throw "this will never happen, navigation is always one of the 4 keys above";
+        }
+    };
+
+    return (
+        <div
+            style={{ width: "500px", height: "500px" }}
+            className="ag-theme-alpine"
+        >
+            <AgGridReact
+                rowData={rowData}
+                navigateToNextCell={navigateToNextCell}
+                onGridReady={onGridReady}
+            >
+                <AgGridColumn field="athlete" headerName="Name" minWidth={170} />
+                <AgGridColumn field="age" />
+            </AgGridReact>
+        </div>
+    );
+};
 ```
 
-### Styling a React Hook:
+Here the expectation is that on up key the focus would move down, and on the down key the focus would move up.
 
-```js
-export default forwardRef(({ parentFilterInstance }, ref) => {
-    useImperativeHandle(ref, () => ({
-        getReactContainerClasses() {
-            return ['custom-tooltip'];
-        },
-        getReactContainerStyle() {
-            return {
-                display: 'inline-block',
-                height: '100%'
-        };
-    }));
+The problem here is that the `gridApi` in `navigateToNextCell` has been "captured" (or "closed over") before it's been set
+and subsequent updates to it will not be reflected in later calls.
 
-    //...rest of the hook
-});
-```
-    
-See [Hooks](../react-hooks/) for more information in using Hooks within the grid.
-
-In both cases (component or hook) the following would be rendered:
-
-```html
-<div class="ag-react-container custom-tooltip" style="display: inline-block; height: 100%" >
-    <span>Hello World</span>
-</div>
-```
-
-## Access the Grid & Column API
-
-When the grid is initialised, it will fire the `gridReady` event. If you want to use the API of 
-the grid, you should put an `onGridReady(params)` callback onto the grid and grab the api 
-from the params. You can then call this api at a later stage to interact with the 
-grid (on top of the interaction that can be done by setting and changing the props).
+What we need to do to resolve this is to alter about our approach slightly - in the case of callbacks like this we want to have
+a "dynamic" callback which will always capture the latest values used:
 
 ```jsx
-// provide gridReady callback to the grid
-<AgGridReact
-    onGridReady={onGridReady}
-    //...
-/>
+const KEY_LEFT = 37;
+const KEY_UP = 38;
+const KEY_RIGHT = 39;
+const KEY_DOWN = 40;
 
-// in onGridReady, store the api for later use
-onGridReady = (params) => {
-    // using hooks - setGridApi/setColumnApi are returned by useState
-    setGridApi(params.api);
-    setColumnApi(params.columnApi);
+const GridExample = () => {
+    const [gridApi, setGridApi] = useState(null);
+    const [rowData, setRowData] = useState([
+        { athlete: "Michael Phelps", age: 25 },
+        { athlete: "Michael Phelps", age: 30 }
+    ]);
 
-    // or setState if using components
-    this.setState({
-        gridApi: params.api,
-        columnApi: params.columnApi
+    function useDynamicCallback(callback) {
+        const ref = useRef();
+        ref.current = callback;
+        return useCallback((...args) => ref.current.apply(this, args), []);
+    }
+
+    const onGridReady = params => {
+        setGridApi(params.api);
+    };
+
+    const navigateToNextCell = useDynamicCallback((params) => {
+        var previousCell = params.previousCellPosition,
+            suggestedNextCell = params.nextCellPosition,
+            nextRowIndex,
+            renderedRowCount;
+        switch (params.key) {
+            case KEY_DOWN:
+                nextRowIndex = previousCell.rowIndex - 1;
+                if (nextRowIndex < -1) {
+                    return null;
+                }
+                return {
+                    rowIndex: nextRowIndex,
+                    column: previousCell.column,
+                    floating: previousCell.floating
+                };
+            case KEY_UP:
+                nextRowIndex = previousCell.rowIndex + 1;
+                renderedRowCount = gridApi.getModel().getRowCount();
+                if (nextRowIndex >= renderedRowCount) {
+                    return null;
+                }
+                return {
+                    rowIndex: nextRowIndex,
+                    column: previousCell.column,
+                    floating: previousCell.floating
+                };
+            case KEY_LEFT:
+            case KEY_RIGHT:
+                return suggestedNextCell;
+            default:
+                throw "this will never happen, navigation is always one of the 4 keys above";
+        }
     });
-}
 
-// use the api some point later!
-somePointLater() {
-    // hooks
-    gridApi.selectAll();
-    columnApi.setColumnVisible('country', visible);
-
-    // components
-    this.state.gridApi.selectAll();
-    this.state.columnApi.setColumnVisible('country', visible);
-}
+    return (
+        <div
+            style={{ width: "500px", height: "500px" }}
+            className="ag-theme-alpine"
+        >
+            <AgGridReact
+                rowData={rowData}
+                navigateToNextCell={navigateToNextCell}
+                onGridReady={onGridReady}
+            >
+                <AgGridColumn field="athlete" headerName="Name" minWidth={170} />
+                <AgGridColumn field="age" />
+            </AgGridReact>
+        </div>
+    );
+};
 ```
 
-The `api` and `columnApi` are also stored inside the `AgGridReact` component, so you can also 
-look up the backing object via React and access the `api` and `columnApi` that way if you'd prefer.
-
-
-## Cell Component Rendering
-
-React renders components asynchronously and although this is fine in the majority of use cases it can 
-be the case that in certain circumstances a very slight flicker can be seen where an old component is 
-destroyed but the new one is not yet rendered by React.
-
-In order to eliminate this behaviour the Grid will "pre-render" cell components and replace them with 
-the real component once they are ready.
-
-What this means is that the `render` method on a given Cell Component will be invoked twice, once for 
-the pre-render and once for the actual component creation.
-
-In the vast majority of cases this will result in overall improved performance but if you wish to 
-disable this behaviour you can do so by setting the `disableStaticMarkup` property on the `AgGridReact` 
-component to `true`:
-
-```jsx
-<AgGridReact
-    disableStaticMarkup={true}
-```
-
-Note that this pre-render only applies to Cell Components - other types of Components are unaffected.
+By making use of `useRef` and `useCallback` in our new method `useDynamicCallback` we ensure that all values within the
+supplied function will be the latest value.
 
 ## Row Data & Column Def Control
 
-By default the ag-Grid React component will check props passed in to determine if data has changed 
+By default the AG Grid React component will check props passed in to determine if data has changed 
 and will only re-render based on actual changes.
 
 For `rowData` and `columnDefs` we provide an option for you to override this behaviour by the `rowDataChangeDetectionStrategy` and `columnDefsChangeDetectionStrategy` properties respectively:

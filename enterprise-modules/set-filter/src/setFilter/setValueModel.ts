@@ -59,6 +59,8 @@ export class SetValueModel implements IEventEmitter {
     /** Values that have been selected for this filter. */
     private selectedValues = new Set<string | null>();
 
+    private initialised: boolean = false;
+
     constructor(
         private readonly filterParams: ISetFilterParams,
         private readonly setIsLoading: (loading: boolean) => void,
@@ -149,6 +151,10 @@ export class SetValueModel implements IEventEmitter {
             AgPromise.resolve();
     }
 
+    public isInitialised(): boolean {
+        return this.initialised;
+    }
+
     private updateAllValues(): AgPromise<(string | null)[]> {
         this.allValuesPromise = new AgPromise<(string | null)[]>(resolve => {
             switch (this.valuesType) {
@@ -195,7 +201,7 @@ export class SetValueModel implements IEventEmitter {
             }
         });
 
-        this.allValuesPromise.then(values => this.updateAvailableValues(values || []));
+        this.allValuesPromise.then(values => this.updateAvailableValues(values || [])).then(() => this.initialised = true);
 
         return this.allValuesPromise;
     }
@@ -239,7 +245,7 @@ export class SetValueModel implements IEventEmitter {
 
     private getValuesFromRows(removeUnavailableValues = false): (string | null)[] {
         if (!this.clientSideValuesExtractor) {
-            console.error('ag-Grid: Set Filter cannot initialise because you are using a row model that does not contain all rows in the browser. Either use a different filter type, or configure Set Filter such that you provide it with values');
+            console.error('AG Grid: Set Filter cannot initialise because you are using a row model that does not contain all rows in the browser. Either use a different filter type, or configure Set Filter such that you provide it with values');
             return [];
         }
 

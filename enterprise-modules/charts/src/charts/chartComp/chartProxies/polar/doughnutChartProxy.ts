@@ -34,42 +34,8 @@ export class DoughnutChartProxy extends PolarChartProxy {
         this.recreateChart();
     }
 
-    protected getDefaultOptionsFromTheme(theme: ChartTheme): PolarChartOptions<PieSeriesOptions> {
-        const options = super.getDefaultOptionsFromTheme(theme);
-
-        const seriesDefaults = theme.getConfig<AgPieSeriesOptions>('pie.series.pie');
-        options.seriesDefaults = {
-            title: seriesDefaults.title,
-            label: {
-                ...seriesDefaults.label,
-                minRequiredAngle: seriesDefaults.label!.minAngle
-            },
-            callout: seriesDefaults.callout,
-            shadow: seriesDefaults.shadow,
-            tooltip: {
-                enabled: seriesDefaults.tooltip && seriesDefaults.tooltip.enabled,
-                renderer: seriesDefaults.tooltip && seriesDefaults.tooltip.renderer
-            },
-            fill: {
-                colors: theme.palette.fills,
-                opacity: seriesDefaults.fillOpacity
-            },
-            stroke: {
-                colors: theme.palette.strokes,
-                opacity: seriesDefaults.strokeOpacity,
-                width: seriesDefaults.strokeWidth
-            },
-            lineDash: seriesDefaults.lineDash,
-            lineDashOffset: seriesDefaults.lineDashOffset,
-            highlightStyle: seriesDefaults.highlightStyle as HighlightOptions,
-            listeners: seriesDefaults.listeners
-        } as PieSeriesOptions;
-
-        return options;
-    }
-
-    protected createChart(options?: PolarChartOptions<PieSeriesOptions>): PolarChart {
-        options = options || this.chartOptions;
+    protected createChart(): PolarChart {
+        const options = this.iChartOptions;
         const agChartOptions = options as AgPolarChartOptions;
         agChartOptions.type = 'pie';
         agChartOptions.autoSize = true;
@@ -96,8 +62,9 @@ export class DoughnutChartProxy extends PolarChartProxy {
             }
         });
 
-        const { seriesDefaults } = this.chartOptions;
-        const { fills, strokes } = this.getPalette();
+        const { seriesDefaults } = this.iChartOptions;
+        const fills = seriesDefaults.fill.colors;
+        const strokes = seriesDefaults.stroke.colors;
         const numFields = params.fields.length;
 
         let offset = 0;
@@ -195,8 +162,15 @@ export class DoughnutChartProxy extends PolarChartProxy {
             }
         };
 
-        const calloutColors = seriesOptions.callout && seriesOptions.callout.colors;
+        const calloutColors = seriesOptions.callout && seriesOptions.callout.colors || seriesOptions.strokes || [];
         const pieSeries = existingSeries || AgChart.createComponent(seriesOptions, 'pie.series') as PieSeries;
+
+        if (!existingSeries) {
+            if (this.crossFiltering && !pieSeries.tooltip.renderer) {
+                // only add renderer if user hasn't provided one
+                this.addCrossFilteringTooltipRenderer(pieSeries);
+            }
+        }
 
         pieSeries.angleName = updateParams.field.displayName!;
         pieSeries.labelKey = updateParams.params.category.id;
@@ -237,23 +211,19 @@ export class DoughnutChartProxy extends PolarChartProxy {
                 });
                 pieSeries.fills = updateParams.fills;
                 pieSeries.strokes = updateParams.strokes;
-                if (calloutColors) {
-                    pieSeries.callout.colors = updateParams.strokes;
-                }
+                pieSeries.callout.colors = calloutColors;
             }
 
             // disable series highlighting by default
             pieSeries.highlightStyle.fill = undefined;
 
-            pieSeries.addEventListener("nodeClick", this.crossFilterCallback);
+            pieSeries.addEventListener('nodeClick', this.crossFilterCallback);
 
             updateParams.doughnutChart.tooltip.delay = 500;
         } else {
             pieSeries.fills = updateParams.fills;
             pieSeries.strokes = updateParams.strokes;
-            if (calloutColors) {
-                pieSeries.callout.colors = updateParams.strokes;
-            }
+            pieSeries.callout.colors = calloutColors;
         }
 
         const offsetAmount = updateParams. numFields > 1 ? 20 : 40;
@@ -267,6 +237,37 @@ export class DoughnutChartProxy extends PolarChartProxy {
         }
 
         return {updatedOffset: updateParams.offset, pieSeries};
+    }
+
+    protected extractIChartOptionsFromTheme(theme: ChartTheme): PolarChartOptions<PieSeriesOptions> {
+        const options = super.extractIChartOptionsFromTheme(theme);
+
+        const seriesDefaults = theme.getConfig<AgPieSeriesOptions>('pie.series.pie');
+        options.seriesDefaults = {
+            title: seriesDefaults.title,
+            label: seriesDefaults.label,
+            callout: seriesDefaults.callout,
+            shadow: seriesDefaults.shadow,
+            tooltip: {
+                enabled: seriesDefaults.tooltip && seriesDefaults.tooltip.enabled,
+                renderer: seriesDefaults.tooltip && seriesDefaults.tooltip.renderer
+            },
+            fill: {
+                colors: seriesDefaults.fills || theme.palette.fills,
+                opacity: seriesDefaults.fillOpacity
+            },
+            stroke: {
+                colors: seriesDefaults.strokes || theme.palette.strokes,
+                opacity: seriesDefaults.strokeOpacity,
+                width: seriesDefaults.strokeWidth
+            },
+            lineDash: seriesDefaults.lineDash,
+            lineDashOffset: seriesDefaults.lineDashOffset,
+            highlightStyle: seriesDefaults.highlightStyle as HighlightOptions,
+            listeners: seriesDefaults.listeners
+        } as PieSeriesOptions;
+
+        return options;
     }
 
     protected getDefaultOptions(): PolarChartOptions<PieSeriesOptions> {
@@ -291,7 +292,7 @@ export class DoughnutChartProxy extends PolarChartProxy {
                 ...fontOptions,
                 enabled: false,
                 offset: 3,
-                minRequiredAngle: 0,
+                minAngle: 0,
             },
             tooltip: {
                 enabled: true,

@@ -2,7 +2,7 @@
 title: "Accessibility"
 ---
 
-ag-Grid provides amongst the best support for accessibility compared to other grids available on the market today. This page provides guidance on how to address accessibility concerns in your grid implementations.
+AG Grid provides amongst the best support for accessibility compared to other grids available on the market today. This page provides guidance on how to address accessibility concerns in your grid implementations.
 
 ## Web Conformance Guidelines
 
@@ -10,8 +10,8 @@ Even if you are not mandated to conform to any particular accessibility standard
 
 Currently the most commonly encountered conformance guidelines are:
 
-- [ADA](https://www.ada.gov) - US Department of Justice
-- [Section 508](https://www.section508.gov) - US federal agencies
+- [ADA](https://www.ada.gov/) - US Department of Justice
+- [Section 508](https://www.section508.gov/) - US federal agencies
 - [WCAG 2.0](https://www.w3.org/WAI/intro/wcag) - globally accepted standard
 
 WCAG 2.0 has 3 levels of conformance; A, AA and AAA (in order of conformance)
@@ -26,13 +26,13 @@ Using our demo page as an example, the chrome plugin [Colorblinding](https://chr
 
 <image-caption src="accessibility/resources/accessibility-colour-contrast.png" alt="High Contrast Theme" maxwidth="50rem" constrained="true"></image-caption>
 
-To create a high contrast theme please check out the [Themes](../themes/) documentation for details.
+To create a high contrast theme please check out the [Themes](/themes/) documentation for details.
 
 ## Keyboard navigation
 
 Users who have motor disabilities, as well as visually impaired users, often rely on keyboards for navigation.
 
-For details on how to navigate the grid without using a mouse refer to the [Keyboard Navigation](../keyboard-navigation/) documentation. Note that it is possible to provide custom navigation which could come in useful for some accessibility requirements.
+For details on how to navigate the grid without using a mouse refer to the [Keyboard Navigation](/keyboard-navigation/) documentation. Note that it is possible to provide custom navigation which could come in useful for some accessibility requirements.
 
 ## Screen Readers
 
@@ -41,20 +41,20 @@ interact with grid based application.
 
 There are numerous screen readers available, however right now the most popular screen reader for Windows is [JAWS](https://www.freedomscientific.com/Downloads/JAWS) and for MAC users it is the embedded [VoiceOver](http://help.apple.com/voiceover/info/guide) software. Our testing has focused on these screen readers.
 
-In order to cover the widest range of use cases and screen readers, ag-Grid has taken a standards-based approach to implementing accessibility support. Instead of optimizing our implementation for specific screen readers, we have followed the W3C WCAG standard and added the relevant ARIA-tags to let screen readers announce any ag-Grid element and its state.
+In order to cover the widest range of use cases and screen readers, AG Grid has taken a standards-based approach to implementing accessibility support. Instead of optimizing our implementation for specific screen readers, we have followed the W3C WCAG standard and added the relevant ARIA-tags to let screen readers announce any AG Grid element and its state.
 
-However, different screen readers interpret the WCAG standard in different ways. As a result, they may generate different announcements for the same ag-Grid element, or no announcement at all.
+However, different screen readers interpret the WCAG standard in different ways. As a result, they may generate different announcements for the same AG Grid element, or no announcement at all.
 
 This is why we recommend testing how different screen readers announce the UI of the application you're using, selecting the best one and recommending that to your users. We believe this is the best way to guide your users how to get the best possible experience at this time until screen readers improve their support for the WCAG standard.
 
 ## ARIA Attributes
 
-In order to give screen readers the contextual information they require to interpret and interact with the grid, [ARIA](https://www.w3.org/TR/wai-aria/) attributes are added to the grid DOM elements. These attributes are particularity useful when plain HTML elements such `div` and `span` are used to create complex DOM structures, which is the case with ag-Grid.
+In order to give screen readers the contextual information they require to interpret and interact with the grid, [ARIA](https://www.w3.org/TR/wai-aria/) attributes are added to the grid DOM elements. These attributes are particularity useful when plain HTML elements such `div` and `span` are used to create complex DOM structures, which is the case with AG Grid.
 
 When inspecting the DOM you'll notice the following roles and properties have been added:
 
 - **role="grid"** - marks the enclosing element of the grid.<br>
-    **Note:** You can set any aria property in the panel (role="grid") by using the `setGridAriaProperty` method in the [Grid Api](../grid-api/).
+    **Note:** You can set any aria property in the panel (role="grid") by using the `setGridAriaProperty` method in the [Grid Api](/grid-api/).
     - **aria-rowcount** - announces the number of rows.
     - **aria-colcount** - announces the number of rows.
     - **aria-multiselectable="true"** - marks the grid as being able to select multiple rows.
@@ -102,37 +102,44 @@ In order to support large datasets with a minimised memory footprint and a respo
 
 ### Ensure DOM Element order
 
-By default rows and columns can appear out of order in the DOM. This 'incorrect order' can result in inconsistent
+By default, rows and columns can appear out of order in the DOM. This 'incorrect order' can result in inconsistent
 results when parsed by screen readers.
 
 To force row and column order, enable the following gridOptions property like so:
 
-```js
-gridOptions.ensureDomOrder = true
-```
+<snippet>
+const gridOptions = {
+    ensureDomOrder: true,
+}
+</snippet>
 
 [[note]]
 | Animations won't work properly when the DOM order is forced, so ensure they are not enabled.</note>
 
 ### Ensure all grid elements are always rendered
 
-In order to ensure all grid elements are loaded, you need to disable column and row virtualization. The best way to do this is to use [pagination](../row-pagination/). This way you can reduce the initial loading time and memory footprint while ensuring all elements for these rows are loaded for screen readers.
+In order to ensure all grid elements are loaded, you need to disable column and row virtualization. The best way to do this is to use [pagination](/row-pagination/). This way you can reduce the initial loading time and memory footprint while ensuring all elements for these rows are loaded for screen readers.
 
 If your requirement is to use scrolling instead of pagination, you can disable row virtualisation at the expense  of increasing the memory footprint. Please test the performance of this and if it's not satisfactory, switch to  using pagination instead.
 
 Column virtualisation can be disabled as follows:
 
-```js
-gridOptions.suppressColumnVirtualisation = true
-```
+<snippet>
+const gridOptions = {
+    suppressColumnVirtualisation: true,
+}
+</snippet>
 
 This means if you have 100 columns, but only 10 visible due to scrolling, all 100 will always be rendered.
 
 There is no property to suppress row virtualisation however if you want to do this you can set the rowBuffer property to be very large as follows:
 
-```js
-gridOptions.rowBuffer = 9999
-```
+<snippet>
+const gridOptions = {
+    rowBuffer: 9999,
+}
+</snippet>
+
 This sets number of rows rendered outside the scrollable viewable area the grid renders. The defaults is 20.
 
 However note that lots of rendered rows will mean a very large amount of rendering in the DOM which will slow things down.
@@ -150,14 +157,13 @@ The example below presents a simple grid layout with the following properties en
 ## Customising ARIA Labels
 
 The grid has default ARIA labels for areas like `rows`, `group cells`, `filters`, `search fields` and so on. If there is a need to
-customise these labels, this could be achieved by changing the [localisation variables](../localisation/#creating-a-locale) for ARIA.
-See the [localisation example](../localisation/#example--localisation), inspect the items or use a screen reader to see the 
+customise these labels, this could be achieved by changing the [localisation variables](/localisation/#creating-a-locale) for ARIA.
+See the [localisation example](/localisation/#example--localisation), inspect the items or use a screen reader to see the
 customisation in action.
 
 ## Known Limitations
 
-Using advanced functionality in ag-Grid makes the DOM structure incompatible with the assumptions screen readers make. This results in a few limitations in accessibility when specific functionality is used:
-
+Using advanced functionality in AG Grid makes the DOM structure incompatible with the assumptions screen readers make. This results in a few limitations in accessibility when specific functionality is used:
 
 - ### Navigation to pinned rows/columns
     Screen readers assume that the visual and DOM element order are identical. Specifically, when you pin a row/column, it  causes elements to be rendered in different containers. This is why you cannot use screen readers to navigate into a  pinned row/column cells, as in fact, this means they're rendered in a different element from the rest of the columns/rows which are scrollable.
@@ -170,4 +176,3 @@ Using advanced functionality in ag-Grid makes the DOM structure incompatible wit
 
 - ### Server-Side Row Model
     Announcing the row count in the grid when using server-side row model (SSRM) is not supported. This is because the row count cannot be known in all the scenarios where SSRM is in use.
-

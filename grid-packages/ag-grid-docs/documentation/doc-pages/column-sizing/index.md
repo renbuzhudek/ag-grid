@@ -6,128 +6,64 @@ All columns can be resized by dragging the top right portion of the column.
 
 ## Enable Sizing
 
-Turn column resizing on for the grid by setting `resizable=true` for each column. To set resizing for each column, set `resizable=true` on the [default column definition](../column-definitions/#default-column-definitions).
+Turn column resizing on for the grid by setting `resizable=true` for each column. To set resizing for each column, set `resizable=true` on the [default column definition](/column-definitions/#default-column-definitions).
 
 The snippet below allows all columns except Address to be resized by explicitly setting each column.
 
-[[only-javascript]]
-| ```js
-| const gridOptions = {
-|     columnDefs: [
-|         { field: 'name', resizable: true },
-|         { field: 'age', resizable: true },
-|         { field: 'address' },
-|     ],
-|
-|     // other grid options ...
-| }
-| ```
-
-[[only-angular]]
-| ```js
-| <ag-grid-angular
-|     [columnDefs]="columnDefs"
-|     // other grid options ...>
-| </ag-grid-angular>
-|
-| this.columnDefs = [
-|     { field: 'name', resizable: true },
-|     { field: 'age', resizable: true },
-|     { field: 'address' },
-| ];
-| ```
-
-[[only-react]]
-| ```js
-| <AgGridReact>
-|     <AgGridColumn field='name' resizable={true} />
-|     <AgGridColumn field='age' resizable={true} />
-|     <AgGridColumn field='address' />
-| </AgGridReact>
-| ```
-
-[[only-vue]]
-| ```js
-| <ag-grid-vue
-|     :columnDefs="columnDefs"  
-|     // other grid options ...>
-| </ag-grid-vue>
-|
-| this.columnDefs = [
-|     { field: 'name', resizable: true },
-|     { field: 'age', resizable: true },
-|     { field: 'address' },
-| ];
-| ```
+<snippet>
+const gridOptions = {
+    columnDefs: [
+        { field: 'name', resizable: true },
+        { field: 'age', resizable: true },
+        { field: 'address' },
+    ],
+}
+</snippet>
 
 The snippet below allows all columns except Address to be resized by setting `resizable=true` on the default column definition and then `resizable=false` on the Address column.
 
-[[only-javascript]]
-| ```js
-| const gridOptions = {
-|     defaultColDef: {
-|         resizable: true
-|     },
-|     columnDefs: [
-|         { field: 'name' },
-|         { field: 'age' },
-|         { field: 'address', resizable: false },
-|     ],
-|
-|     // other grid options ...
-| }
-| ```
-
-[[only-angular]]
-| ```js
-| <ag-grid-angular
-|     [defaultColDef]="defaultColDef"
-|     [columnDefs]="columnDefs"
-|     // other grid options ...>
-| </ag-grid-angular>
-|
-| this.defaultColDef = {
-|     resizable: true
-| };
-| this.columnDefs = [
-|     { field: 'name' },
-|     { field: 'age' },
-|     { field: 'address', resizable: false },
-| ];
-| ```
-
-[[only-react]]
-| ```js
-| <AgGridReact defaultColDef={{ resizable: true }} >
-|     <AgGridColumn field='name' />
-|     <AgGridColumn field='age' />
-|     <AgGridColumn field='address' resizable={false} />
-| </AgGridReact>
-| ```
-
-[[only-vue]]
-| ```js
-| <ag-grid-vue
-|     :defaultColDef="defaultColDef"
-|     :columnDefs="columnDefs"  
-|     // other grid options ...>
-| </ag-grid-vue>
-|
-| this.defaultColDef = {
-|     resizable: true
-| };
-| this.columnDefs = [
-|     { field: 'name' },
-|     { field: 'age' },
-|     { field: 'address', resizable: false },
-| ];
-| ```
+<snippet>
+const gridOptions = {
+    defaultColDef: {
+        resizable: true,
+    },
+    columnDefs: [
+        { field: 'name' },
+        { field: 'age' },
+        { field: 'address', resizable: false },
+    ],
+}
+</snippet>
 
 ## Size Columns to Fit
 
 Call `api.sizeColumnsToFit()` to make the currently visible columns fit the screen. The columns will scale (growing or shrinking) to fit the available width.
 
 If you don't want a particular column to be included in the auto resize, then set the column definition `suppressSizeToFit=true`. This is helpful if, for example, you want the first column to remain fixed width, but all other columns to fill the width of the table.
+
+The grid calculates new column widths while maintaining the ratio of the column default widths. So for example
+if Column A has a default size twice as width as Column B, then after calling `api.sizeColumnsToFit()` Column A
+will still be twice the size of Column B, assuming no Column min-width or max-width constraints are violated.
+
+Column default widths, rather than current widths, are used while calculating the new widths. This insures
+the result is deterministic and not depend on any Column resizing the user may have manually done.
+
+[[note]]
+| For example assuming a grid with three Columns, the algorithm will be as follows:<br/>
+|
+| scale = availableWidth / (w1 + w2 + w3)<br/>
+| w1 = round(w1 * scale)<br/>
+| w2 = round(w2 * scale)<br/>
+| w3 = totalGridWidth - (w1 + w2)<br/>
+|
+| Assuming the grid is 1,200 pixels wide and the Columns have default widths of 40, 120 and 300,
+| then the calculation is as follows:
+|
+| availableWidth = 1,198 (available width is typically smaller as the grid typically has left and right boarders)<br/>
+| scale = 1198 / (50 + 120 + 300) = 2.548936170212766<br/>
+| col 1 = 50 * 2.54 = 127.44 -> rounded = 127<br/>
+| col 2 = 120 * 2.54 = 305.87 -> rounded = 306<br/>
+| col 3 = 1198 - (127 + 306) = 765 // last col gets the space that's left, which ensures all space is used, no rounding issues<br/>
 
 ## Auto-Size Columns
 
@@ -150,7 +86,7 @@ Autosizing columns can also be done using the following grid API methods:
 
 If skipHeader=true, the header won't be included when calculating the column widths.
 
-[Column Groups](../column-groups/) are never considered when calculating the column widths.
+[Column Groups](/column-groups/) are never considered when calculating the column widths.
 
 ## Resizing Example
 
@@ -167,14 +103,6 @@ The example below shows resizing in action. Things to note are as follows:
 In the example below, also of note is the second column, which has both a min and max size set, which is also respected with `sizeColumnsToFit`. The remaining columns will spread to fill the remaining space after you press the button.
 
 <grid-example title='Column Resizing' name='column-resizing' type='generated'></grid-example>
-
-## Sizing Columns By Default
-
-It is possible to have the grid auto size the columns to fill the width by default. Do this by calling `api.sizeColumnsToFit()` on the `gridReady` event.
-
-Note that `api.sizeColumnsToFit()` needs to know the grid width in order to do its maths. If the grid is not attached to the DOM, then this will be unknown. In the example below, the grid is not attached to the DOM when it is created (and hence `api.sizeColumnsToFit()` should fail). The grid checks again after 100ms, and tries to resize again. This is needed for some frameworks (e.g. Angular) as DOM objects are used before getting attached.
-
-<grid-example title='Default Resizing' name='default-resizing' type='generated'></grid-example>
 
 ## Column Flex
 
@@ -201,16 +129,24 @@ The example below shows flex in action. Things to note are as follows:
 
 <grid-example title='Column Flex' name='flex-columns' type='generated'></grid-example>
 
+## Sizing Columns By Default
+
+It is possible to have the grid auto size the columns to fill the width by default. Do this by calling `api.sizeColumnsToFit()` on the `gridReady` event.
+
+Note that `api.sizeColumnsToFit()` needs to know the grid width in order to do its maths. If the grid is not attached to the DOM, then this will be unknown. In the example below, the grid is not attached to the DOM when it is created (and hence `api.sizeColumnsToFit()` should fail). The grid checks again after 100ms, and tries to resize again. This is needed for some frameworks (e.g. Angular) as DOM objects are used before getting attached.
+
+<grid-example title='Default Resizing' name='default-resizing' type='generated'></grid-example>
+
 ## Shift Resizing
 
-If you hold the `Shift` key while dragging the resize handle, the column will take space away from the column adjacent to it. This means the total width for all columns will be constant.
+If you hold the <kbd>Shift</kbd> key while dragging the resize handle, the column will take space away from the column adjacent to it. This means the total width for all columns will be constant.
 
-You can also change the default behaviour for resizing. Set the grid property `colResizeDefault='shift'` to have shift resizing as the default and normal resizing to happen when the `Shift` key is pressed.
+You can also change the default behaviour for resizing. Set the grid property `colResizeDefault='shift'` to have shift resizing as the default and normal resizing to happen when the <kbd>Shift</kbd> key is pressed.
 
 In the example below, note the following:
 
-- Grid property `colResizeDefault='shift'` so default column resizing will behave as if `Shift` key is pressed.
-- Holding down `Shift` will then resize the normal default way.
+- Grid property `colResizeDefault='shift'` so default column resizing will behave as if <kbd>Shift</kbd> key is pressed.
+- Holding down <kbd>Shift</kbd> will then resize the normal default way.
 
 <grid-example title='Shift Resizing' name='shift-resizing' type='generated'></grid-example>
 

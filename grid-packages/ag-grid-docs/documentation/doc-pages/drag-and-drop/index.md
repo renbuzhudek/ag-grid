@@ -14,8 +14,8 @@ This section outlines how the grid fits in with native operating system drag and
 [[note]]
 | The grid implements it's own drag and drop separate to the operating system drag and drop.
 | It is used internally by the grid for
-| [Row Dragging](../row-dragging/) (for reordering rows) and for column dragging 
-| (eg re-ordering columns or moving colums in the [Column Tool Panel](../tool-panel-columns/)).
+| [Row Dragging](/row-dragging/) (for reordering rows) and for column dragging
+| (e.g. re-ordering columns or moving columns in the [Column Tool Panel](/tool-panel-columns/)).
 | The grid uses it's own implementation in these instances as it needs finer control over the data
 | than native browser drag & drop supports. For example, the native d&d does not provide
 | access to the dragged item until after the drag operation is complete.
@@ -24,8 +24,25 @@ This section outlines how the grid fits in with native operating system drag and
 
 To allow dragging from the grid, set the property `dndSource=true` on one of the columns.
 This will result in the column having a drag handle displayed. When the dragging starts, the grid
-will by default create a JSON representation of the data and set this as MIME types `application/json`
-and also `text/plain`.
+will by default create a JSON representation of the data and set this as MIME types `application/json` and also `text/plain`.
+
+`dndSource=true` can also be set to a callback function in the following format:
+
+```ts
+// function to enable/disable DnD Source
+function dndSource(params: DndSourceCallbackParams) => boolean;
+
+// interface for params
+interface DndSourceCallbackParams {
+    node: RowNode;
+    data: any;
+    column: Column;
+    colDef: ColDef;
+    context: any;
+    api: GridApi;
+    columnApi: ColumnApi;
+}
+```
 
 In the example below, note the following:
 
@@ -39,7 +56,7 @@ In the example below, note the following:
 
 ## Dragging Between Grids
 
-It is possible to drag rows between two instances of ag-Grid. The drag is done exactly like the simple case described above. The drop is done by the example.
+It is possible to drag rows between two instances of AG Grid. The drag is done exactly like the simple case described above. The drop is done by the example.
 
 In the example below, note the following:
 
@@ -75,7 +92,7 @@ The example below is identical to the first example on this page with the additi
 
 ## Custom Drag Component
 
-Drag and drop is a complex application-level requirement. As such, a component (the grid) can't propose a drag and drop solution that is appropriate for all applications. For this reason, if the application has drag and drop requirements, you would likely want to implement a custom [Cell Renderer](../component-cell-renderer/) specifically for your needs.
+Drag and drop is a complex application-level requirement. As such, a component (the grid) can't propose a drag and drop solution that is appropriate for all applications. For this reason, if the application has drag and drop requirements, you would likely want to implement a custom [Cell Renderer](/component-cell-renderer/) specifically for your needs.
 
 The example below shows a custom drag and drop cell renderer. Note the following:
 

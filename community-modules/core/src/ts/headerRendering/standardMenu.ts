@@ -4,25 +4,25 @@ import { IMenuFactory } from '../interfaces/iMenuFactory';
 import { FilterManager } from '../filter/filterManager';
 import { Column } from '../entities/column';
 import { PopupService } from '../widgets/popupService';
-import { FocusController } from '../focusController';
+import { FocusService } from '../focusService';
 import { addCssClass, isVisible } from '../utils/dom';
 import { KeyCode } from '../constants/keyCode';
-import { GridPanel } from "../gridPanel/gridPanel";
+import { GridBodyComp } from "../gridBodyComp/gridBodyComp";
 
 @Bean('menuFactory')
 export class StandardMenuFactory extends BeanStub implements IMenuFactory {
 
     @Autowired('filterManager') private filterManager: FilterManager;
     @Autowired('popupService') private popupService: PopupService;
-    @Autowired('focusController') private focusController: FocusController;
+    @Autowired('focusService') private focusService: FocusService;
 
     private hidePopup: () => void;
     private tabListener: () => null;
 
-    private gridPanel: GridPanel;
+    private gridBodyComp: GridBodyComp;
 
-    public registerGridComp(gridPanel: GridPanel): void {
-        this.gridPanel = gridPanel;
+    public registerGridComp(gridBodyComp: GridBodyComp): void {
+        this.gridBodyComp = gridBodyComp;
     }
 
     public hideActiveMenu(): void {
@@ -67,17 +67,8 @@ export class StandardMenuFactory extends BeanStub implements IMenuFactory {
 
         let hidePopup: (() => void);
 
-        const bodyScrollListener = (event: any) => {
-            // if h scroll, popup is no longer over the column
-            if (event.direction === 'horizontal' && hidePopup) {
-                hidePopup();
-            }
-        };
-
-        this.eventService.addEventListener('bodyScroll', bodyScrollListener);
-
+        const anchorToElement = eventSource || this.gridBodyComp.getGui();
         const closedCallback = (e: MouseEvent | TouchEvent | KeyboardEvent) => {
-            this.eventService.removeEventListener('bodyScroll', bodyScrollListener);
             column.setMenuVisible(false, 'contextMenu');
             const isKeyboardEvent = e instanceof KeyboardEvent;
 
@@ -86,7 +77,7 @@ export class StandardMenuFactory extends BeanStub implements IMenuFactory {
             }
 
             if (isKeyboardEvent && eventSource && isVisible(eventSource)) {
-                const focusableEl = this.focusController.findTabbableParent(eventSource);
+                const focusableEl = this.focusService.findTabbableParent(eventSource);
 
                 if (focusableEl) { focusableEl.focus(); }
             }
@@ -96,7 +87,9 @@ export class StandardMenuFactory extends BeanStub implements IMenuFactory {
             modal: true,
             eChild: eMenu,
             closeOnEsc: true,
-            closedCallback
+            closedCallback,
+            positionCallback: () => positionCallback(eMenu),
+            anchorToElement
         });
 
         if (addPopupRes) {
@@ -119,13 +112,13 @@ export class StandardMenuFactory extends BeanStub implements IMenuFactory {
     private trapFocusWithin(e: KeyboardEvent, menu: HTMLElement) {
         if (e.keyCode !== KeyCode.TAB ||
             e.defaultPrevented ||
-            this.focusController.findNextFocusableElement(menu, false, e.shiftKey)) {
+            this.focusService.findNextFocusableElement(menu, false, e.shiftKey)) {
             return;
         }
 
         e.preventDefault();
 
-        this.focusController.focusInto(menu, e.shiftKey);
+        this.focusService.focusInto(menu, e.shiftKey);
     }
 
     public isMenuEnabled(column: Column): boolean {

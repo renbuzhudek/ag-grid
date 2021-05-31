@@ -13,7 +13,6 @@ VERSION=""${RAW_VERSION//./}""
 
 echo "Starting Docs Bundle Process"
 cd grid-packages/ag-grid-docs
-rm -rf dist
 
 echo "Gatsby Package"
 cd documentation
@@ -24,6 +23,7 @@ echo "Building Docs Release Bundle"
 npx gulp release
 cd dist
 
+echo "Creating Release Archive"
 FILENAME=release_"$ZIP_PREFIX"_v"$VERSION".zip
 zip -r ../../../$FILENAME .
 

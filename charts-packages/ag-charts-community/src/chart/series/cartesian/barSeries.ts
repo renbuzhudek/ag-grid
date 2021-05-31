@@ -7,18 +7,18 @@ import { DropShadow } from "../../../scene/dropShadow";
 import {
     HighlightStyle,
     SeriesNodeDatum,
-    CartesianTooltipRendererParams as BarTooltipRendererParams, SeriesTooltip
+    CartesianTooltipRendererParams, SeriesTooltip
 } from "../series";
 import { Label } from "../../label";
 import { PointerEvents } from "../../../scene/node";
 import { LegendDatum } from "../../legend";
 import { CartesianSeries } from "./cartesianSeries";
-import { ChartAxisDirection, flipChartAxisDirection } from "../../chartAxis";
+import { ChartAxis, ChartAxisDirection, flipChartAxisDirection } from "../../chartAxis";
 import { TooltipRendererResult, toTooltipHtml } from "../../chart";
 import { findMinMax } from "../../../util/array";
-import { toFixed } from "../../../util/number";
 import { equal } from "../../../util/equal";
 import { reactive, TypedEvent } from "../../../util/observable";
+import Scale from "../../../scale/scale";
 
 export interface BarSeriesNodeClickEvent extends TypedEvent {
     readonly type: 'nodeClick';
@@ -29,9 +29,12 @@ export interface BarSeriesNodeClickEvent extends TypedEvent {
     readonly yKey: string;
 }
 
-export { BarTooltipRendererParams };
+export interface BarTooltipRendererParams extends CartesianTooltipRendererParams {
+    readonly processedYValue: any;
+}
 
 interface BarNodeDatum extends SeriesNodeDatum {
+    readonly index: number;
     readonly yKey: string;
     readonly yValue: number;
     readonly x: number;
@@ -47,6 +50,8 @@ interface BarNodeDatum extends SeriesNodeDatum {
         readonly fontWeight?: FontWeight;
         readonly fontSize: number;
         readonly fontFamily: string;
+        readonly textAlign: CanvasTextAlign;
+        readonly textBaseline: CanvasTextBaseline;
         readonly fill: string;
         readonly x: number;
         readonly y: number;
@@ -58,8 +63,14 @@ enum BarSeriesNodeTag {
     Label
 }
 
+export enum BarLabelPlacement {
+    Inside = 'inside',
+    Outside = 'outside'
+}
+
 class BarSeriesLabel extends Label {
     @reactive('change') formatter?: (params: { value: number }) => string;
+    @reactive('change') placement = BarLabelPlacement.Inside;
 }
 
 export interface BarSeriesFormatterParams {
@@ -80,6 +91,17 @@ export interface BarSeriesFormat {
 
 export class BarSeriesTooltip extends SeriesTooltip {
     @reactive('change') renderer?: (params: BarTooltipRendererParams) => string | TooltipRendererResult;
+}
+
+function flat(arr: any[], target: any[] = []): any[] {
+    arr.forEach(v => {
+        if (Array.isArray(v)) {
+            flat(v, target);
+        } else {
+            target.push(v);
+        }
+    });
+    return target;
 }
 
 export class BarSeries extends CartesianSeries {
@@ -115,7 +137,7 @@ export class BarSeries extends CartesianSeries {
     tooltipRenderer?: (params: BarTooltipRendererParams) => string | TooltipRendererResult;
     tooltip: BarSeriesTooltip = new BarSeriesTooltip();
 
-    @reactive('layoutChange') flipXY = false;
+    @reactive('dataChange') flipXY = false;
 
     @reactive('dataChange') fills: string[] = [
         '#c16068',
@@ -165,7 +187,7 @@ export class BarSeries extends CartesianSeries {
     getKeys(direction: ChartAxisDirection): string[] {
         const { directionKeys } = this;
         const keys = directionKeys && directionKeys[this.flipXY ? flipChartAxisDirection(direction) : direction];
-        const values: string[] = [];
+        let values: string[] = [];
 
         if (keys) {
             keys.forEach(key => {
@@ -173,7 +195,7 @@ export class BarSeries extends CartesianSeries {
 
                 if (value) {
                     if (Array.isArray(value)) {
-                        values.push(...value);
+                        values = values.concat(flat(value));
                     } else {
                         values.push(value);
                     }
@@ -458,14 +480,22 @@ export class BarSeries extends CartesianSeries {
         });
     }
 
+    private getCategoryAxis(): ChartAxis<Scale<any, number>> {
+        return this.flipXY ? this.yAxis : this.xAxis;
+    }
+
+    private getValueAxis(): ChartAxis<Scale<any, number>> {
+        return this.flipXY ? this.xAxis : this.yAxis;
+    }
+
     private generateNodeData(): BarNodeDatum[] {
         if (!this.data) {
             return [];
         }
 
         const { flipXY } = this;
-        const xAxis = flipXY ? this.yAxis : this.xAxis;
-        const yAxis = flipXY ? this.xAxis : this.yAxis;
+        const xAxis = this.getCategoryAxis();
+        const yAxis = this.getValueAxis();
         const xScale = xAxis.scale;
         const yScale = yAxis.scale;
 
@@ -480,15 +510,16 @@ export class BarSeries extends CartesianSeries {
             data,
             xData,
             yData,
+            label
         } = this;
 
-        const label = this.label;
         const labelFontStyle = label.fontStyle;
         const labelFontWeight = label.fontWeight;
         const labelFontSize = label.fontSize;
         const labelFontFamily = label.fontFamily;
         const labelColor = label.color;
         const labelFormatter = label.formatter;
+        const labelPlacement = label.placement;
 
         groupScale.range = [0, xScale.bandwidth!];
 
@@ -532,8 +563,39 @@ export class BarSeries extends CartesianSeries {
                         labelText = yValueIsNumber && isFinite(yValue) ? yValue.toFixed(2) : '';
                     }
 
+                    let labelX: number;
+                    let labelY: number;
+
+                    if (flipXY) {
+                        labelY = barX + barWidth / 2;
+                        if (labelPlacement === BarLabelPlacement.Inside) {
+                            labelX = y + (yValue >= 0 ? -1 : 1) * Math.abs(bottomY - y) / 2;
+                        } else {
+                            labelX = y + (yValue >= 0 ? 1 : -1) * 4;
+                        }
+                    } else {
+                        labelX = barX + barWidth / 2;
+                        if (labelPlacement === BarLabelPlacement.Inside) {
+                            labelY = y + (yValue >= 0 ? 1 : -1) * Math.abs(bottomY - y) / 2;
+                        } else {
+                            labelY = y + (yValue >= 0 ? -3 : 4);
+                        }
+                    }
+
+                    let labelTextAlign: CanvasTextAlign;
+                    let labelTextBaseline: CanvasTextBaseline;
+
+                    if (labelPlacement === BarLabelPlacement.Inside) {
+                        labelTextAlign = 'center';
+                        labelTextBaseline = 'middle';
+                    } else {
+                        labelTextAlign = flipXY ? (yValue >= 0 ? 'start' : 'end') : 'center';
+                        labelTextBaseline = flipXY ? 'middle' : (yValue >= 0 ? 'bottom' : 'top');
+                    }
+
                     const colorIndex = cumYKeyCount[stackIndex] + levelIndex;
                     nodeData.push({
+                        index: groupIndex,
                         series: this,
                         seriesDatum,
                         yValue,
@@ -551,9 +613,11 @@ export class BarSeries extends CartesianSeries {
                             fontWeight: labelFontWeight,
                             fontSize: labelFontSize,
                             fontFamily: labelFontFamily,
+                            textAlign: labelTextAlign,
+                            textBaseline: labelTextBaseline,
                             fill: labelColor,
-                            x: flipXY ? y + (yValue >= 0 ? -1 : 1) * Math.abs(bottomY - y) / 2 : barX + barWidth / 2,
-                            y: flipXY ? barX + barWidth / 2 : y + (yValue >= 0 ? 1 : -1) * Math.abs(bottomY - y) / 2
+                            x: labelX,
+                            y: labelY
                         } : undefined
                     });
 
@@ -655,8 +719,6 @@ export class BarSeries extends CartesianSeries {
         const enterTexts = updateTexts.enter.append(Text).each(text => {
             text.tag = BarSeriesNodeTag.Label;
             text.pointerEvents = PointerEvents.None;
-            text.textAlign = 'center';
-            text.textBaseline = 'middle';
         });
 
         this.textSelection = updateTexts.merge(enterTexts);
@@ -673,6 +735,8 @@ export class BarSeries extends CartesianSeries {
                 text.fontWeight = label.fontWeight;
                 text.fontSize = label.fontSize;
                 text.fontFamily = label.fontFamily;
+                text.textAlign = label.textAlign;
+                text.textBaseline = label.textBaseline;
                 text.text = label.text;
                 text.x = label.x;
                 text.y = label.y;
@@ -685,32 +749,39 @@ export class BarSeries extends CartesianSeries {
     }
 
     getTooltipHtml(nodeDatum: BarNodeDatum): string {
-        const { xKey, yKeys } = this;
+        const { xKey, yKeys, yData } = this;
+        const xAxis = this.getCategoryAxis();
+        const yAxis = this.getValueAxis();
         const { yKey } = nodeDatum;
 
-        if (!xKey || !yKey) {
+        if (!xKey || !yKey || !yData.length) {
             return '';
         }
 
-        let yKeyIndex = 0;
-        for (const stack of yKeys) {
-            const i = stack.indexOf(yKey);
+        const yGroup = yData[nodeDatum.index];
+        let fillIndex = 0;
+        let i = 0;
+        let j = 0;
+        for (; j < yKeys.length; j++) {
+            const stack = yKeys[j];
+            i = stack.indexOf(yKey);
             if (i >= 0) {
-                yKeyIndex += i;
+                fillIndex += i;
                 break;
             }
-            yKeyIndex += stack.length;
+            fillIndex += stack.length;
         }
 
         const { xName, yNames, fills, tooltip } = this;
         const { renderer: tooltipRenderer = this.tooltipRenderer } = tooltip; // TODO: remove deprecated tooltipRenderer
         const datum = nodeDatum.seriesDatum;
         const yName = yNames[yKey];
-        const color = fills[yKeyIndex % fills.length];
+        const color = fills[fillIndex % fills.length];
         const xValue = datum[xKey];
         const yValue = datum[yKey];
-        const xString = typeof xValue === 'number' ? toFixed(xValue) : String(xValue);
-        const yString = typeof yValue === 'number' ? toFixed(yValue) : String(yValue);
+        const processedYValue = yGroup[j][i];
+        const xString = xAxis.formatDatum(xValue);
+        const yString = yAxis.formatDatum(yValue);
         const title = yName;
         const content = xString + ': ' + yString;
         const defaults: TooltipRendererResult = {
@@ -727,6 +798,7 @@ export class BarSeries extends CartesianSeries {
                 xName,
                 yKey,
                 yValue,
+                processedYValue,
                 yName,
                 color
             }), defaults);

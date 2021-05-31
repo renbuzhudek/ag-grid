@@ -140,7 +140,7 @@ export class ScatterSeries extends CartesianSeries {
      * @deprecated Use {@link tooltip.renderer} instead.
      */
     tooltipRenderer?: (params: ScatterTooltipRendererParams) => string | TooltipRendererResult;
-    tooltip: ScatterSeriesTooltip = new ScatterSeriesTooltip();
+    readonly tooltip: ScatterSeriesTooltip = new ScatterSeriesTooltip();
 
     constructor() {
         super();
@@ -344,7 +344,7 @@ export class ScatterSeries extends CartesianSeries {
     }
 
     getTooltipHtml(nodeDatum: ScatterNodeDatum): string {
-        const { xKey, yKey } = this;
+        const { xKey, yKey, xAxis, yAxis } = this;
 
         if (!xKey || !yKey) {
             return '';
@@ -357,19 +357,20 @@ export class ScatterSeries extends CartesianSeries {
             sizeKey,
             sizeName,
             labelKey,
-            labelName,
-            fill
+            labelName
         } = this;
 
         const { renderer: tooltipRenderer = this.tooltipRenderer } = tooltip;
-        const color = fill || 'gray';
+        const color = this.marker.fill || this.fill || 'gray';
         const title = this.title || yName;
         const datum = nodeDatum.seriesDatum;
         const xValue = datum[xKey];
         const yValue = datum[yKey];
+        const xString = xAxis.formatDatum(xValue);
+        const yString = yAxis.formatDatum(yValue);
 
-        let content = `<b>${xName || xKey}</b>: ${typeof xValue === 'number' ? toFixed(xValue) : xValue}`
-            + `<br><b>${yName || yKey}</b>: ${typeof yValue === 'number' ? toFixed(yValue) : yValue}`;
+        let content = `<b>${xName || xKey}</b>: ${xString}`
+            + `<br><b>${yName || yKey}</b>: ${yString}`;
 
         if (sizeKey) {
             content += `<br><b>${sizeName}</b>: ${datum[sizeKey]}`;

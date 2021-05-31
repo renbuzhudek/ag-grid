@@ -12,9 +12,9 @@ header#nav {
             @extend .navbar-brand, .text-hide;
             background-image: url('../svg/logo-white.svg');
             background-repeat: no-repeat;
-            background-size: contain;;
-            min-height: 2.5rem;
-            min-width: 5.5rem;
+            background-size: contain;
+            min-height: 40px;
+            min-width: 15rem;
         }
 
         ul {
@@ -27,7 +27,7 @@ header#nav {
                     @extend .active;
 
                     @include media-breakpoint-up(sm) {
-                        &:after {
+                        &::after {
                             content: '';
                             height: 0.2rem;
                             width: 100%;

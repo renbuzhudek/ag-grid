@@ -7,78 +7,31 @@ import cellStylesXfsFactory from './cellStyleXfs';
 import cellXfsFactory from './cellXfs';
 import cellStylesFactory from './cellStyles';
 
-import { NumberFormat, numberFormatMap } from './numberFormat';
-import { getFamilyId, Font } from './font';
-import { Fill } from './fill';
-import { convertLegacyBorder, BorderSet, Border } from './border';
 import { Xf } from './xf';
 import { CellStyle } from './cellStyle';
+import { Border, BorderProperty, BorderSet, ExcelThemeFont, Fill, NumberFormat, StylesMap } from '../../../assets/excelInterfaces';
+import { convertLegacyBorder, convertLegacyColor, convertLegacyPattern } from '../../../assets/excelLegacyConvert';
+import { numberFormatMap } from '../../../assets/excelConstants';
+import { getFontFamilyId } from '../../../assets/excelUtils';
 
 let stylesMap: StylesMap;
 let registeredNumberFmts: NumberFormat[];
-let registeredFonts: Font[];
+let registeredFonts: ExcelThemeFont[];
 let registeredFills: Fill[];
 let registeredBorders: BorderSet[];
 let registeredCellStyleXfs: Xf[];
 let registeredCellXfs: Xf[];
 let registeredCellStyles: CellStyle[];
 
-interface StylesMap {
-    [key: string]: number;
-}
-
-interface ColorMap {
-    [key: string]: string;
-}
-type BorderProperty = string | undefined;
-
 const resetStylesheetValues = (): void => {
     stylesMap = { base: 0 };
     registeredNumberFmts = [];
-    registeredFonts = [{ name: 'Calibri', size: 14, colorTheme: '1', family: 2, scheme: 'minor' }];
+    registeredFonts = [{ fontName: 'Calibri', colorTheme: '1', family: '2', scheme: 'minor' }];
     registeredFills = [{ patternType: 'none', }, { patternType: 'gray125' }];
     registeredBorders = [{ left: undefined, right: undefined, top: undefined, bottom: undefined, diagonal: undefined }];
     registeredCellStyleXfs = [{ borderId: 0, fillId: 0, fontId: 0, numFmtId: 0 }];
     registeredCellXfs = [{ borderId: 0, fillId: 0, fontId: 0, numFmtId: 0, xfId: 0 }];
-    registeredCellStyles = [{ builtinId: 0, name: 'normal', xfId: 0 }];
-};
-
-const convertLegacyPattern = (name: string): string => {
-    const colorMap: ColorMap = {
-        None: 'none',
-        Solid: 'solid',
-        Gray50: 'mediumGray',
-        Gray75: 'darkGray',
-        Gray25: 'lightGray',
-        HorzStripe: 'darkHorizontal',
-        VertStripe: 'darkVertical',
-        ReverseDiagStripe: 'darkDown',
-        DiagStripe: 'darkUp',
-        DiagCross: 'darkGrid',
-        ThickDiagCross: 'darkTrellis',
-        ThinHorzStripe: 'lightHorizontal',
-        ThinVertStripe: 'lightVertical',
-        ThinReverseDiagStripe: 'lightDown',
-        ThinDiagStripe: 'lightUp',
-        ThinHorzCross: 'lightGrid',
-        ThinDiagCross: 'lightTrellis',
-        Gray125: 'gray125',
-        Gray0625: 'gray0625'
-    };
-
-    if (!name) { return 'none'; }
-
-    return colorMap[name] || name;
-};
-
-export const convertLegacyColor = (color: string): string => {
-    if (color == undefined) { return color; }
-
-    if (color.charAt(0) === '#') {
-        color = color.substr(1);
-    }
-
-    return color.length === 6 ? '00' + color : color;
+    registeredCellStyles = [{ builtinId: 0, name: 'Normal', xfId: 0 }];
 };
 
 const registerFill = (fill: ExcelInterior): number => {
@@ -199,22 +152,26 @@ const registerBorders = (borders: ExcelBorders): number => {
 };
 
 const registerFont = (font: ExcelFont): number => {
-    const { fontName: name, color, size, bold, italic, outline, shadow, strikeThrough, underline, family } = font;
+    const { fontName: name = 'Calibri', color, size, bold, italic, outline, shadow, strikeThrough, underline, family, verticalAlign } = font;
     const utf8Name = name ? _.utf8_encode(name) : name;
     const convertedColor = convertLegacyColor(color);
-    const familyId = getFamilyId(family);
+    const familyId = getFontFamilyId(family);
+    const convertedUnderline = underline ? underline.toLocaleLowerCase() : undefined;
+    const convertedVerticalAlign = verticalAlign ? verticalAlign.toLocaleLowerCase() : undefined;
 
     let pos = _.findIndex(registeredFonts, (currentFont) => {
         if (
-            currentFont.name != utf8Name ||
+            currentFont.fontName != utf8Name ||
             currentFont.color != convertedColor ||
             currentFont.size != size ||
             currentFont.bold != bold ||
             currentFont.italic != italic ||
             currentFont.outline != outline ||
             currentFont.shadow != shadow ||
-            currentFont.strike != strikeThrough ||
-            currentFont.underline != underline ||
+            currentFont.strikeThrough != strikeThrough ||
+            currentFont.underline != convertedUnderline ||
+            currentFont.verticalAlign != convertedVerticalAlign ||
+            // @ts-ignore
             currentFont.family != familyId
         ) {
             return false;
@@ -226,16 +183,17 @@ const registerFont = (font: ExcelFont): number => {
     if (pos === -1) {
         pos = registeredFonts.length;
         registeredFonts.push({
-            name: utf8Name,
+            fontName: utf8Name,
             color: convertedColor,
             size,
             bold,
             italic,
             outline,
             shadow,
-            strike: strikeThrough,
-            underline,
-            family: familyId
+            strikeThrough,
+            underline: convertedUnderline as any,
+            verticalAlign: convertedVerticalAlign as any,
+            family: familyId != null ? familyId.toString() : undefined
         });
     }
 
@@ -281,9 +239,9 @@ const registerStyle = (config: ExcelStyle): void => {
 };
 
 const stylesheetFactory: ExcelOOXMLTemplate = {
-    getTemplate() {
+    getTemplate(defaultFontSize: number) {
         const numberFormats = numberFormatsFactory.getTemplate(registeredNumberFmts);
-        const fonts = fontsFactory.getTemplate(registeredFonts);
+        const fonts = fontsFactory.getTemplate(registeredFonts.map(font => ({...font, size: font.size != null ? font.size : defaultFontSize })));
         const fills = fillsFactory.getTemplate(registeredFills);
         const borders = bordersFactory.getTemplate(registeredBorders);
         const cellStylesXfs = cellStylesXfsFactory.getTemplate(registeredCellStyleXfs);
@@ -296,7 +254,12 @@ const stylesheetFactory: ExcelOOXMLTemplate = {
             name: 'styleSheet',
             properties: {
                 rawMap: {
-                    xmlns: 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
+                    'mc:Ignorable': 'x14ac x16r2 xr',
+                    'xmlns': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
+                    'xmlns:mc': 'http://schemas.openxmlformats.org/markup-compatibility/2006',
+                    'xmlns:x14ac': 'http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac',
+                    'xmlns:x16r2': 'http://schemas.microsoft.com/office/spreadsheetml/2015/02/main',
+                    'xmlns:xr': 'http://schemas.microsoft.com/office/spreadsheetml/2014/revision'
                 }
             },
             children: [

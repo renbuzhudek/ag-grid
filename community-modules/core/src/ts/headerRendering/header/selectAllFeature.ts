@@ -1,21 +1,23 @@
 import { AgCheckbox } from "../../widgets/agCheckbox";
 import { BeanStub } from "../../context/beanStub";
 import { PostConstruct, Autowired } from "../../context/context";
-import { ColumnApi } from "../../columnController/columnApi";
+import { ColumnApi } from "../../columns/columnApi";
 import { GridApi } from "../../gridApi";
 import { Events } from "../../events";
 import { IRowModel } from "../../interfaces/iRowModel";
 import { Constants } from "../../constants/constants";
 import { Column } from "../../entities/column";
 import { RowNode } from "../../entities/rowNode";
-import { SelectionController } from "../../selectionController";
+import { SelectionService } from "../../selectionService";
+import { getAriaDescribedBy, setAriaDescribedBy } from "../../utils/aria";
+import { isVisible } from "../../utils/dom";
 
 export class SelectAllFeature extends BeanStub {
 
     @Autowired('gridApi') private gridApi: GridApi;
     @Autowired('columnApi') private columnApi: ColumnApi;
     @Autowired('rowModel') private rowModel: IRowModel;
-    @Autowired('selectionController') private selectionController: SelectionController;
+    @Autowired('selectionService') private selectionService: SelectionService;
 
     private cbSelectAllVisible = false;
     private processingEventFromCheckbox = false;
@@ -55,6 +57,30 @@ export class SelectAllFeature extends BeanStub {
             this.checkRightRowModelType();
             // make sure checkbox is showing the right state
             this.updateStateOfCheckbox();
+        }
+        this.refreshHeaderAriaDescribedBy(this.cbSelectAllVisible);
+    }
+
+    private refreshHeaderAriaDescribedBy(isSelectAllVisible: boolean): void {
+        const parentHeader = this.cbSelectAll.getParentComponent();
+        const parentHeaderGui = parentHeader && parentHeader.getGui();
+        if (!parentHeaderGui || !isVisible(parentHeaderGui)) { return; }
+
+        let describedByIds = '';
+
+        if (parentHeaderGui) {
+            describedByIds = getAriaDescribedBy(parentHeaderGui);
+        }
+
+        const cbSelectAllId = this.cbSelectAll.getInputElement().id;
+        const describedByIdsHasSelectAllFeature = describedByIds.indexOf(cbSelectAllId) !== -1;
+
+        if (isSelectAllVisible) {
+            if (!describedByIdsHasSelectAllFeature) {
+                setAriaDescribedBy(parentHeaderGui, `${cbSelectAllId} ${describedByIds.trim()}`);
+            }
+        } else if (describedByIdsHasSelectAllFeature) {
+            setAriaDescribedBy(parentHeaderGui, describedByIds.trim().split(' ').filter(id => id === cbSelectAllId).join(' '));
         }
     }
 
@@ -145,7 +171,7 @@ export class SelectAllFeature extends BeanStub {
         const rowModelMatches = rowModelType === Constants.ROW_MODEL_TYPE_CLIENT_SIDE;
 
         if (!rowModelMatches) {
-            console.warn(`ag-Grid: selectAllCheckbox is only available if using normal row model, you are using ${rowModelType}`);
+            console.warn(`AG Grid: selectAllCheckbox is only available if using normal row model, you are using ${rowModelType}`);
         }
     }
 
@@ -156,9 +182,9 @@ export class SelectAllFeature extends BeanStub {
         const value = this.cbSelectAll.getValue();
 
         if (value) {
-            this.selectionController.selectAllRowNodes(this.filteredOnly);
+            this.selectionService.selectAllRowNodes(this.filteredOnly);
         } else {
-            this.selectionController.deselectAllRowNodes(this.filteredOnly);
+            this.selectionService.deselectAllRowNodes(this.filteredOnly);
         }
     }
 

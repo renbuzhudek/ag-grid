@@ -12,7 +12,7 @@ Tool Panels are panels that sit in the Side Bar to the right of the grid. The Si
 <image-caption src="tool-panel/resources/sideBar.png" maxwidth="52rem" alt="Side Bar" constrained="true"></image-caption>
 
 [[note]]
-|Version 19 of ag-Grid received a major overhaul of the tool panels. It did not make sense to keep
+| Version 19 of AG Grid received a major overhaul of the tool panels. It did not make sense to keep
 | the older configuration options. The old property `showToolPanel` is no longer
 | used. The tool panel is also not included by default - if the tool panel is not configured, no
 | tool panel is shown.
@@ -23,15 +23,15 @@ Tool Panels are panels that sit in the Side Bar to the right of the grid. The Si
 
 The grid provides the following Tool Panels:
 
-- [Columns Tool Panel](../tool-panel-columns/) - to control aggregations, grouping and pivoting.
-- [Filters Tool Panel](../tool-panel-filters/) - to perform multiple column filters.
+- [Columns Tool Panel](/tool-panel-columns/) - to control aggregations, grouping and pivoting.
+- [Filters Tool Panel](/tool-panel-filters/) - to perform multiple column filters.
 
 ## Custom Tool Panel Components
 
 In addition to the provided Tool Panels, it is also possible to provide custom Tool Panels.
 
-For more details refer to the section: [Custom Tool Panel Components](../component-tool-panel/).
+For more details refer to the section: [Custom Tool Panel Components](/component-tool-panel/).
 
 ## Next Up
 
-Before covering the Tool Panels in detail, continue to the next section to learn about the [Side Bar](../side-bar/).
+Before covering the Tool Panels in detail, continue to the next section to learn about the [Side Bar](/side-bar/).

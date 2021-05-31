@@ -3,27 +3,36 @@ import { RowNode } from "../../entities/rowNode";
 import { ColDef } from "../../entities/colDef";
 import { Column } from "../../entities/column";
 import { GridApi } from "../../gridApi";
-import { ColumnApi } from "../../columnController/columnApi";
+import { ColumnApi } from "../../columns/columnApi";
 
 export interface ICellRendererParams {
+    fullWidth?: boolean;
+    pinned?: string | null;
     value: any;
     valueFormatted: any;
-    getValue: () => any;
-    setValue: (value: any) => void;
-    formatValue: (value: any) => any;
     data: any;
     node: RowNode;
-    colDef: ColDef;
-    column: Column;
+    colDef?: ColDef;
+    column?: Column;
     $scope: any;
     rowIndex: number;
     api: GridApi;
     columnApi: ColumnApi;
     context: any;
-    refreshCell: () => void;
     eGridCell: HTMLElement;
     eParentOfValue: HTMLElement;
+    getValue?: () => any;
+    setValue?: (value: any) => void;
+    formatValue?: (value: any) => any;
+    refreshCell?: () => void;
     addRenderedRowListener: (eventType: string, listener: Function) => void;
+    /**
+     * registerRowDragger: Function
+     * @param rowDraggerElement The HTMLElement to be used as Row Dragger
+     * @param dragStartPixels The amount of pixels required to start the drag (Default: 4)
+     * @param value The value to be displayed while dragging. Note: Only relevant with Full Width Rows.
+     */
+     registerRowDragger: (rowDraggerElement: HTMLElement, dragStartPixels?: number, value?: string) => void;
 }
 
 export interface ISetFilterCellRendererParams {
@@ -39,9 +48,7 @@ export interface ICellRenderer {
     refresh(params: ICellRendererParams): boolean;
 }
 
-export interface ICellRendererComp extends ICellRenderer, IComponent<ICellRendererParams> {
-
-}
+export interface ICellRendererComp extends ICellRenderer, IComponent<ICellRendererParams> { }
 
 export interface ICellRendererFunc {
     (params: any): HTMLElement | string;

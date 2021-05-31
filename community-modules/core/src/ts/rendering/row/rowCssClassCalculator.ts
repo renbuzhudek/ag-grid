@@ -4,7 +4,8 @@ import { pushAll } from "../../utils/array";
 import { GridOptionsWrapper } from "../../gridOptionsWrapper";
 import { Autowired, Bean } from "../../context/context";
 import { StylingService } from "../../styling/stylingService";
-
+import { RowClassParams } from "../../entities/gridOptions";
+import { Constants } from "../../constants/constants";
 export interface RowCssClassCalculatorParams {
     rowNode: RowNode;
     rowIsEven: boolean;
@@ -15,6 +16,7 @@ export interface RowCssClassCalculatorParams {
     printLayout: boolean;
     expandable: boolean;
 
+    pinned?: string | null;
     extraCssClass?: string;
     rowFocused?: boolean;
     fadeRowIn?: boolean;
@@ -78,7 +80,7 @@ export class RowCssClassCalculator {
             classes.push('ag-row-dragging');
         }
 
-        pushAll(classes, this.processClassesFromGridOptions(params.rowNode)!);
+        pushAll(classes, this.processClassesFromGridOptions(params.rowNode, params.scope));
         pushAll(classes, this.preProcessRowClassRules(params.rowNode, params.scope));
 
         // we use absolute position unless we are doing print layout
@@ -92,10 +94,19 @@ export class RowCssClassCalculator {
             classes.push('ag-row-last');
         }
 
+        if (params.fullWidthRow) {
+            if (params.pinned === Constants.PINNED_LEFT) {
+                classes.push('ag-cell-last-left-pinned');
+            }
+            if (params.pinned === Constants.PINNED_RIGHT) {
+                classes.push('ag-cell-first-right-pinned');
+            }
+        }
+
         return classes;
     }
 
-    public processClassesFromGridOptions(rowNode: RowNode): string[] | undefined {
+    public processClassesFromGridOptions(rowNode: RowNode, scope: any): string[] {
         const res: string[] = [];
 
         const process = (rowCls: string | string[]) => {
@@ -110,8 +121,8 @@ export class RowCssClassCalculator {
         const rowClass = this.gridOptionsWrapper.getRowClass();
         if (rowClass) {
             if (typeof rowClass === 'function') {
-                console.warn('ag-Grid: rowClass should not be a function, please use getRowClass instead');
-                return;
+                console.warn('AG Grid: rowClass should not be a function, please use getRowClass instead');
+                return [];
             }
             process(rowClass);
         }
@@ -120,12 +131,14 @@ export class RowCssClassCalculator {
         const rowClassFunc = this.gridOptionsWrapper.getRowClassFunc();
 
         if (rowClassFunc) {
-            const params = {
-                node: rowNode,
+            const params: RowClassParams = {
                 data: rowNode.data,
-                rowIndex: rowNode.rowIndex,
-                context: this.gridOptionsWrapper.getContext(),
-                api: this.gridOptionsWrapper.getApi()
+                node: rowNode,
+                rowIndex: rowNode.rowIndex!,
+                $scope: scope,
+                api: this.gridOptionsWrapper.getApi()!,
+                columnApi: this.gridOptionsWrapper.getColumnApi()!,
+                context: this.gridOptionsWrapper.getContext()
             };
             const rowClassFuncResult = rowClassFunc(params);
             process(rowClassFuncResult);
@@ -151,19 +164,22 @@ export class RowCssClassCalculator {
     }
 
     public processRowClassRules(rowNode: RowNode, scope: any, onApplicableClass: (className: string) => void, onNotApplicableClass?: (className: string) => void): void {
+        const rowClassParams: RowClassParams = {
+            data: rowNode.data,
+            node: rowNode,
+            rowIndex: rowNode.rowIndex!,
+            api: this.gridOptionsWrapper.getApi()!,
+            columnApi: this.gridOptionsWrapper.getColumnApi()!,
+            $scope: scope,
+            context: this.gridOptionsWrapper.getContext()
+        };
+
         this.stylingService.processClassRules(
             this.gridOptionsWrapper.rowClassRules(),
-            {
-                value: undefined,
-                colDef: undefined,
-                data: rowNode.data,
-                node: rowNode,
-                rowIndex: rowNode.rowIndex!,
-                api: this.gridOptionsWrapper.getApi()!,
-                columnApi: this.gridOptionsWrapper.getColumnApi()!,
-                $scope: scope,
-                context: this.gridOptionsWrapper.getContext()
-            }, onApplicableClass, onNotApplicableClass);
+            rowClassParams,
+            onApplicableClass,
+            onNotApplicableClass
+        );
     }
 
     public calculateRowLevel(rowNode: RowNode): number {

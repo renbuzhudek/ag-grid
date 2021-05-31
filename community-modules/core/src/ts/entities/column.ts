@@ -6,18 +6,17 @@ import {
     ColDef,
     ColSpanParams,
     IAggFunc,
-    IsColumnFunc,
-    IsColumnFuncParams,
+    ColumnFunctionCallbackParams,
     RowSpanParams
 } from "./colDef";
 import { EventService } from "../eventService";
 import { Autowired, Context, PostConstruct } from "../context/context";
 import { GridOptionsWrapper } from "../gridOptionsWrapper";
-import { ColumnUtils } from "../columnController/columnUtils";
+import { ColumnUtils } from "../columns/columnUtils";
 import { RowNode } from "./rowNode";
 import { IEventEmitter } from "../interfaces/iEventEmitter";
 import { ColumnEvent, ColumnEventType } from "../events";
-import { ColumnApi } from "../columnController/columnApi";
+import { ColumnApi } from "../columns/columnApi";
 import { GridApi } from "../gridApi";
 import { ColumnGroup } from "./columnGroup";
 import { OriginalColumnGroup } from "./originalColumnGroup";
@@ -178,6 +177,8 @@ export class Column implements ColumnGroupChild, OriginalColumnGroupChild, IEven
     public setColDef(colDef: ColDef, userProvidedColDef: ColDef | null): void {
         this.colDef = colDef;
         this.userProvidedColDef = userProvidedColDef;
+        this.initMinAndMaxWidths();
+        this.initDotNotation();
     }
 
     public getUserProvidedColDef(): ColDef | null {
@@ -203,6 +204,22 @@ export class Column implements ColumnGroupChild, OriginalColumnGroupChild, IEven
     // this is done after constructor as it uses gridOptionsWrapper
     @PostConstruct
     private initialise(): void {
+        this.initMinAndMaxWidths();
+
+        this.resetActualWidth('gridInitializing');
+
+        this.initDotNotation();
+
+        this.validate();
+    }
+
+    private initDotNotation(): void {
+        const suppressDotNotation = this.gridOptionsWrapper.isSuppressFieldDotNotation();
+        this.fieldContainsDots = exists(this.colDef.field) && this.colDef.field.indexOf('.') >= 0 && !suppressDotNotation;
+        this.tooltipFieldContainsDots = exists(this.colDef.tooltipField) && this.colDef.tooltipField.indexOf('.') >= 0 && !suppressDotNotation;
+    }
+
+    private initMinAndMaxWidths(): void {
         const minColWidth = this.gridOptionsWrapper.getMinColWidth();
         const maxColWidth = this.gridOptionsWrapper.getMaxColWidth();
 
@@ -218,14 +235,6 @@ export class Column implements ColumnGroupChild, OriginalColumnGroupChild, IEven
         } else {
             this.maxWidth = maxColWidth;
         }
-
-        this.resetActualWidth('gridInitializing');
-
-        const suppressDotNotation = this.gridOptionsWrapper.isSuppressFieldDotNotation();
-        this.fieldContainsDots = exists(this.colDef.field) && this.colDef.field.indexOf('.') >= 0 && !suppressDotNotation;
-        this.tooltipFieldContainsDots = exists(this.colDef.tooltipField) && this.colDef.tooltipField.indexOf('.') >= 0 && !suppressDotNotation;
-
-        this.validate();
     }
 
     public resetActualWidth(source: ColumnEventType = 'api'): void {
@@ -285,15 +294,16 @@ export class Column implements ColumnGroupChild, OriginalColumnGroupChild, IEven
             }, key);
         }
 
-        if (!ModuleRegistry.isRegistered(ModuleNames.RowGroupingModule)) {
+        const usingCSRM = this.gridOptionsWrapper.isRowModelDefault();
+        if (usingCSRM && !ModuleRegistry.isRegistered(ModuleNames.RowGroupingModule)) {
             const rowGroupingItems =
                 ['enableRowGroup', 'rowGroup', 'rowGroupIndex', 'enablePivot', 'enableValue', 'pivot', 'pivotIndex', 'aggFunc'];
             rowGroupingItems.forEach(item => {
                 if (exists(colDefAny[item])) {
                     if (ModuleRegistry.isPackageBased()) {
-                        warnOnce(`ag-Grid: ${item} is only valid in ag-grid-enterprise, your column definition should not have ${item}`, 'ColumnRowGroupingMissing' + item);
+                        warnOnce(`AG Grid: ${item} is only valid in ag-grid-enterprise, your column definition should not have ${item}`, 'ColumnRowGroupingMissing' + item);
                     } else {
-                        warnOnce(`ag-Grid: ${item} is only valid with ag-Grid Enterprise Module ${ModuleNames.RowGroupingModule} - your column definition should not have ${item}`, 'ColumnRowGroupingMissing' + item);
+                        warnOnce(`AG Grid: ${item} is only valid with AG Grid Enterprise Module ${ModuleNames.RowGroupingModule} - your column definition should not have ${item}`, 'ColumnRowGroupingMissing' + item);
                     }
                 }
             });
@@ -302,9 +312,9 @@ export class Column implements ColumnGroupChild, OriginalColumnGroupChild, IEven
         if (!ModuleRegistry.isRegistered(ModuleNames.RichSelectModule)) {
             if (this.colDef.cellEditor === 'agRichSelect' || this.colDef.cellEditor === 'agRichSelectCellEditor') {
                 if (ModuleRegistry.isPackageBased()) {
-                    warnOnce(`ag-Grid: ${this.colDef.cellEditor} can only be used with ag-grid-enterprise`, 'ColumnRichSelectMissing');
+                    warnOnce(`AG Grid: ${this.colDef.cellEditor} can only be used with ag-grid-enterprise`, 'ColumnRichSelectMissing');
                 } else {
-                    warnOnce(`ag-Grid: ${this.colDef.cellEditor} can only be used with ag-Grid Enterprise Module ${ModuleNames.RichSelectModule}`, 'ColumnRichSelectMissing');
+                    warnOnce(`AG Grid: ${this.colDef.cellEditor} can only be used with AG Grid Enterprise Module ${ModuleNames.RichSelectModule}`, 'ColumnRichSelectMissing');
                 }
             }
         }
@@ -312,9 +322,9 @@ export class Column implements ColumnGroupChild, OriginalColumnGroupChild, IEven
         if (!ModuleRegistry.isRegistered(ModuleNames.DateTimeCellEditorModule)) {
             if (this.colDef.cellEditor === 'agRichSelect' || this.colDef.cellEditor === 'agDateTimeCellEditor') {
                 if (ModuleRegistry.isPackageBased()) {
-                    warnOnce(`ag-Grid: ${this.colDef.cellEditor} can only be used with ag-grid-enterprise`, 'ColumnDateTimeMissing');
+                    warnOnce(`AG Grid: ${this.colDef.cellEditor} can only be used with ag-grid-enterprise`, 'ColumnDateTimeMissing');
                 } else {
-                    warnOnce(`ag-Grid: ${this.colDef.cellEditor} can only be used with ag-Grid Enterprise Module ${ModuleNames.DateTimeCellEditorModule}`, 'ColumnDateTimeMissing');
+                    warnOnce(`AG Grid: ${this.colDef.cellEditor} can only be used with AG Grid Enterprise Module ${ModuleNames.DateTimeCellEditorModule}`, 'ColumnDateTimeMissing');
                 }
             }
         }
@@ -323,13 +333,13 @@ export class Column implements ColumnGroupChild, OriginalColumnGroupChild, IEven
             const itemsNotAllowedWithTreeData = ['rowGroup', 'rowGroupIndex', 'pivot', 'pivotIndex'];
             itemsNotAllowedWithTreeData.forEach(item => {
                 if (exists(colDefAny[item])) {
-                    warnOnce(`ag-Grid: ${item} is not possible when doing tree data, your column definition should not have ${item}`, 'TreeDataCannotRowGroup');
+                    warnOnce(`AG Grid: ${item} is not possible when doing tree data, your column definition should not have ${item}`, 'TreeDataCannotRowGroup');
                 }
             });
         }
 
         if (exists(this.colDef.width) && typeof this.colDef.width !== 'number') {
-            warnOnce('ag-Grid: colDef.width should be a number, not ' + typeof this.colDef.width, 'ColumnCheck_asdfawef');
+            warnOnce('AG Grid: colDef.width should be a number, not ' + typeof this.colDef.width, 'ColumnCheck_asdfawef');
         }
     }
 
@@ -341,7 +351,7 @@ export class Column implements ColumnGroupChild, OriginalColumnGroupChild, IEven
         this.eventService.removeEventListener(eventType, listener);
     }
 
-    private createIsColumnFuncParams(rowNode: RowNode): IsColumnFuncParams {
+    private createColumnFunctionCallbackParams(rowNode: RowNode): ColumnFunctionCallbackParams {
         return {
             node: rowNode,
             data: rowNode.data,
@@ -361,7 +371,7 @@ export class Column implements ColumnGroupChild, OriginalColumnGroupChild, IEven
 
         // if function, then call the function to find out
         if (typeof this.colDef.suppressNavigable === 'function') {
-            const params = this.createIsColumnFuncParams(rowNode);
+            const params = this.createColumnFunctionCallbackParams(rowNode);
             const userFunc = this.colDef.suppressNavigable;
             return userFunc(params);
         }
@@ -399,7 +409,7 @@ export class Column implements ColumnGroupChild, OriginalColumnGroupChild, IEven
         return this.colDef.resizable === true;
     }
 
-    private isColumnFunc(rowNode: RowNode, value?: boolean | IsColumnFunc | null): boolean {
+    private isColumnFunc(rowNode: RowNode, value?: boolean | ((params: ColumnFunctionCallbackParams) => boolean) | null): boolean {
         // if boolean set, then just use it
         if (typeof value === 'boolean') {
             return value;
@@ -407,7 +417,7 @@ export class Column implements ColumnGroupChild, OriginalColumnGroupChild, IEven
 
         // if function, then call the function to find out
         if (typeof value === 'function') {
-            const params = this.createIsColumnFuncParams(rowNode);
+            const params = this.createColumnFunctionCallbackParams(rowNode);
             const editableFunc = value;
             return editableFunc(params);
         }
@@ -684,7 +694,7 @@ export class Column implements ColumnGroupChild, OriginalColumnGroupChild, IEven
         return this.flex || 0;
     }
 
-    // this method should only be used by the columnController to
+    // this method should only be used by the columnModel to
     // change flex when required by the setColumnState method.
     public setFlex(flex: number | null) {
         if (this.flex !== flex) { this.flex = flex; }
@@ -762,21 +772,21 @@ export class Column implements ColumnGroupChild, OriginalColumnGroupChild, IEven
     // this used to be needed, as previous version of ag-grid had lockPosition as column state,
     // so couldn't depend on colDef version.
     public isLockPosition(): boolean {
-        console.warn('ag-Grid: since v21, col.isLockPosition() should not be used, please use col.getColDef().lockPosition instead.');
+        console.warn('AG Grid: since v21, col.isLockPosition() should not be used, please use col.getColDef().lockPosition instead.');
         return this.colDef ? !!this.colDef.lockPosition : false;
     }
 
     // this used to be needed, as previous version of ag-grid had lockVisible as column state,
     // so couldn't depend on colDef version.
     public isLockVisible(): boolean {
-        console.warn('ag-Grid: since v21, col.isLockVisible() should not be used, please use col.getColDef().lockVisible instead.');
+        console.warn('AG Grid: since v21, col.isLockVisible() should not be used, please use col.getColDef().lockVisible instead.');
         return this.colDef ? !!this.colDef.lockVisible : false;
     }
 
     // this used to be needed, as previous version of ag-grid had lockPinned as column state,
     // so couldn't depend on colDef version.
     public isLockPinned(): boolean {
-        console.warn('ag-Grid: since v21, col.isLockPinned() should not be used, please use col.getColDef().lockPinned instead.');
+        console.warn('AG Grid: since v21, col.isLockPinned() should not be used, please use col.getColDef().lockPinned instead.');
         return this.colDef ? !!this.colDef.lockPinned : false;
     }
 

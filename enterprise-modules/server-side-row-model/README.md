@@ -1,8 +1,7 @@
-
-ag-Grid-Enterprise
+AG Grid Enterprise
 ==============
 
-This project contains ag-Grid-Enterprise features.
+This project contains AG Grid Enterprise features.
 
 See [www.ag-grid.com](http://www.ag-grid.com) for an overview and full documentation.
 
@@ -10,7 +9,7 @@ Frameworks Supported
 ====================
 Framework specific Getting Started guides:
 
-[Angular 1](https://www.ag-grid.com/documentation/angular/angularjs/) | [Angular 2](https://www.ag-grid.com/documentation/angular/getting-started/) | [Javascript](https://www.ag-grid.com/documentation/javascript/getting-started/) | [Polymer](https://www.ag-grid.com/documentation/javascript/polymer-getting-started/) | [React](https://www.ag-grid.com/documentation/react/getting-started/) | [TypeScript](https://www.ag-grid.com/documentation/javascript/building-typescript/) | [VueJS](https://www.ag-grid.com/documentation/vue/getting-started/)
+[Angular 1](https://www.ag-grid.com/angular-grid/angularjs/) | [Angular 2](https://www.ag-grid.com/angular-grid/getting-started/) | [Javascript](https://www.ag-grid.com/javascript-grid/getting-started/) | [Polymer](https://www.ag-grid.com/javascript-grid/polymer-getting-started/) | [React](https://www.ag-grid.com/react-grid/getting-started/) | [TypeScript](https://www.ag-grid.com/javascript-grid/building-typescript/) | [VueJS](https://www.ag-grid.com/vue-grid/getting-started/)
 
 This is not free software, this software is covered by copyright and to use you need a commercial license.
 
@@ -21,7 +20,7 @@ SUPPORT_AND_MAINTENANCE.md
 Issue Reporting
 ==============
 
-If you are an Enterprise customer (or are Evaluating ag-Grid Enterprise) and wish to report a Bug or raise a new Feature Request please do so on our [Members Forum](https://ag-grid.com/forum/forumdisplay.php?fid=5).
+If you are an Enterprise customer (or are evaluating AG Grid Enterprise) and wish to report a Bug or raise a new Feature Request please do so on our [Support Portal](https://ag-grid.zendesk.com/).
 
 To Sign Up:
 Send an email to accounts@ag-grid.com with your license key

@@ -2,7 +2,7 @@
 title: "Updating Column Definitions"
 ---
 
-The section [Column Definitions](../column-definitions/) explained how to configure columns. It is possible to change the
+The section [Column Definitions](/column-definitions/) explained how to configure columns. It is possible to change the
 configuration of the Columns after they are initially set. This section goes through how to update Column Definitions.
 
 ## Adding & Removing Columns {#adding-removing-columns}
@@ -16,7 +16,7 @@ The example below demonstrates adding and removing columns from a grid. Note the
 
 - Selecting the buttons to toggle between including or excluding the medal columns.
 
-<grid-example title="Add & Remove Columns" name="add-remove-columns" type="mixed" options='{ "modules": true }'></grid-example>
+<grid-example title='Add & Remove Columns' name='add-remove-columns' type='mixed' options='{ "modules": true }'></grid-example>
 
 In the example above, note that any state applied to any column (e.g. sort, filter, width, column position) will be kept
 if the column still exists after the new definitions are applied. For example try the following:
@@ -45,7 +45,7 @@ on all Columns.
 underlying value for that cell hasn't changed.
 - Note that any resizing, reordering, sorting etc of the Columns is kept intact between updates to the Column Definitions.
 
-<grid-example title="Updating Column Definition" name="update-column-definition" type="mixed" options='{ "modules": true }'></grid-example>
+<grid-example title='Updating Column Definition' name='update-column-definition' type='mixed' options='{ "modules": true }'></grid-example>
 
 ## Changing Column State
 
@@ -70,30 +70,25 @@ All stateful attributes of Column Definitions are as follows:
 
 [[note]]
 | If you are interested in changing Column State only and not the other parts of the column definitions, then consider
-| working with the [Column State](../column-state/) API instead.
+| working with the [Column State](/column-state/) API instead.
 |
 | Column State is provided as part of Column Definitions to enable these properties to be reactive. Some developers wish
 | to update Column Definitions and expect the grid to respond. Other developers may find this non-intuitive and will
-| prefer interacting with [Column State](../column-state/) directly.
+| prefer interacting with [Column State](/column-state/) directly.
 
 The **Initial Attribute** will be used only when the **Column is Created** only. The **Stateful Attribute** will be used
 when the **Column is Created or Updated**.
 
-```js
-// using initial values, get applied when Column is created
-myInitialValuesColDef = {
-    field: 'country',
-    initialWidth: 200,
-    initialPinned: 'left'
+<snippet suppressFrameworkContext=true>
+const gridOptions = {
+    columnDefs: [
+        // using initial values, get applied when Column is created
+        { field: 'country', initialWidth: 200, initialPinned: 'left' },
+        // using stateful values, get applied when Column is created or updated
+        { field: 'country', width: 200, pinned: 'left' }
+    ]
 }
-
-// using stateful values, get applied when Column is created or updated
-myStatefulColDef = {
-    field: 'country',
-    width: 200,
-    pinned: 'left'
-}
-```
+</snippet>
 
 The example below shows Column Definitions using **initial attributes**. Note the following:
 
@@ -102,7 +97,7 @@ The example below shows Column Definitions using **initial attributes**. Note th
 Initials', the columns state will not change.
 - Removing the columns first and then setting them again will use the initial values again.
 
-<grid-example title="Updating Column Initial Attributes" name="changing-default" type="mixed" options='{ "modules": true }'></grid-example>
+<grid-example title='Updating Column Initial Attributes' name='changing-default' type='mixed' options='{ "modules": true }'></grid-example>
 
 The following example shows Column Definitions using **stateful attributes**. Note the following:
 
@@ -113,7 +108,7 @@ State', the columns state will change and the changes made via the UI will be lo
 done on another column is cleared down. Otherwise the grid would see the `sort` attribute as `undefined` which means the
 state should not be changed.
 
-<grid-example title="Updating Column State" name="changing-state" type="mixed" options='{ "modules": true }'></grid-example>
+<grid-example title='Updating Column State' name='changing-state' type='mixed' options='{ "modules": true }'></grid-example>
 
 ## **null** vs **undefined**
 
@@ -140,7 +135,7 @@ property `applyColumnDefOrder=true`.
 The example below demonstrates applying the Column Definitions order to the grid Columns after new Column Definitions
 are set. Both buttons Medals First and Medals Last set the same Columns but in a different order.
 
-<grid-example title="Column Definition Order" name="col-def-order" type="mixed" options='{ "modules": true }'></grid-example>
+<grid-example title='Column Definition Order' name='col-def-order' type='mixed' options='{ "modules": true }'></grid-example>
 
 ## Matching Columns
 
@@ -168,7 +163,7 @@ each time.
 - All other columns except Country are matched using the `field` attribute.
 - Country column is not matched as it's a different object instance and has not `colId` or `field` attributes.
 
-<grid-example title="Matching Columns" name="matching-columns" type="mixed" options='{ "modules": true }'></grid-example>
+<grid-example title='Matching Columns' name='matching-columns' type='mixed' options='{ "modules": true }'></grid-example>
 
 ## Column Events
 
@@ -178,13 +173,11 @@ Column Events will get raised when setting new Column Definitions that update th
 The example below demonstrates events getting raised based on Column Definition changes. The example logs event
 information to the console, so best open the example in a new tab and observe the dev console.
 
-<grid-example title="Column Events" name="column-events" type="mixed" options='{ "enterprise": true }'></grid-example>
-
-To suppress events raised when invoking `applyColumnState()` set the grid property `suppressColumnStateEvents=true`.
+<grid-example title='Column Events' name='column-events' type='mixed' options='{ "enterprise": true }'></grid-example>
 
 ## Refreshing Headers
 
-If you are creating your own [Header Components](../component-header/) then you will need to be aware of
+If you are creating your own [Header Components](/component-header/) then you will need to be aware of
 how Header Components are refreshed.
 
 All Header Components that still exist after the new Column Definitions are applied (in other words, the Column still
@@ -203,7 +196,7 @@ Component refreshes itself and returns `true`.
 - Toggling between 'Resize On' and 'Resize Off' causes the Header Component to refresh. However there is no change to
 the Header Component as it doesn't depend on resize - the resize UI is provided by the grid.
 
-<grid-example title="Refresh Headers" name="refresh-headers" type="mixed"></grid-example>
+<grid-example title='Refresh Headers' name='refresh-headers' type='mixed'></grid-example>
 
 ## Column Definition Retrieval
 
@@ -227,3 +220,30 @@ The current column definitions can be retrieved with `getColumnDefs`:
 | gridApi.getColumnDefs();
 | ```
 
+## Column Groups
+
+Column Groups can be updated in the same way as Columns, you just update the Column Group Definition. For expandable
+groups, to have open / closed state to be maintained, you need to assign `groupId` in the Column Group Definition.
+
+<snippet suppressFrameworkContext=true>
+const gridOptions = {
+    columnDefs: [
+        {
+            headerName: 'Group A',
+            groupId: 'groupA',
+            children: [
+                { field: 'name' },
+                { field: 'age', columnGroupShow: 'open' }
+            ]
+        }
+    ]
+}
+</snippet>
+
+In the example below, note the following:
+1. Clicking the top buttons alternatives the columns from two sets of definitions.
+1. Column Group A - `groupId` is provided, so expand / collapse is preserved. The Header Name also changes.
+1. Column Group B - `groupId` is NOT provided, so expand / collapse is lost, group always closes when updates happen.
+1. Column Group C - `groupId` is provided, so expand / collapse is preserved. Child columns are changed.
+
+<grid-example title='Column Groups' name='column-groups' type='mixed' options='{ "modules": true }'></grid-example>

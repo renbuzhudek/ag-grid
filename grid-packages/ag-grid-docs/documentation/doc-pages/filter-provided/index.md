@@ -4,16 +4,14 @@ title: "Provided Filters"
 
 This section describes the functionality common to all filters that are provided by the grid.
 
-
-The grid provides four filters out of the box: three [Simple Filters](../filter-provided-simple/) (Text, Number and Date), and an advanced [Set Filter](../filter-set/) which is available in the Enterprise version of the grid.
+The grid provides four filters out of the box: three [Simple Filters](/filter-provided-simple/) (Text, Number and Date), and an advanced [Set Filter](/filter-set/) which is available in the Enterprise version of the grid.
 
 Follow the links below to learn more about each specific filter:
 
-- [Text](../filter-text/)
-- [Number](../filter-number/)
-- [Date](../filter-date/)
-- [Set Filter](../filter-set/)<enterprise-icon></enterprise-icon>
-
+- [Text](/filter-text/)
+- [Number](/filter-number/)
+- [Date](/filter-date/)
+- [Set Filter](/filter-set/)<enterprise-icon></enterprise-icon>
 
 The rest of this section will cover concepts that are common to every provided filter.
 
@@ -21,27 +19,25 @@ The rest of this section will cover concepts that are common to every provided f
 
 The diagram below outlines the structure of the filters. Each box represents a filter type with the functions listed in it. For example, all provided filters have button logic, but only the Date filter has a Date Comparator or a Date Picker.
 
-<image-caption src="filter-provided/resources/providedFilters.png" alt="Provided Filters" width="52rem" centered="true"></image-caption>
+<image-caption src="filter-provided/resources/provided-filters.png" alt="Provided Filters" width="52rem" centered="true"></image-caption>
 
 ## Provided Filter UI
 
-
 Each provided filter is displayed in a UI with optional buttons at the bottom.
 
-<image-caption src="filter-provided/resources/filterContent.png" alt="Filter Content" width="18rem" centered="true"></image-caption>
+<image-caption src="filter-provided/resources/filter-content.png" alt="Filter Content" width="18rem" centered="true"></image-caption>
 
 ## Provided Filter Params
 
 All of the provided filters have the following parameters:
 
-<api-documentation source='filter-provided/resources/providedFilters.json' section='filterParams'></api-documentation>
+<api-documentation source='filter-provided/resources/provided-filters.json' section='filterParams'></api-documentation>
 
 ## Provided Filter API
 
-
 Provided Filters provide the following methods:
 
-<api-documentation sources='["filter-api/resources/filterApi.json", "filter-provided/resources/providedFilters.json"]' section='api'></api-documentation>
+<api-documentation sources='["filter-api/resources/filter-api.json", "filter-provided/resources/provided-filters.json"]' section='api'></api-documentation>
 
 ## Apply, Clear, Reset and Cancel Buttons
 
@@ -52,7 +48,6 @@ When the Apply button is used, the filter is only applied once the Apply button 
 The Clear button clears just the filter UI, whereas the Reset button clears the filter UI and removes any active filters for that column.
 
 The Cancel button will discard any changes that have been made in the UI, restoring the state of the filter to match the applied model.
-
 
 The buttons will be displayed in the order they are specified in the `buttons` array.
 
@@ -76,16 +71,15 @@ If any changes are made in the UI when the Apply button is active, or via other 
 
 Applying the model is then typically followed by calling `gridApi.onFilterChanged()` to tell the grid to re-run the filtering.
 
-```js
-// Get a reference to the 'name' filter instance
-var filterInstance = gridApi.getFilterInstance('name');
-
-// Apply the model to ensure any changes in the UI or via API methods are recognised
-filterInstance.applyModel();
-
-// Tell grid to run filter operation again
-gridApi.onFilterChanged();
-```
+<snippet>
+|// Get a reference to the 'name' filter instance
+|const filterInstance = gridOptions.api.getFilterInstance('name');
+|
+|// Apply the model to ensure any changes in the UI or via API methods are recognised
+|filterInstance.applyModel();
+|
+|// Tell grid to run filter operation again
+|gridOptions.api.onFilterChanged();
+</snippet>
 
 If no call is made to `filterInstance.applyModel()` then the filter UI will show any changes that have been made, but they won't be reflected in the filter model and therefore won't be reflected in the filtering. This will appear as if the user never hit the Apply button (regardless of whether the Apply button is active or not).
-

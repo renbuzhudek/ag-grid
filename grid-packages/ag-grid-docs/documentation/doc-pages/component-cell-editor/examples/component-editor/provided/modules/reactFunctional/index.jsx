@@ -4,7 +4,7 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } f
 import ReactDOM, { render } from 'react-dom';
 import { AgGridColumn, AgGridReact } from '@ag-grid-community/react';
 
-import { AllModules } from '@ag-grid-enterprise/all-modules';
+import { AllCommunityModules } from '@ag-grid-community/all-modules';
 import '@ag-grid-community/all-modules/dist/styles/ag-grid.css';
 import '@ag-grid-community/all-modules/dist/styles/ag-theme-alpine.css';
 
@@ -13,6 +13,49 @@ const KEY_DELETE = 46;
 const KEY_F2 = 113;
 const KEY_ENTER = 13;
 const KEY_TAB = 9;
+
+const DoublingEditor = forwardRef((props, ref) => {
+    const [value, setValue] = useState(parseInt(props.value));
+    const refInput = useRef(null);
+
+    useEffect(() => {
+        // focus on the input
+        setTimeout(() => refInput.current.focus());
+    }, []);
+
+    /* Component Editor Lifecycle methods */
+    useImperativeHandle(ref, () => {
+        return {
+            // the final value to send to the grid, on completion of editing
+            getValue() {
+                // this simple editor doubles any value entered into the input
+                return value * 2;
+            },
+
+            // Gets called once before editing starts, to give editor a chance to
+            // cancel the editing before it even starts.
+            isCancelBeforeStart() {
+                return false;
+            },
+
+            // Gets called once when editing is finished (eg if Enter is pressed).
+            // If you return true, then the result of the edit will be ignored.
+            isCancelAfterEnd() {
+                // our editor will reject any value greater than 1000
+                return value > 1000;
+            }
+        };
+    });
+
+    return (
+        <input type="number"
+            ref={refInput}
+            value={value}
+            onChange={event => setValue(event.target.value)}
+            style={{ width: "100%" }}
+        />
+    );
+});
 
 const MoodRenderer = forwardRef((props, ref) => {
     const imageForMood = mood => 'https://www.ag-grid.com/example-assets/smileys/' + (mood === 'Happy' ? 'happy.png' : 'sad.png');
@@ -155,11 +198,32 @@ const NumericEditor = forwardRef((props, ref) => {
     };
 
     const initialState = createInitialState();
-
     const [value, setValue] = useState(initialState.value);
     const [highlightAllOnFocus, setHighlightAllOnFocus] = useState(initialState.highlightAllOnFocus);
     const refInput = useRef(null);
 
+    // focus on the input
+    useEffect(() => {
+        // get ref from React component
+        const eInput = refInput.current;
+        eInput.focus();
+        if (highlightAllOnFocus) {
+            eInput.select();
+
+            setHighlightAllOnFocus(false);
+        } else {
+            // when we started editing, we want the carot at the end, not the start.
+            // comes into play in two scenarios: a) when user hits F2 and b)
+            // when user hits a printable character, then on IE (and only IE) the carot
+            // was placed after the first character, thus 'apply' would end up as 'pplea'
+            const length = eInput.value ? eInput.value.length : 0;
+            if (length > 0) {
+                eInput.setSelectionRange(length, length);
+            }
+        }
+    }, []);
+
+    /* Utility Methods */
     const cancelBeforeStart = props.charPress && ('1234567890'.indexOf(props.charPress) < 0);
 
     const isLeftOrRight = event => {
@@ -189,6 +253,7 @@ const NumericEditor = forwardRef((props, ref) => {
         const charCode = getCharCodeFromEvent(event);
         return charCode === KEY_ENTER || charCode === KEY_TAB;
     };
+
     const onKeyDown = event => {
         if (isLeftOrRight(event) || deleteOrBackspace(event)) {
             event.stopPropagation();
@@ -200,47 +265,25 @@ const NumericEditor = forwardRef((props, ref) => {
         }
     };
 
-    useEffect(() => {
-        window.addEventListener('keydown', onKeyDown);
-
-        return () => {
-            window.removeEventListener('keydown', onKeyDown);
-        };
-    }, [onKeyDown]);
-
+    /* Component Editor Lifecycle methods */
     useImperativeHandle(ref, () => {
         return {
-            afterGuiAttached() {
-                // get ref from React component
-                const eInput = refInput.current;
-                eInput.focus();
-                if (highlightAllOnFocus) {
-                    eInput.select();
-
-                    setHighlightAllOnFocus(false);
-                } else {
-                    // when we started editing, we want the carot at the end, not the start.
-                    // comes into play in two scenarios: a) when user hits F2 and b)
-                    // when user hits a printable character, then on IE (and only IE) the carot
-                    // was placed after the first character, thus 'apply' would end up as 'pplea'
-                    const length = eInput.value ? eInput.value.length : 0;
-                    if (length > 0) {
-                        eInput.setSelectionRange(length, length);
-                    }
-                }
-            },
-
+            // the final value to send to the grid, on completion of editing
             getValue() {
                 return value;
             },
 
+            // Gets called once before editing starts, to give editor a chance to
+            // cancel the editing before it even starts.
             isCancelBeforeStart() {
                 return cancelBeforeStart;
             },
 
-            // will reject the number if it greater than 1,000,000
-            // not very practical, but demonstrates the method.
+            // Gets called once when editing is finished (eg if Enter is pressed).
+            // If you return true, then the result of the edit will be ignored.
             isCancelAfterEnd() {
+                // will reject the number if it greater than 1,000,000
+                // not very practical, but demonstrates the method.
                 return value > 1000000;
             }
         };
@@ -250,6 +293,7 @@ const NumericEditor = forwardRef((props, ref) => {
         <input ref={refInput}
             value={value}
             onChange={event => setValue(event.target.value)}
+            onKeyDown={event => onKeyDown(event)}
             style={{ width: "100%" }}
         />
     );
@@ -281,9 +325,10 @@ const GridExample = () => {
                 }}
                 className="ag-theme-alpine test-grid">
                 <AgGridReact
-                    modules={AllModules}
+                    modules={AllCommunityModules}
                     rowData={rowData}
                     frameworkComponents={{
+                        doublingEditor: DoublingEditor,
                         moodRenderer: MoodRenderer,
                         moodEditor: MoodEditor,
                         numericEditor: NumericEditor
@@ -296,37 +341,18 @@ const GridExample = () => {
                         filter: true,
                         resizable: true
                     }}>
-                    <AgGridColumn field="name"
-                        width={300}
-                        editable={true}
-                        cellEditor="agRichSelectCellEditor"
-                        cellEditorParams={{
-                            values: [
-                                "Bob",
-                                "Harry",
-                                "Sally",
-                                "Mary",
-                                "John",
-                                "Jack",
-                                "Sue",
-                                "Sean",
-                                "Niall",
-                                "Albert",
-                                "Fred",
-                                "Jenny",
-                                "Larry"
-                            ]
-                        }} />
+                    <AgGridColumn headerName="Doubling"
+                        field="number"
+                        cellEditor="doublingEditor"
+                        editable={true} />
                     <AgGridColumn field="mood"
                         cellRenderer="moodRenderer"
                         cellEditor="moodEditor"
-                        editable={true}
-                        width={300} />
+                        editable={true} />
                     <AgGridColumn headerName="Numeric"
                         field="number"
                         cellEditor="numericEditor"
-                        editable={true}
-                        width={280} />
+                        editable={true} />
                 </AgGridReact>
             </div>
         </div>

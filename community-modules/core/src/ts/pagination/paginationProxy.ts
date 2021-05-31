@@ -3,7 +3,7 @@ import { BeanStub } from "../context/beanStub";
 import { Events, ModelUpdatedEvent, PaginationChangedEvent } from "../events";
 import { RowNode } from "../entities/rowNode";
 import { Autowired, Bean, PostConstruct } from "../context/context";
-import { ColumnApi } from "../columnController/columnApi";
+import { ColumnApi } from "../columns/columnApi";
 import { GridApi } from "../gridApi";
 import { missing, exists } from "../utils/generic";
 import { isNumeric } from "../utils/number";
@@ -118,6 +118,12 @@ export class PaginationProxy extends BeanStub {
             return 0;
         }
         return Math.max(this.bottomRowBounds.rowTop + this.bottomRowBounds.rowHeight - this.topRowBounds.rowTop, 0);
+    }
+
+    public getCurrentPagePixelRange(): {pageFirstPixel: number, pageLastPixel: number} {
+        const pageFirstPixel = this.topRowBounds ? this.topRowBounds.rowTop : 0;
+        const pageLastPixel = this.bottomRowBounds ? this.bottomRowBounds.rowTop + this.bottomRowBounds.rowHeight : 0;
+        return {pageFirstPixel, pageLastPixel};
     }
 
     public isRowPresent(rowNode: RowNode): boolean {

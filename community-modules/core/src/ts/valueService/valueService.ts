@@ -1,5 +1,5 @@
 import { ExpressionService } from "./expressionService";
-import { ColumnController } from "../columnController/columnController";
+import { ColumnModel } from "../columns/columnModel";
 import { NewValueParams, ValueGetterParams } from "../entities/colDef";
 import { Autowired, Bean, PostConstruct } from "../context/context";
 import { RowNode } from "../entities/rowNode";
@@ -15,7 +15,7 @@ import { doOnce } from "../utils/function";
 export class ValueService extends BeanStub {
 
     @Autowired('expressionService') private expressionService: ExpressionService;
-    @Autowired('columnController') private columnController: ColumnController;
+    @Autowired('columnModel') private columnModel: ColumnModel;
     @Autowired('valueCache') private valueCache: ValueCache;
 
     private cellExpressions: boolean;
@@ -111,7 +111,7 @@ export class ValueService extends BeanStub {
     }
 
     public setValue(rowNode: RowNode, colKey: string | Column, newValue: any, eventSource?: string): void {
-        const column = this.columnController.getPrimaryColumn(colKey);
+        const column = this.columnModel.getPrimaryColumn(colKey);
 
         if (!rowNode || !column) {
             return;
@@ -128,7 +128,7 @@ export class ValueService extends BeanStub {
         // need either a field or a newValueHandler for this to work
         if (missing(field) && missing(newValueHandler) && missing(valueSetter)) {
             // we don't tell user about newValueHandler, as that is deprecated
-            console.warn(`ag-Grid: you need either field or valueSetter set on colDef for editing to work`);
+            console.warn(`AG Grid: you need either field or valueSetter set on colDef for editing to work`);
             return;
         }
 
@@ -275,7 +275,7 @@ export class ValueService extends BeanStub {
     }
 
     private getValueCallback(node: RowNode, field: string | Column): any {
-        const otherColumn = this.columnController.getPrimaryColumn(field);
+        const otherColumn = this.columnModel.getPrimaryColumn(field);
 
         if (otherColumn) {
             return this.getValue(otherColumn, node);
@@ -300,7 +300,7 @@ export class ValueService extends BeanStub {
 
         if (result === '[object Object]') {
             doOnce(() => {
-                console.warn('ag-Grid: a column you are grouping or pivoting by has objects as values. If you want to group by complex objects then either a) use a colDef.keyCreator (se ag-Grid docs) or b) to toString() on the object to return a key');
+                console.warn('AG Grid: a column you are grouping or pivoting by has objects as values. If you want to group by complex objects then either a) use a colDef.keyCreator (se AG Grid docs) or b) to toString() on the object to return a key');
             }, 'getKeyForNode - warn about [object,object]');
         }
 

@@ -1,27 +1,32 @@
-import { GridPanel } from "../../gridPanel/gridPanel";
-import { Autowired, Bean } from "../../context/context";
+import { Autowired, Bean, PostConstruct } from "../../context/context";
 import { Beans } from "../beans";
 import { RowNode } from "../../entities/rowNode";
 import { CellComp } from "../cellComp";
-import { ColumnController } from "../../columnController/columnController";
+import { ColumnModel } from "../../columns/columnModel";
 import { BeanStub } from "../../context/beanStub";
 import { addCssClass } from "../../utils/dom";
-import { RowCssClassCalculator } from "./rowCssClassCalculator";
+import { RowCssClassCalculator, RowCssClassCalculatorParams } from "./rowCssClassCalculator";
 import { AngularRowUtils } from "./angularRowUtils";
+import { ControllersService } from "../../controllersService";
+import { RowContainerCtrl } from "../../gridBodyComp/rowContainer/rowContainerCtrl";
 
 @Bean('autoHeightCalculator')
 export class AutoHeightCalculator extends BeanStub {
 
     @Autowired('beans') private beans: Beans;
     @Autowired("$scope") private $scope: any;
-    @Autowired("columnController") private columnController: ColumnController;
+    @Autowired("columnModel") private columnModel: ColumnModel;
     @Autowired("rowCssClassCalculator") private rowCssClassCalculator: RowCssClassCalculator;
     @Autowired('$compile') public $compile: any;
+    @Autowired('controllersService') public controllersService: ControllersService;
 
-    private gridPanel: GridPanel;
+    private centerRowContainerCon: RowContainerCtrl;
 
-    public registerGridComp(gridPanel: GridPanel): void {
-        this.gridPanel = gridPanel;
+    @PostConstruct
+    private postConstruct(): void {
+        this.controllersService.whenReady(p => {
+            this.centerRowContainerCon = p.centerRowContainerCon;
+        });
     }
 
     public getPreferredHeightForRow(rowNode: RowNode): number {
@@ -31,7 +36,7 @@ export class AutoHeightCalculator extends BeanStub {
 
         // we put the dummy into the body container, so it will inherit all the
         // css styles that the real cells are inheriting
-        const eBodyContainer = this.gridPanel.getCenterContainer();
+        const eBodyContainer = this.centerRowContainerCon.getContainerElement();
         eBodyContainer.appendChild(eDummyContainer);
 
         const scopeResult = AngularRowUtils.createChildScopeOrNull(rowNode, this.$scope, this.beans.gridOptionsWrapper);
@@ -39,8 +44,8 @@ export class AutoHeightCalculator extends BeanStub {
         const scopeDestroyFunc = scopeResult ? scopeResult.scopeDestroyFunc : undefined;
 
         const cellComps: CellComp[] = [];
-        const autoRowHeightCols = this.columnController.getAllAutoRowHeightCols();
-        const displayedCols = this.columnController.getAllDisplayedColumns();
+        const autoRowHeightCols = this.columnModel.getAllAutoRowHeightCols();
+        const displayedCols = this.columnModel.getAllDisplayedColumns();
         const visibleAutoRowHeightCols = autoRowHeightCols.filter(col => displayedCols.indexOf(col) >= 0);
 
         visibleAutoRowHeightCols.forEach(col => {
@@ -51,17 +56,14 @@ export class AutoHeightCalculator extends BeanStub {
                 rowNode,
                 null,
                 true,
+                false,
+                eDummyContainer,
                 false
             );
-            cellComp.setParentRow(eDummyContainer);
             cellComps.push(cellComp);
         });
 
-        const template = cellComps.map(cellComp => cellComp.getCreateTemplate()).join(' ');
-        eDummyContainer.innerHTML = template;
-
-        // this gets any cellComps that are using components to put the components in
-        cellComps.forEach(cellComp => cellComp.afterAttached());
+        cellComps.forEach(cellComp => eDummyContainer.appendChild(cellComp.getGui()))
 
         if (scope) {
             this.$compile(eDummyContainer)(scope);
@@ -98,7 +100,7 @@ export class AutoHeightCalculator extends BeanStub {
         // so any styles on row also get applied in dummy, otherwise
         // the content in dummy may differ to the real
         const rowIndex = rowNode.rowIndex!;
-        const params = {
+        const params: RowCssClassCalculatorParams = {
             rowNode: rowNode,
             rowIsEven: rowIndex % 2 === 0,
             rowLevel: this.rowCssClassCalculator.calculateRowLevel(rowNode),

@@ -1,32 +1,32 @@
-function createImageSpan(imageMultiplier, image) {
-    var resultElement = document.createElement("span");
-    for (var i = 0; i < imageMultiplier; i++) {
-        var imageElement = document.createElement("img");
+const createImageSpan = (imageMultiplier, image) => {
+    const resultElement = document.createElement("span");
+    for (let i = 0; i < imageMultiplier; i++) {
+        const imageElement = document.createElement("img");
         imageElement.src = "https://www.ag-grid.com/example-assets/weather/" + image;
         resultElement.appendChild(imageElement);
     }
     return resultElement;
-}
+};
 
 /**
  * Updates the Days of Air Frost column - adjusts the value which in turn will demonstrate the Component refresh functionality
  * After a data update, cellRenderer Components.refresh method will be called to re-render the altered Cells
  */
-function frostierYear(extraDaysFrost) {
+const frostierYear = extraDaysFrost => {
     // iterate over the rows and make each "days of air frost"
-    gridOptions.api.forEachNode(function(rowNode) {
+    gridOptions.api.forEachNode(rowNode => {
         rowNode.setDataValue('Days of air frost (days)', rowNode.data['Days of air frost (days)'] + extraDaysFrost);
     });
-}
+};
 
 /**
  * Demonstrating function cell renderer
  * Visually indicates if this months value is higher or lower than last months value
  * by adding an +/- symbols according to the difference
  */
-function deltaIndicator(params) {
-    var element = document.createElement("span");
-    var imageElement = document.createElement("img");
+const deltaIndicator = params => {
+    const element = document.createElement("span");
+    const imageElement = document.createElement("img");
 
     // visually indicate if this months value is higher or lower than last months value
     if (params.value > 15) {
@@ -37,59 +37,30 @@ function deltaIndicator(params) {
     element.appendChild(imageElement);
     element.appendChild(document.createTextNode(params.value));
     return element;
-}
-
-/**
- * Demonstrating Component Cell Renderer
- */
-function DaysFrostRenderer() {
-    this.eGui = document.createElement("span");
-}
-DaysFrostRenderer.prototype.init = function(params) {
-    this.rendererImage = params.rendererImage;
-    this.value = params.value;
-    this.updateImages();
-};
-DaysFrostRenderer.prototype.updateImages = function() {
-    var daysFrost = this.value;
-    for (var i = 0; i < daysFrost; i++) {
-        var imageElement = document.createElement("img");
-        imageElement.src = "https://www.ag-grid.com/example-assets/weather/" + this.rendererImage;
-        this.eGui.appendChild(imageElement);
-    }
-};
-DaysFrostRenderer.prototype.getGui = function getGui() {
-    return this.eGui;
-};
-DaysFrostRenderer.prototype.refresh = function(params) {
-    this.value = params.value;
-
-    this.eGui.innerHTML = '';
-    this.updateImages();
 };
 
 /**
  *  Cell Renderer by Property (using the api)
  */
-function daysSunshineRenderer(params) {
-    var daysSunshine = params.value / 24;
+const daysSunshineRenderer = params => {
+    const daysSunshine = params.value / 24;
     return createImageSpan(daysSunshine, params.rendererImage);
-}
+};
 
 /**
  *  Cell Renderer by Property (using the grid options parameter)
  */
-function rainPerTenMmRenderer(params) {
-    var rainPerTenMm = params.value / 10;
+const rainPerTenMmRenderer = params => {
+    const rainPerTenMm = params.value / 10;
     return createImageSpan(rainPerTenMm, params.rendererImage);
-}
+};
 
-var columnDefs = [
+const columnDefs = [
     {
         headerName: "Month",
         field: "Month",
         width: 75,
-        cellStyle: { color: 'darkred' }
+        cellStyle: {color: 'darkred'}
     },
     {
         headerName: "Max Temp (˚C)",
@@ -133,7 +104,7 @@ var columnDefs = [
     }
 ];
 
-var gridOptions = {
+const gridOptions = {
     columnDefs: columnDefs,
     rowData: null,
     components: {
@@ -153,12 +124,13 @@ var gridOptions = {
 };
 
 // setup the grid after the page has finished loading
-document.addEventListener('DOMContentLoaded', function() {
-    var gridDiv = document.querySelector('#myGrid');
+document.addEventListener('DOMContentLoaded', () => {
+    const gridDiv = document.querySelector('#myGrid');
     new agGrid.Grid(gridDiv, gridOptions);
 
     agGrid.simpleHttpRequest({ url: 'https://www.ag-grid.com/example-assets/weather-se-england.json' })
-        .then(function(data) {
+        .then(data => {
             gridOptions.api.setRowData(data);
         });
 });
+

@@ -1,5 +1,5 @@
 ---
-title: "Get Started with ag-Grid"
+title: "Get Started with AG Grid"
 ---
 <style>
     .gatsby-resp-image-wrapper {
@@ -21,20 +21,20 @@ title: "Get Started with ag-Grid"
 </style>
 
 [[only-javascript]]
-| ag-Grid is the industry standard for JavaScript Enterprise Applications. Developers using
-| ag-Grid are building applications that would not be possible if ag-Grid did not exist.
+| AG Grid is the industry standard for JavaScript Enterprise Applications. Developers using
+| AG Grid are building applications that would not be possible if AG Grid did not exist.
 
 [[only-angular]]
-| ag-Grid is the industry standard for Angular Enterprise Applications. Developers using ag-Grid are
-| building applications that would not be possible if ag-Grid did not exist.
+| AG Grid is the industry standard for Angular Enterprise Applications. Developers using AG Grid are
+| building applications that would not be possible if AG Grid did not exist.
 
 [[only-react]]
-| ag-Grid is the industry standard for React Enterprise Applications. Developers using ag-Grid
-| are building applications that would not be possible if ag-Grid did not exist.
+| AG Grid is the industry standard for React Enterprise Applications. Developers using AG Grid
+| are building applications that would not be possible if AG Grid did not exist.
 
 [[only-vue]]
-| ag-Grid is the industry standard for Vue Enterprise Applications. Developers using ag-Grid
-| are building applications that would not be possible if ag-Grid did not exist.
+| AG Grid is the industry standard for Vue Enterprise Applications. Developers using AG Grid
+| are building applications that would not be possible if AG Grid did not exist.
 
 
 <section class="code-tab mb-3">
@@ -82,28 +82,28 @@ title: "Get Started with ag-Grid"
 
 [[only-javascript]]
 | ```js
-| var columnDefs = [
+| const columnDefs = [
 |   { field: "make" },
 |   { field: "model" },
 |   { field: "price" }
 | ];
 |
 | // specify the data
-| var rowData = [
+| const rowData = [
 |   { make: "Toyota", model: "Celica", price: 35000 },
 |   { make: "Ford", model: "Mondeo", price: 32000 },
 |   { make: "Porsche", model: "Boxter", price: 72000 }
 | ];
 |
 | // let the grid know which columns and what data to use
-| var gridOptions = {
+| const gridOptions = {
 |   columnDefs: columnDefs,
 |   rowData: rowData
 | };
 |
 | // setup the grid after the page has finished loading
-| document.addEventListener('DOMContentLoaded', function() {
-|     var gridDiv = document.querySelector('#myGrid');
+| document.addEventListener('DOMContentLoaded', () => {
+|     const gridDiv = document.querySelector('#myGrid');
 |     new agGrid.Grid(gridDiv, gridOptions);
 | });
 | ```
@@ -136,42 +136,32 @@ title: "Get Started with ag-Grid"
 
 [[only-react]]
 | ```jsx
-| import React, { useState } from 'react';
+| import React from 'react';
 | import { render } from 'react-dom';
-| import { AgGridColumn, AgGridReact } from 'ag-grid-react';
-|
-| import 'ag-grid-enterprise';
+| import {AgGridColumn, AgGridReact} from 'ag-grid-react';
+| 
 | import 'ag-grid-community/dist/styles/ag-grid.css';
 | import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
-|
+| 
 | const App = () => {
-|     const [gridApi, setGridApi] = useState(null);
-|     const [gridColumnApi, setGridColumnApi] = useState(null);
-|
-|     const [rowData, setRowData] = useState([
-|         { make: "Toyota", model: "Celica", price: 35000 },
-|         { make: "Ford", model: "Mondeo", price: 32000 },
-|         { make: "Porsche", model: "Boxter", price: 72000 }
-|     ]);
-|
-|     function onGridReady(params) {
-|         setGridApi(params.api);
-|         setGridColumnApi(params.columnApi);
-|     }
-|
-|     return (
-|         <div className="ag-theme-alpine" style={{ height: 400, width: 600 }}>
-|             <AgGridReact
-|                 onGridReady={onGridReady}
-|                 rowData={rowData}>
-|                 <AgGridColumn field="make"></AgGridColumn>
-|                 <AgGridColumn field="model"></AgGridColumn>
-|                 <AgGridColumn field="price"></AgGridColumn>
-|             </AgGridReact>
-|         </div>
-|     );
+|    const rowData = [
+|        {make: "Toyota", model: "Celica", price: 35000},
+|        {make: "Ford", model: "Mondeo", price: 32000},
+|        {make: "Porsche", model: "Boxter", price: 72000}
+|    ];
+| 
+|    return (
+|        <div className="ag-theme-alpine" style={{height: 400, width: 600}}>
+|            <AgGridReact
+|                rowData={rowData}>
+|                <AgGridColumn field="make"></AgGridColumn>
+|                <AgGridColumn field="model"></AgGridColumn>
+|                <AgGridColumn field="price"></AgGridColumn>
+|            </AgGridReact>
+|        </div>
+|    );
 | };
-|
+| 
 | render(<App />, document.getElementById('root'));
 | ```
 
@@ -211,7 +201,7 @@ title: "Get Started with ag-Grid"
 |             class="ag-theme-alpine"
 |             :columnDefs="columnDefs"
 |             :rowData="rowData">
-|             </ag-grid-vue>
+|         </ag-grid-vue>
 |     `
 | }
 | ```
@@ -294,8 +284,8 @@ title: "Get Started with ag-Grid"
 [[only-javascript]]
 | ## Getting Started
 |
-| <video-section src="https://www.youtube.com/embed/KS-wg5zfCXc" title="Getting Started Video Tutorial">
-|     In this article, we will walk you through the necessary steps to add ag-Grid to an existing JavaScript
+| <video-section id="KS-wg5zfCXc" title="Getting Started Video Tutorial">
+|     In this article, we will walk you through the necessary steps to add AG Grid to an existing JavaScript
 |     project, and configure some of the essential features of it. We will show you some of the fundamentals
 |     of the grid (passing properties, using the API, etc).
 | </video-section>
@@ -305,7 +295,7 @@ title: "Get Started with ag-Grid"
 | During the last couple of years, we are witnessing a Cambrian Explosion of JavaScript project stacks.
 | It seems like everyday there is a new, better way for JavaScript developers to build and distribute their apps.
 | However,  for the purposes of this setup, we are going to stick to tried-and-true no-build, single HTML file setup
-| which loads the ag-Grid scripts from CDN (our favorite one is [unpkg](https://unpkg.com/)). Let's start from
+| which loads the AG Grid scripts from CDN (our favorite one is [unpkg](https://unpkg.com/)). Let's start from
 | this clean html file:
 |
 | ```html
@@ -323,7 +313,7 @@ title: "Get Started with ag-Grid"
 | | You can either use your favorite programming text editor, or you can execute the steps in the
 | | tutorial using [this Plunker as a starting point](https://plnkr.co/edit/nmWxAxWONarW5gj2?p=preview).
 |
-| ## Add ag-Grid to Your Project
+| ## Add AG Grid to Your Project
 |
 | We are going to load the necessary scripts and styles from the unpkg CDN. Add the following to the `head` element:
 |
@@ -362,27 +352,27 @@ title: "Get Started with ag-Grid"
 |
 |   <script type="text/javascript" charset="utf-8">
 |     // specify the columns
-|     var columnDefs = [
+|     const columnDefs = [
 |       { field: "make" },
 |       { field: "model" },
 |       { field: "price" }
 |     ];
 |
 |     // specify the data
-|     var rowData = [
+|     const rowData = [
 |       { make: "Toyota", model: "Celica", price: 35000 },
 |       { make: "Ford", model: "Mondeo", price: 32000 },
 |       { make: "Porsche", model: "Boxter", price: 72000 }
 |     ];
 |
 |     // let the grid know which columns and what data to use
-|     var gridOptions = {
+|     const gridOptions = {
 |       columnDefs: columnDefs,
 |       rowData: rowData
 |     };
 |
 |   // lookup the container we want the Grid to use
-|   var eGridDiv = document.querySelector('#myGrid');
+|   const eGridDiv = document.querySelector('#myGrid');
 |
 |   // create the grid passing in the div to use together with the columns & data we want to use
 |   new agGrid.Grid(eGridDiv, gridOptions);
@@ -404,16 +394,16 @@ title: "Get Started with ag-Grid"
 | grid's theme by setting the `class` to `ag-theme-alpine`. As you may have already noticed, the CSS class
 | matches the name of CSS file we imported earlier.
 |
-| ![ag-Grid in its simplest form](resources/step1.png)
+| ![AG Grid in its simplest form](resources/step1.png)
 |
 | ## Enable Sorting And Filtering
 |
 | So far, so good. But wouldn't it be nice to be able to sort the data to help us see which car is the least/most
-| expensive Well, enabling sorting in ag-Grid is actually quite simple - all you need to do is add `sortable` to
+| expensive Well, enabling sorting in AG Grid is actually quite simple - all you need to do is add `sortable` to
 | each column.
 |
 | ```js
-| var columnDefs = [
+| const columnDefs = [
 |     { field: "make", sortable: true },
 |     { field: "model", sortable: true },
 |     { field: "price", sortable: true }
@@ -430,7 +420,7 @@ title: "Get Started with ag-Grid"
 | As with sorting, enabling filtering is as easy as adding the `filter` property:
 |
 | ```js
-| var columnDefs = [
+| const columnDefs = [
 |     { field: "make", sortable: true, filter: true },
 |     { field: "model", sortable: true, filter: true },
 |     { field: "price", sortable: true, filter: true }
@@ -441,18 +431,18 @@ title: "Get Started with ag-Grid"
 | it will display a popup with a filtering UI which lets you choose the kind of filter and the text that you
 | want to filter by.
 |
-| ![ag-Grid sorting and filtering](resources/step2.png)
+| ![AG Grid sorting and filtering](resources/step2.png)
 |
 | ## Fetch Remote Data
 |
 | Displaying hard-coded data in JavaScript is not going to get us very far. In the real world, most of the
 | time, we are dealing with data that resides on a remote server. Nowadays, implementing this is actually
-| quite simple. Notice that the actual data fetching is performed outside of the grid component - We are
+| quite simple. Notice that the actual data fetching is performed outside of the grid component - we are
 | using the HTML5 `fetch` API.
 |
 | [[note]]
 | | If you have to support older browsers but you want to use fetch, you can add
-| | [the respective polyfill](https://github.com/github/fetch).
+| | [the appropriate polyfill](https://github.com/github/fetch).
 |
 | ```html
 | <!DOCTYPE html>
@@ -469,26 +459,28 @@ title: "Get Started with ag-Grid"
 |
 |   <script type="text/javascript" charset="utf-8">
 |     // specify the columns
-|     var columnDefs = [
+|     const columnDefs = [
 |       { field: "make" },
 |       { field: "model" },
 |       { field: "price" }
 |     ];
 |
 |     // let the grid know which columns to use
-|     var gridOptions = {
+|     const gridOptions = {
 |       columnDefs: columnDefs
 |     };
 |
 |   // lookup the container we want the Grid to use
-|   var eGridDiv = document.querySelector('#myGrid');
+|   const eGridDiv = document.querySelector('#myGrid');
 |
-|   // create the grid passing in the div to use together with the columns &amp; data we want to use
+|   // create the grid passing in the div to use together with the columns & data we want to use
 |   new agGrid.Grid(eGridDiv, gridOptions);
 |
-|   agGrid.simpleHttpRequest({url: 'https://www.ag-grid.com/example-assets/row-data.json'}).then(function(data) {
-|       gridOptions.api.setRowData(data);
-|   });
+|   // fetch the row data to use and one ready provide it to the Grid via the Grid API
+|   agGrid.simpleHttpRequest({url: 'https://www.ag-grid.com/example-assets/row-data.json'})
+|       .then(data => {
+|           gridOptions.api.setRowData(data);
+|       });
 |
 |   </script>
 | </body>
@@ -498,8 +490,8 @@ title: "Get Started with ag-Grid"
 | Here, we replaced the `rowData` assignment  with a data fetch from a remote service. The remote data is the
 | same as the one we initially had, so you should not notice any actual changes to the grid.
 |
-| Notice that we also did something new - we accessed the [grid API](../grid-api/) instance through the
-| `gridOptions.api`. The api object exposes plethora of methods that allow us to implement complex scenarios
+| Notice that we also did something new - we accessed the [grid API](/grid-api/) instance through the
+| `gridOptions.api`. The api object exposes a whole plethora of methods that allow us to implement complex scenarios
 | with the grid.
 |
 | ## Enable Selection
@@ -511,19 +503,19 @@ title: "Get Started with ag-Grid"
 | We will leave the flag toggle state and persistence to the backend team. On our side, we should enable the
 | selection and, afterwards, to obtain the selected records and pass them with an API call to a remote service endpoint.
 |
-| Fortunately, the above task is quite simple with ag-Grid. As you may have already guessed, it is just a
+| Fortunately, the above task is quite simple with AG Grid. As you may have already guessed, it is just a
 | matter of adding and changing couple of properties:
 |
 | ```js
 | // specify the columns
-| var columnDefs = [
+| const columnDefs = [
 |   { field: "make", checkboxSelection: true },
 |   { field: "model" },
 |   { field: "price" }
 | ];
 |
 | // let the grid know which columns and what data to use
-| var gridOptions = {
+| const gridOptions = {
 |   columnDefs: columnDefs,
 |   rowSelection: 'multiple'
 | };
@@ -534,16 +526,16 @@ title: "Get Started with ag-Grid"
 | change:
 |
 | ```html
-|   <button onclick="getSelectedRows()">Get Selected Rows</button>
-|   <div id="myGrid" class="ag-theme-alpine" style="height: 600px; width:500px;"></div>
+|<button onclick="getSelectedRows()">Get Selected Rows</button>
+|<div id="myGrid" class="ag-theme-alpine" style="height: 600px; width:500px;"></div>
 | ```
 |
 | ```js
-| function getSelectedRows() {
-|     var selectedNodes = gridOptions.api.getSelectedNodes()
-|     var selectedData = selectedNodes.map( function(node) { return node.data })
-|     var selectedDataStringPresentation = selectedData.map( function(node) { return node.make + ' ' + node.model }).join(', ')
-|     alert('Selected nodes: ' + selectedDataStringPresentation);
+| const getSelectedRows = () => {
+|     const selectedNodes = gridOptions.api.getSelectedNodes()
+|     const selectedData = selectedNodes.map( node => node.data )
+|     const selectedDataStringPresentation = selectedData.map( node => `${node.make} ${node.model}`).join(', ')
+|     alert(`Selected nodes: ${selectedDataStringPresentation}`);
 | }
 | ```
 |
@@ -561,36 +553,42 @@ title: "Get Started with ag-Grid"
 | ## Grouping
 |
 | [[note]]
-| | Grouping is a feature exclusive to ag-Grid Enterprise. You are free to trial ag-Grid Enterprise to see what
-| | you think. You only need to get in touch if you want to start using ag-Grid Enterprise in a project intended
+| | Grouping is a feature exclusive to AG Grid Enterprise. You are free to trial AG Grid Enterprise to see what
+| | you think - you only need to get in touch if you want to start using AG Grid Enterprise in a project intended
 | | for production.
 |
-| In addition to filtering and sorting, [grouping](../grouping/) is another effective way for the user to make
+| In addition to filtering and sorting, [grouping](/grouping/) is another effective way for the user to make
 | sense out of large amounts of data.
 |
 | Let's enable the enterprise features of ag-grid. Install the additional package:
 |
 | Now, let's use ag-grid-enterprise! Replace the ag-grid script reference in the `head` with this one:
 |
-| ```html
-| <script src="https://unpkg.com/ag-grid-enterprise/dist/ag-grid-enterprise.min.noStyle.js"></script>
+| ```diff
+| <head>
+|     <title>Ag-Grid Basic Example</title>
+| -   <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.js"></script>
+| +   <script src="https://unpkg.com/ag-grid-enterprise/dist/ag-grid-enterprise.min.noStyle.js"></script>
+|     <script src="main.js"></script>
+| </head>
 | ```
 |
 | If everything is ok, you should see a message in the console that tells you there is no enterprise license key.
-| You can ignore the message as we are trialing. In addition to that, the grid got a few UI improvements - a custom
+| You can ignore the message as we are simply trialing AG Grid Enterprise for the time being. 
+| In addition to that, the grid got a few UI improvements - a custom
 | context menu and fancier column menu popup - feel free to look around:
 |
-| ![ag-Grid final](resources/step3.png)
+| ![AG Grid final](resources/step3.png)
 |
-| Now, let's enable grouping! Change the configuration to this:
+| Now let's enable grouping! Change the configuration to this:
 |
 | ```js
-| var columnDefs = [
+| const columnDefs = [
 |     { field: "make", rowGroup: true },
 |     { field: "price" }
 | ];
 |
-| var autoGroupColumnDef = {
+| const autoGroupColumnDef = {
 |     headerName: "Model",
 |     field: "model",
 |     cellRenderer:'agGroupCellRenderer',
@@ -600,7 +598,7 @@ title: "Get Started with ag-Grid"
 | }
 |
 | // let the grid know which columns and what data to use
-| var gridOptions = {
+| const gridOptions = {
 |     columnDefs: columnDefs,
 |     autoGroupColumnDef: autoGroupColumnDef,
 |     groupSelectsChildren: true,
@@ -633,45 +631,46 @@ title: "Get Started with ag-Grid"
 |   <div id="myGrid" style="height: 600px;width:500px;" class="ag-theme-alpine"></div>
 |
 |   <script type="text/javascript" charset="utf-8">
-|     // specify the columns
-|     var columnDefs = [
-|       { field: "make", rowGroup: true },
-|       { field: "price" }
-|     ];
-|
-|     var autoGroupColumnDef = {
-|         headerName: "Model",
-|         field: "model",
-|         cellRenderer:'agGroupCellRenderer',
-|         cellRendererParams: {
-|             checkbox: true
-|         }
-|     }
-|
-|     // let the grid know which columns and what data to use
-|     var gridOptions = {
-|       columnDefs: columnDefs,
-|       autoGroupColumnDef: autoGroupColumnDef,
-|       groupSelectsChildren: true,
-|       rowSelection: 'multiple'
-|     };
-|
-|   // lookup the container we want the Grid to use
-|   var eGridDiv = document.querySelector('#myGrid');
-|
-|   // create the grid passing in the div to use together with the columns & data we want to use
-|   new agGrid.Grid(eGridDiv, gridOptions);
-|
-|   agGrid.simpleHttpRequest({url: 'https://www.ag-grid.com/example-assets/row-data.json'}).then(function(data) {
-|       gridOptions.api.setRowData(data);
-|   });
-|
-|   function getSelectedRows() {
-|     const selectedNodes = gridOptions.api.getSelectedNodes()
-|     const selectedData = selectedNodes.map( function(node) { return node.data })
-|     const selectedDataStringPresentation = selectedData.map( function(node) { return node.make + ' ' + node.model }).join(', ')
-|     alert('Selected nodes: ' + selectedDataStringPresentation);
-|   }
+|        // specify the columns
+|        const columnDefs = [
+|            { field: "make", rowGroup: true },
+|            { field: "price" }
+|        ];
+|        
+|        const autoGroupColumnDef = {
+|            headerName: "Model",
+|            field: "model",
+|            cellRenderer:'agGroupCellRenderer',
+|            cellRendererParams: {
+|                checkbox: true
+|            }
+|        }
+|        
+|        // let the grid know which columns and what data to use
+|        const gridOptions = {
+|            columnDefs: columnDefs,
+|            autoGroupColumnDef: autoGroupColumnDef,
+|            groupSelectsChildren: true,
+|            rowSelection: 'multiple'
+|        };
+|        
+|        // lookup the container we want the Grid to use
+|        const eGridDiv = document.querySelector('#myGrid');
+|        
+|        // create the grid passing in the div to use together with the columns & data we want to use
+|        new agGrid.Grid(eGridDiv, gridOptions);
+|        
+|        agGrid.simpleHttpRequest({url: 'https://www.ag-grid.com/example-assets/row-data.json'})
+|            .then(data => {
+|               gridOptions.api.setRowData(data);
+|            });
+|        
+|        const getSelectedRows = () => {
+|            const selectedNodes = gridOptions.api.getSelectedNodes()
+|            const selectedData = selectedNodes.map( node => node.data )
+|            const selectedDataStringPresentation = selectedData.map( node => `${node.make} ${node.model}` ).join(', ')
+|            alert('Selected nodes: ' + selectedDataStringPresentation);
+|        }
 |   </script>
 | </body>
 | </html>
@@ -686,8 +685,8 @@ title: "Get Started with ag-Grid"
 |
 | ## Next Steps
 |
-| The best thing you can check after the Javascript grid tutorial is the [features overview](../grid-features/).
-| It provides an extensive review of what you can achieve with ag-Grid. In addition, you can go through the
+| The best thing you can check after the Javascript grid tutorial is the [features overview](/grid-features/).
+| It provides an extensive review of what you can achieve with AG Grid. In addition, you can go through the
 | following help articles to learn more about the features we enabled:
 | <style>
 |    .btn.btn-outline-primary:hover {
@@ -705,18 +704,18 @@ title: "Get Started with ag-Grid"
 [[only-angular]]
 | [[note]]
 | | Please refer to our [Compatibility Chart](#ag-grid--angular-compatibility-chart) for Supported Versions of
-| | Angular & ag-Grid.
+| | Angular & AG Grid.
 |
 | ## Getting Started
 |
-| <video-section src="https://www.youtube.com/embed/AeEfiWAGyLc" title="Getting Started Video Tutorial">
-|     Below we walk through the necessary steps to add ag-Grid (both
+| <video-section id="AeEfiWAGyLc" title="Getting Started Video Tutorial">
+|     Below we walk through the necessary steps to add AG Grid (both
 |     <a href="../licensing/">Community and Enterprise</a> are covered) to an
 |     Angular project and configure some grid features. In particular, we will go through
 |     the following steps:
 |  </video-section>
 |
-| 1. [Add ag-Grid to Your Project](#add-ag-grid-to-your-project-1)
+| 1. [Add AG Grid to Your Project](#add-ag-grid-to-your-project-1)
 | 1. [Enable Sorting and Filtering](#enable-sorting-and-filtering-1)
 | 1. [Fetch Remote Data](#fetch-remote-data-1)
 | 1. [Enable Selection](#enable-selection-1)
@@ -731,28 +730,27 @@ title: "Get Started with ag-Grid"
 | |             <img src="resources/thinkster.png"/>
 | |         </a>
 | |     </span>
-| |     <span style="flex-grow: 1; display: inline-block; padding-left: 10px;">
-| |         Thinkster has provided a free course
-| |         <a href="https://thinkster.io/topics/ag-grid" target="_blank">Learning ag-Grid with Angular</a>
+| |     <span style="flex-grow: 1; display: flex; align-items: center; padding-left: 10px;">
+| |         Thinkster has provided a free course:&nbsp;
+| |         <a href="https://thinkster.io/topics/ag-grid" target="_blank">Learning AG Grid with Angular</a>
 | |     </span>
 | | </div>
 |
 |
-| ## Add ag-Grid to Your Project
+| ## Add AG Grid to Your Project
 |
 | For the purposes of this tutorial, we are going to scaffold an Angular app with
 | [angular CLI](https://cli.angular.io/). Don't worry if your project has a different
-| configuration. ag-Grid and its Angular wrapper are distributed as NPM packages, which
+| configuration. AG Grid and its Angular wrapper are distributed as NPM packages, which
 | should work with any common Angular project module bundler setup. Let's follow the
 | [Angular CLI instructions](https://github.com/angular/angular-cli#installation) - run the
 | following in your terminal:
 |
 |
 | ```bash
-| npm install -g @angular/cli
-| ng new my-app --style scss --routing false
+| npx -p @angular/cli@latest ng new my-app  --style scss --routing false
 | cd my-app
-| ng serve
+| npm start
 | ```
 |
 | [[note]]
@@ -762,7 +760,7 @@ title: "Get Started with ag-Grid"
 | If everything goes well, `ng serve` has started the web server. You can open your app at
 | <a href="http://localhost:4200" target="_blank">localhost:4200</a>.
 |
-| As a next step, let's add the ag-Grid NPM packages. run the following command in `my-app` (you may need a new instance of | the terminal):
+| As a next step, let's add the AG Grid NPM packages. run the following command in `my-app` (you may need a new instance of | the terminal):
 |
 | ```bash
 | npm install --save ag-grid-community ag-grid-angular
@@ -770,7 +768,7 @@ title: "Get Started with ag-Grid"
 | ```
 |
 | After a few seconds of waiting, you should be good to go. Let's get to the actual coding! As a first
-| step, let's add the ag-Grid Angular module to our app module (`src/app/app.module.ts`):
+| step, let's add the AG Grid Angular module to our app module (`src/app/app.module.ts`):
 |
 | ```ts
 | import { BrowserModule } from '@angular/platform-browser';
@@ -795,7 +793,7 @@ title: "Get Started with ag-Grid"
 | | The `withComponents` call is necessary for the grid to be able to use Angular
 | | components as cells / headers - you can ignore it for now.
 |
-| The next step is to add the ag-Grid styles - replace the content of
+| The next step is to add the AG Grid styles - replace the content of
 | `src/styles.scss` with the following code:
 |
 | ```scss
@@ -808,7 +806,7 @@ title: "Get Started with ag-Grid"
 | that matches your project design. You can customise it further with Sass variables, a technique
 | which we will cover further down the road.
 |
-| Next, let's declare the basic grid configuration. Edit `src/app.component.ts`:
+| Next, let's declare the basic grid configuration. Edit `src/app/app.component.ts`:
 |
 | ```ts
 | import { Component } from '@angular/core';
@@ -819,7 +817,6 @@ title: "Get Started with ag-Grid"
 |     styleUrls: ['./app.component.scss']
 | })
 | export class AppComponent {
-|     title = 'my-app';
 |
 |     columnDefs = [
 |         { field: 'make' },
@@ -836,7 +833,7 @@ title: "Get Started with ag-Grid"
 | ```
 |
 | The code above presents two essential configuration properties of the grid -
-| [the column definitions](../column-definitions/)
+| [the column definitions](/column-definitions/)
 | (`columnDefs`) and the data (`rowData`). In our case, the column definitions contain three columns;
 | each column entry specifies the header label and the data field to be displayed in the body of the table.
 |
@@ -859,12 +856,12 @@ title: "Get Started with ag-Grid"
 |
 | If everything works as expected, you should see a simple grid like the one on the screenshot:
 |
-| ![ag-Grid hello world](resources/step1.png)
+| ![AG Grid hello world](resources/step1.png)
 |
 | ## Enable Sorting And Filtering
 |
 | So far, so good. But wouldn't it be nice to be able to sort the data to help us see which car is the
-| least/most expensive? Well, enabling sorting in ag-Grid is actually quite simple - all you
+| least/most expensive? Well, enabling sorting in AG Grid is actually quite simple - all you
 | need to do is set the `sortable` property to each column you want to be able to sort by.
 |
 | ```ts
@@ -880,7 +877,7 @@ title: "Get Started with ag-Grid"
 |
 | Our application doesn't have too many rows, so it's fairly easy to find data. But it's easy to
 | imagine how a real-world application may have hundreds (or even hundreds of thousands!) of
-| rows, with many columns. In a data set like this [filtering](../filtering/)
+| rows, with many columns. In a data set like this [filtering](/filtering/)
 | is your friend.
 |
 | As with sorting, enabling filtering is as easy as setting the `filter` property:
@@ -897,14 +894,14 @@ title: "Get Started with ag-Grid"
 | it will display a popup with a filtering UI which lets you choose the kind of filter and the text that
 | you want to filter by.
 |
-| ![ag-Grid sorting and filtering](resources/step2.png)
+| ![AG Grid sorting and filtering](resources/step2.png)
 |
 | ## Fetch Remote Data
 |
 | Displaying hard-coded data in JavaScript is not going to get us very far. In the real world,
 | most of the time, we are dealing with data that resides on a remote server. Thanks to Angular,
 | implementing this is actually quite simple. Notice that the actual data fetching is performed
-| outside of the grid component - We are using Angular's [HttpClient](https://angular.io/guide/http)
+| outside of the grid component - we are using Angular's [HttpClient](https://angular.io/guide/http)
 | and an async pipe. As a first step, let's add the `HttpModule` to our app module:
 |
 | ```ts
@@ -929,37 +926,36 @@ title: "Get Started with ag-Grid"
 | ```
 |
 | Now, let's remove the hard-coded data and fetch it from a remote server.
-| Edit the `src/app.component.ts` to this:
+| Edit the `src/app/app.component.ts` to this:
 |
-| ```ts
-| import { Component, OnInit } from '@angular/core';
-| import { HttpClient } from '@angular/common/http';
+|```ts
+|import { Component, OnInit } from '@angular/core';
+|import { HttpClient } from '@angular/common/http';
+|import {Observable} from 'rxjs';
 |
-| @Component({
-|     selector: 'app-root',
-|     templateUrl: './app.component.html',
-|     styleUrls: ['./app.component.scss']
-| })
-| export class AppComponent implements OnInit {
-|     title = 'my-app';
+|@Component({
+|    selector: 'app-root',
+|    templateUrl: './app.component.html',
+|    styleUrls: ['./app.component.scss']
+|})
+|export class AppComponent implements OnInit {
 |
-|     columnDefs = [
-|         { field: 'make', sortable: true, filter: true },
-|         { field: 'model', sortable: true, filter: true },
-|         { field: 'price', sortable: true, filter: true }
-|     ];
+|    columnDefs = [
+|        { field: 'make', sortable: true, filter: true },
+|        { field: 'model', sortable: true, filter: true },
+|        { field: 'price', sortable: true, filter: true }
+|    ];
 |
-|     rowData: any;
+|    rowData: Observable<any[]>;
 |
-|     constructor(private http: HttpClient) {
+|    constructor(private http: HttpClient) {
+|    }
 |
-|     }
-|
-|     ngOnInit() {
-|         this.rowData = this.http.get('https://www.ag-grid.com/example-assets/small-row-data.json');
-|     }
-| }
-| ```
+|    ngOnInit(): void {
+|        this.rowData = this.http.get<any[]>('https://www.ag-grid.com/example-assets/small-row-data.json');
+|    }
+|}
+|```
 |
 | The above code turns the `rowData` from a hard-coded array to an `Observable`. For the grid to work with
 | it, we need to add an async pipe to the property:
@@ -985,40 +981,39 @@ title: "Get Started with ag-Grid"
 | persistence to the backend team. On our side, we should enable the selection and, afterwards, to obtain
 | the selected records and pass them with an API call to a remote service endpoint.
 |
-| Fortunately, the above task is quite simple with ag-Grid. As you may have already guessed, it is just a
-| matter of adding and changing couple of properties. Edit `src/app.component.ts` first:
+| Fortunately, the above task is quite simple with AG Grid. As you may have already guessed, it is just a
+| matter of adding and changing couple of properties. Edit `src/app/app.component.ts` first:
 |
 | ```ts
-| import { Component, OnInit, ViewChild } from '@angular/core';
-| import { HttpClient } from '@angular/common/http';
+|import {Component, OnInit} from '@angular/core';
+|import {HttpClient} from '@angular/common/http';
+|import {Observable} from 'rxjs';
 |
-| @Component({
-|     selector: 'app-root',
-|     templateUrl: './app.component.html',
-|     styleUrls: ['./app.component.scss']
-| })
-| export class AppComponent implements OnInit {
-|     title = 'my-app';
+|@Component({
+|    selector: 'app-root',
+|    templateUrl: './app.component.html',
+|    styleUrls: ['./app.component.scss']
+|})
+|export class AppComponent implements OnInit {
 |
-|     columnDefs = [
-|         { field: 'make', sortable: true, filter: true, checkboxSelection: true },
-|         { field: 'model', sortable: true, filter: true },
-|         { field: 'price', sortable: true, filter: true }
-|     ];
+|    columnDefs = [
+|        {field: 'make', sortable: true, filter: true, checkboxSelection: true},
+|        {field: 'model', sortable: true, filter: true},
+|        {field: 'price', sortable: true, filter: true}
+|    ];
 |
-|     rowData: any;
+|    rowData: Observable<any[]>;
 |
-|     constructor(private http: HttpClient) {
+|    constructor(private http: HttpClient) {
+|    }
 |
-|     }
-|
-|     ngOnInit() {
-|         this.rowData = this.http.get('https://www.ag-grid.com/example-assets/small-row-data.json');
-|     }
-| }
+|    ngOnInit(): void {
+|        this.rowData = this.http.get<any[]>('https://www.ag-grid.com/example-assets/small-row-data.json');
+|    }
+|}
 | ```
 |
-| Next, let's enable [multiple row selection](../row-selection/#example-multiple-row-selection),
+| Next, let's enable [multiple row selection](/row-selection/#example-multiple-row-selection),
 | so that the user can pick many rows:
 |
 | ```html
@@ -1032,13 +1027,9 @@ title: "Get Started with ag-Grid"
 | </ag-grid-angular>
 | ```
 |
-| [[note]]
-| | We took a bit of a shortcut here, by not binding the property value. Without `[]`, the
-| | assignment will pass the attribute value as a string, which is fine for our purposes.
-|
 | Great! Now the first column contains a checkbox that, when clicked, selects the row. The only
 | thing we have to add is a button that gets the selected data and sends it to the server. To do this,
-| we are going to use the [ag-Grid API](../grid-api/) - we will access
+| we are going to use the [AG Grid API](/grid-api/) - we will access
 | it through the component instance. To access to component instance we will need to add the
 | `#agGrid` id to our component.
 |
@@ -1055,86 +1046,48 @@ title: "Get Started with ag-Grid"
 | </ag-grid-angular>
 | ```
 |
-| Now let's make the instance accessible in our component:
+| Now let's make the instance accessible, and add the `getSelectedRows` method to our component: 
 |
-| ```ts
-| import { Component, OnInit, ViewChild } from '@angular/core';
-| import { HttpClient } from '@angular/common/http';
-| import { AgGridAngular } from 'ag-grid-angular';
+|```diff
+|import {Component, OnInit, ViewChild} from '@angular/core';
+|import {HttpClient} from '@angular/common/http';
+|import {Observable} from 'rxjs';
+|import {AgGridAngular} from 'ag-grid-angular';
 |
-| @Component({
-|     selector: 'app-root',
-|     templateUrl: './app.component.html',
-|     styleUrls: ['./app.component.scss']
-| })
-| export class AppComponent implements OnInit {
-|     @ViewChild('agGrid') agGrid: AgGridAngular;
+|@Component({
+|    selector: 'app-root',
+|    templateUrl: './app.component.html',
+|    styleUrls: ['./app.component.scss']
+|})
+|export class AppComponent implements OnInit {
+|+  @ViewChild('agGrid') agGrid: AgGridAngular;
 |
-|     title = 'my-app';
+|    columnDefs = [
+|        {field: 'make', sortable: true, filter: true, checkboxSelection: true},
+|        {field: 'model', sortable: true, filter: true},
+|        {field: 'price', sortable: true, filter: true}
+|    ];
 |
-|     columnDefs = [
-|         { field: 'make', sortable: true, filter: true, checkboxSelection: true },
-|         { field: 'model', sortable: true, filter: true },
-|         { field: 'price', sortable: true, filter: true }
-|     ];
+|    rowData: Observable<any[]>;
 |
-|     rowData: any;
+|    constructor(private http: HttpClient) {
+|    }
 |
-|     constructor(private http: HttpClient) {
+|    ngOnInit(): void {
+|        this.rowData = this.http.get<any[]>('https://www.ag-grid.com/example-assets/small-row-data.json');
+|    }
 |
-|     }
+|+  getSelectedRows(): void {
+|+      const selectedNodes = this.agGrid.api.getSelectedNodes();
+|+      const selectedData = selectedNodes.map(node => node.data);
+|+      const selectedDataStringPresentation = selectedData.map(node => `${node.make} ${node.model}`).join(', ');
+|+
+|+      alert(`Selected nodes: ${selectedDataStringPresentation}`);
+|   }
+|}
+|```
 |
-|     ngOnInit() {
-|         this.rowData = this.http.get('https://www.ag-grid.com/example-assets/small-row-data.json');
-|     }
-| }
-| ```
-|
-| The only thing we have to add is the `getSelectedRows` method to the component.
-|
-|
-| ```ts
-| import { Component, OnInit, ViewChild } from '@angular/core';
-| import { HttpClient } from '@angular/common/http';
-| import { AgGridAngular } from 'ag-grid-angular';
-|
-| @Component({
-|     selector: 'app-root',
-|     templateUrl: './app.component.html',
-|     styleUrls: ['./app.component.scss']
-| })
-| export class AppComponent implements OnInit {
-|     @ViewChild('agGrid') agGrid: AgGridAngular;
-|
-|     title = 'my-app';
-|
-|     columnDefs = [
-|         { field: 'make', sortable: true, filter: true, checkboxSelection: true },
-|         { field: 'model', sortable: true, filter: true },
-|         { field: 'price', sortable: true, filter: true }
-|     ];
-|
-|     rowData: any;
-|
-|     constructor(private http: HttpClient) {
-|
-|     }
-|
-|     ngOnInit() {
-|         this.rowData = this.http.get('https://www.ag-grid.com/example-assets/small-row-data.json');
-|     }
-|
-|     getSelectedRows() {
-|         const selectedNodes = this.agGrid.api.getSelectedNodes();
-|         const selectedData = selectedNodes.map(node => node.data );
-|         const selectedDataStringPresentation = selectedData.map(node => node.make + ' ' + node.model).join(', ');
-|
-|         alert(`Selected nodes: ${selectedDataStringPresentation}`);
-|     }
-| }
-| ```
-|
-| Well, we cheated a bit. Calling `alert` is not exactly a call to our backend.
+| Well, we cheated a bit - calling `alert` is not exactly a call to our backend.
 | Hopefully you will forgive us this shortcut for the sake of keeping the article short and
 | simple. Of course, you can substitute that bit with a real-world application logic after you
 | are done with the tutorial.
@@ -1142,19 +1095,19 @@ title: "Get Started with ag-Grid"
 | ## Grouping
 |
 | [[note]]
-| | Grouping is a feature exclusive to ag-Grid Enterprise. You are free to trial ag-Grid Enterprise
-| | to see what you think. You only need to get in touch if you want to start using ag-Grid Enterprise
+| | Grouping is a feature exclusive to AG Grid Enterprise. You are free to trial AG Grid Enterprise
+| | to see what you think. You only need to get in touch if you want to start using AG Grid Enterprise
 | | in a project intended for production.
 |
-| In addition to filtering and sorting, [grouping](../grouping/) is another effective way for the
+| In addition to filtering and sorting, [grouping](/grouping/) is another effective way for the
 | user to make sense out of large amounts of data.
 |
 | Our current data set is pretty small so let's switch to a larger one:
 |
 | ```diff
-| ngOnInit() {
-| -     this.rowData = this.http.get('https://www.ag-grid.com/example-assets/small-row-data.json');
-| +     this.rowData = this.http.get('https://www.ag-grid.com/example-assets/row-data.json');
+| ngOnInit(): void {
+| -     this.rowData = this.http.get<any[]>('https://www.ag-grid.com/example-assets/small-row-data.json');
+| +     this.rowData = this.http.get<any[]>('https://www.ag-grid.com/example-assets/row-data.json');
 | }
 | ```
 |
@@ -1176,16 +1129,14 @@ title: "Get Started with ag-Grid"
 | license key. You can ignore the message as we are trialing. In addition to that, the grid got a few
 | UI improvements - a custom context menu and fancier column menu popup - feel free to look around:
 |
-| ![ag-Grid final](resources/step3.png)
+| ![AG Grid final](resources/step3.png)
 |
-| Now, let's enable grouping! Add an `autoGroupColumnDef` property and change the
+| Now let's enable grouping! Add an `autoGroupColumnDef` property and change the
 | `columnDefs` to the following:
 |
 | ```ts
 | export class AppComponent implements OnInit {
 |     @ViewChild('agGrid') agGrid: AgGridAngular;
-|
-|     title = 'my-app';
 |
 |     defaultColDef = {
 |         sortable: true,
@@ -1206,14 +1157,13 @@ title: "Get Started with ag-Grid"
 |         }
 |     };
 |
-|     rowData: any;
+|     rowData: Observable<any[]>;
 |
 |     constructor(private http: HttpClient) {
-|
 |     }
 |
-|     ngOnInit() {
-|         this.rowData = this.http.get('https://www.ag-grid.com/example-assets/row-data.json');
+|     ngOnInit(): void {
+|         this.rowData = this.http.get<any[]>('https://www.ag-grid.com/example-assets/row-data.json');
 |     }
 |
 |     getSelectedRows() {
@@ -1224,7 +1174,7 @@ title: "Get Started with ag-Grid"
 |           }
 |           return node.data;
 |         });
-|         const selectedDataStringPresentation = selectedData.map(node => node.make + ' ' + node.model).join(', ');
+|         const selectedDataStringPresentation = selectedData.map(node => `${node.make} ${node.model}`).join(', ');
 |
 |         alert(`Selected nodes: ${selectedDataStringPresentation}`);
 |     }
@@ -1253,7 +1203,7 @@ title: "Get Started with ag-Grid"
 | The last thing which we are going to do is to change the grid look and feel by modifying some of the
 | theme's parameters.
 |
-| Open `style.scss` and add some parameters:
+| Open `src/styles.scss` and replace the `css` with `scss` files - we'll also add some parameters to change the odd row background color:
 |
 | ```scss
 | @import "../node_modules/ag-grid-community/src/styles/ag-grid.scss";
@@ -1266,25 +1216,25 @@ title: "Get Started with ag-Grid"
 | }
 | ```
 |
-| You can find a [full list of theme parameters here](../themes-customising/#full-list-of-theme-parameters).
+| You can find a [full list of theme parameters here](/themes-customising/#full-list-of-theme-parameters).
 |
 | If everything is configured correctly, the second row of the grid will get slightly darker.
 | Congratulations! You now know now bend the grid look to your will - there are a few dozens more
 | Sass variables that let you control the font family and size, border color, header background color
 | and even the amount of spacing in the cells and columns. The full
-| [theme parameter list](../themes-customising/#full-list-of-theme-parameters) is
+| [theme parameter list](/themes-customising/#full-list-of-theme-parameters) is
 | available in the themes documentation section.
 |
-| ## ag-Grid & Angular Compatibility Chart
+| ## AG Grid & Angular Compatibility Chart
 |
 | [[note]]
 | | Due to a breaking change in Angular 10 you may experience the following error when building:
 | | `Generic type 'ModuleWithProviders<T>' requires 1 type argument(s)`<br/><br/>
-| | If you wish to use Angular 10 with ag-Grid versions 18-23 then you need to set `"skipLibCheck": true`
+| | If you wish to use Angular 10 with AG Grid versions 18-23 then you need to set `"skipLibCheck": true`
 | | in `tsconfig.app.json` Please note however that this is a workaround and Angular 10 is only
-| | officially supported with ag-Grid 24+.
+| | officially supported with AG Grid 24+.
 |
-| | Angular Version | ag-Grid Versions                        |
+| | Angular Version | AG Grid Versions                        |
 | | --------------- | --------------------------------------- |
 | | 6               | 18 - 22                                 |
 | | 7 - 9           | 18 - 23+ (23 recommended for Angular 9) |
@@ -1300,26 +1250,26 @@ title: "Get Started with ag-Grid"
 | [[note]]
 | | Want to know more?
 | |
-| | Want to see some full examples of customising ag-Grid using Angular components? See this blog
+| | Want to see some full examples of customising AG Grid using Angular components? See this blog
 | | written by Max Koretskyi (aka Angular in Depth Wizard)
 | | <a href="https://blog.ag-grid.com/learn-to-customize-angular-grid-in-less-than-10-minutes/" target="_blank">
 | | Learn to customise Angular grid in less than 10 minutes</a>.
 | |
-| | A full working examples of ag-Grid and Angular can be found in
+| | A full working examples of AG Grid and Angular can be found in
 | | [Github](https://github.com/ag-grid/ag-grid-angular-cli-example), illustrating
 | | (amongst others) rich grids, filtering with angular components and master/detail.
 
 
 [[only-react]]
 | [[note]]
-| | Please refer to our [Compatibility Chart](#ag-grid--react-compatibility-chart) for Supported Versions of React & ag-Grid.
+| | Please refer to our [Compatibility Chart](#ag-grid--react-compatibility-chart) for Supported Versions of React & AG Grid.
 |
 | ## Getting Started
 |
-| <video-section src="https://www.youtube.com/embed/6PA45adHun8" title="Getting Started Video Tutorial">
-|     In this article, we will walk you through the necessary steps to add ag-Grid
-|     (both <a href="../licensing/">Community and Enterprise</a> are covered) to an existing
-|     React project, and configure some of the essential features of it. We will show you some of the
+| <video-section id="6PA45adHun8" title="Getting Started Video Tutorial">
+|     In this article, we will walk you through the necessary steps to add AG Grid
+|     (both <a href="../licensing/">Community and Enterprise</a> are covered) to a new React project, 
+| and configure some of the essential features of it. We will show you some of the
 |     fundamentals of the grid (passing properties, using the API, etc). As a bonus, we will also tweak the
 |     grid's visual appearance using Sass variables.
 | </video-section>
@@ -1333,24 +1283,24 @@ title: "Get Started with ag-Grid"
 | |             <img style="width: 150px;" src="resources/thinkster.png"/>
 | |         </a>
 | |     </span>
-| |     <span style="flex-grow: 1; display: inline-block; padding-left: 10px;">
-| |         Thinkster has provided a free course
+| |     <span style="flex-grow: 1; display: flex; align-items: center; padding-left: 10px;">
+| |         Thinkster has provided a free course:&nbsp;
 | |         <a href="https://thinkster.io/topics/ag-grid" target="_blank">
-| |             Learning ag-Grid with React
+| |             Learning AG Grid with React
 | |         </a>
 | |     </span>
 | | </div>
 |
 |
-| ## Add ag-Grid to Your Project
+| ## Add AG Grid to Your Project
 |
 | For the purposes of this tutorial, we are going to scaffold a react app with
 | [create-react-app](https://github.com/facebook/create-react-app). Don't worry if your project has a
-| different configuration. ag-Grid and the React wrapper are distributed as NPM packages, which should
+| different configuration. AG Grid and the React wrapper are distributed as NPM packages, which should
 | work with any common React project module bundler setup. Let's follow the
 | [create-react-app instructions](https://github.com/facebook/create-react-app#quick-overview) - run
-| the following commands in your terminal:
-|
+| the following commands in your terminal: 
+| 
 | ```bash
 | npx create-react-app my-app
 | cd my-app
@@ -1365,7 +1315,7 @@ title: "Get Started with ag-Grid"
 | If everything goes well, `npm start` has started the web server and conveniently opened a browser
 | pointing to [localhost:3000](http://localhost:3000).
 |
-| As a next step, let's add the ag-Grid NPM packages. Run the following command in `my-app`
+| As a next step, let's add the AG Grid NPM packages. Run the following command in `my-app`
 | (you may need a new instance of the terminal):
 |
 | ```bash
@@ -1375,40 +1325,37 @@ title: "Get Started with ag-Grid"
 | After a few seconds of waiting, you should be good to go. Let's get to the actual coding! Open `src/App.js` in your
 | favorite text editor and change its contents to the following:
 |
-| ```jsx
-| import React, { useState } from 'react';
-| import { AgGridColumn, AgGridReact } from 'ag-grid-react';
+|```jsx
+|import React from 'react';
+|import {AgGridColumn, AgGridReact} from 'ag-grid-react';
 |
-| import 'ag-grid-community/dist/styles/ag-grid.css';
-| import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
+|import 'ag-grid-community/dist/styles/ag-grid.css';
+|import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 |
-| const App = () => {
-|     const [gridApi, setGridApi] = useState(null);
-|     const [gridColumnApi, setGridColumnApi] = useState(null);
+|const App = () => {
+|    const rowData = [
+|        {make: "Toyota", model: "Celica", price: 35000},
+|        {make: "Ford", model: "Mondeo", price: 32000},
+|        {make: "Porsche", model: "Boxter", price: 72000}
+|    ];
 |
-|     const [rowData, setRowData] = useState([
-|         { make: "Toyota", model: "Celica", price: 35000 },
-|         { make: "Ford", model: "Mondeo", price: 32000 },
-|         { make: "Porsche", model: "Boxter", price: 72000 }
-|     ]);
+|    return (
+|        <div className="ag-theme-alpine" style={{height: 400, width: 600}}>
+|            <AgGridReact
+|                rowData={rowData}>
+|                <AgGridColumn field="make"></AgGridColumn>
+|                <AgGridColumn field="model"></AgGridColumn>
+|                <AgGridColumn field="price"></AgGridColumn>
+|            </AgGridReact>
+|        </div>
+|    );
+|};
 |
-|     return (
-|         <div className="ag-theme-alpine" style={{ height: 400, width: 600 }}>
-|             <AgGridReact
-|                 rowData={rowData}>
-|                 <AgGridColumn field="make"></AgGridColumn>
-|                 <AgGridColumn field="model"></AgGridColumn>
-|                 <AgGridColumn field="price"></AgGridColumn>
-|             </AgGridReact>
-|         </div>
-|     );
-| };
-|
-| export default App;
-| ```
+|export default App;
+|```
 |
 | Done? If everything is correct, we should see a simple grid that looks like this:<br/><br/>
-| ![ag-Grid in its simplest form](resources/step1.png)
+| ![AG Grid in its simplest form](resources/step1.png)
 |
 | Let's go over the `App.jsx` changes we made:
 |
@@ -1422,15 +1369,15 @@ title: "Get Started with ag-Grid"
 | The three lines above import the `AgGridReact` and `AgGridColumn` components, the grid
 | "structure" stylesheet (`ag-grid.css`), and one of the available grid themes: (`ag-theme-alpine.css`).
 |
-| The grid ships [several different themes](../themes/); pick one that matches your project
+| The grid ships [several different themes](/themes/); pick one that matches your project
 | design. You can customise it further with Sass variables, a technique which we will cover further down the road.
 |
 | ```jsx
-| const [rowData, setRowData] = useState([
+| const rowData = [
 |     {make: "Toyota", model: "Celica", price: 35000},
 |     {make: "Ford", model: "Mondeo", price: 32000},
 |     {make: "Porsche", model: "Boxter", price: 72000}
-| ]);
+| ];
 |
 | //...
 |
@@ -1443,7 +1390,7 @@ title: "Get Started with ag-Grid"
 | ```
 |
 | The code above presents two essential configuration properties of the grid -
-| [the column definitions](../column-configuration/)
+| [the column definitions](/column-definitions/)
 | (`AgGridColumn`) and the data (`rowData`). In our case, the column definitions contain three columns;
 | each column entry specifies the header label and the data field to be displayed in the body of the table.
 |
@@ -1468,7 +1415,7 @@ title: "Get Started with ag-Grid"
 | ## Enable Sorting And Filtering
 |
 | So far, so good. But wouldn't it be nice to be able to sort the data to help us see which car is the
-| least/most expensive? Well, enabling sorting in ag-Grid is actually quite simple - all you need to
+| least/most expensive? Well, enabling sorting in AG Grid is actually quite simple - all you need to
 | do is set the `sort` property on the column definitions.
 |
 | ```jsx
@@ -1496,7 +1443,7 @@ title: "Get Started with ag-Grid"
 | Pressing it will display a popup with a filtering UI which lets you choose the kind of filter and the
 | text that you want to filter by.
 |
-| ![ag-Grid sorting and filtering](resources/step2.png)
+| ![AG Grid sorting and filtering](resources/step2.png)
 |
 | ## Fetch Remote Data
 |
@@ -1506,11 +1453,13 @@ title: "Get Started with ag-Grid"
 | grid component - We are using the HTML5 `fetch` API.
 |
 | ```diff
-| - const [rowData, setRowData] = useState([
-| -     { make: "Toyota", model: "Celica", price: 35000 },
-| -     { make: "Ford", model: "Mondeo", price: 32000 },
-| -     { make: "Porsche", model: "Boxter", price: 72000 }
-| - ]);
+| +  import React, { useState, useEffect } from 'react';
+|
+| -  const rowData = [
+| -      {make: "Toyota", model: "Celica", price: 35000},
+| -      {make: "Ford", model: "Mondeo", price: 32000},
+| -      {make: "Porsche", model: "Boxter", price: 72000}
+| -  ];
 |
 | + const [rowData, setRowData] = useState([]);
 |
@@ -1533,68 +1482,68 @@ title: "Get Started with ag-Grid"
 | persistence to the backend team. On our side, we should enable the selection and, afterwards, to obtain
 | the selected records and pass them with an API call to a remote service endpoint.
 |
-| Fortunately, the above task is quite simple with ag-Grid. As you may have already guessed,
-| it is just a matter of adding and changing couple of properties:
+| Fortunately, the above task is quite simple with AG Grid. As you may have already guessed,
+| it is just a matter of adding and changing couple of properties, as well as accessing the Grid API via a `ref`:
 |
-| ```diff
-| - <AgGridColumn field="make" sortable={ true } filter={ true }></AgGridColumn>
-| + <AgGridColumn field="make" sortable={ true } filter={true } checkboxSelection={ true }></AgGridColumn>
-| ```
+|```diff
+|+ import { useEffect, useState, useRef } from 'react';
 |
-| ```diff
-|   <AgGridReact
-| +     rowSelection="multiple"
-| ```
+|const App = () => {
+|    const [rowData, setRowData] = useState([]);
+|+  const gridRef = useRef(null);
 |
-| Great! Now the first column contains a checkbox that, when clicked, selects the row. The only
-| thing we have to add is a button that gets the selected data and sends it to the server. To do this,
-| we need the following change:
+|    useEffect(() => {
+|        fetch('https://www.ag-grid.com/example-assets/row-data.json')
+|            .then(result => result.json())
+|            .then(rowData => setRowData(rowData))
+|    }, []);
 |
-| ```jsx
-| <div className="ag-theme-alpine" style={{ height: 400, width: 600 }}>
-|     <button onClick={onButtonClick}>Get selected rows</button>
-|     <AgGridReact
-|         rowData={ rowData }
-|         rowSelection="multiple">
-|         <AgGridColumn field="make" sortable={ true } filter={ true } checkboxSelection={ true }></AgGridColumn>
-|         <AgGridColumn field="model" sortable={ true } filter={ true }></AgGridColumn>
-|         <AgGridColumn field="price" sortable={ true } filter={ true }></AgGridColumn>
-|     </AgGridReact>
-| </div>
-| ```
+|+  const onButtonClick = e => {
+|+      const selectedNodes = gridRef.current.api.getSelectedNodes()
+|+      const selectedData = selectedNodes.map( node => node.data )
+|+      const selectedDataStringPresentation = selectedData.map( node => `${node.make} ${node.model}`).join(', ')
+|+      alert(`Selected nodes: ${selectedDataStringPresentation}`)
+|+  }
 |
-| Afterwards, add the following event handler at the end of the component class:
+|    return (
+|        <div className="ag-theme-alpine" style={{height: 400, width: 600}}>
+|+          <button onClick={onButtonClick}>Get selected rows</button>
+|            <AgGridReact
+|+              ref={gridRef}
+|                rowData={rowData}
+|+              rowSelection="multiple">
+|-              <AgGridColumn field="make" sortable={true} filter={true}></AgGridColumn>
+|+              <AgGridColumn field="make" sortable={true} filter={true} checkboxSelection={true}></AgGridColumn>
+|                <AgGridColumn field="model" sortable={true} filter={true}></AgGridColumn>
+|                <AgGridColumn field="price" sortable={true} filter={true}></AgGridColumn>
+|            </AgGridReact>
+|        </div>
+|   );
+|};
+|```
 |
-| ```jsx
-| const onButtonClick = e => {
-|     const selectedNodes = gridApi.getSelectedNodes()
-|     const selectedData = selectedNodes.map( node => node.data )
-|     const selectedDataStringPresentation = selectedData.map( node => node.make + ' ' + node.model).join(', ')
-|     alert(`Selected nodes: ${selectedDataStringPresentation}`)
-| }
-| ```
+|Let's break down what we've added above:
+|- We're obtaining a `ref` to the grid which will in turn allow us to access both the Grid API (via `api`) and the Column API (via `columnApi`)
+|- We've set the `rowSelection` to `multiple` - this will allow the user to select multiple rows at once
+|- We've added a new `buttton` as well as a new method (`onButtonClick`) that will provide the selected rows to the backend
 |
 | Well, we cheated a bit. Calling `alert` is not exactly a call to our backend. Hopefully you will forgive
 | us this shortcut for the sake of keeping the article short and simple. Of course, you can substitute
 | that bit with a real-world application logic after you are done with the tutorial.
 |
-| What happened above? Several things:
-|
-| - `onGridReady={ params => setGridApi(params.api) }` obtained a reference to the ag-grid API instance;
-| - We added a button with an event handler;
-| - Inside the event handler, we accessed the grid api object reference to access the currently
-| selected grid row nodes;
-| - Afterwards, we extracted the row nodes' underlying data items and converted them to a string suitable
-| to be presented to the user in an alert box.
+| [[note]]
+| | Using a `ref` to access the Grid APIs is one option - the other is to use the `gridReady` Grid callback and save the APIs:<br/>
+| | `onGridReady={ params => setGridApi(params.api) }`<br/>
+| | Both are valid - you can choose the mechanism that you prefer - see [Grid Callbacks](../grid-callbacks/) for more information.
 |
 | ##Grouping (enterprise)
 |
 | [[note]]
-| | Grouping is a feature exclusive to ag-Grid Enterprise. You are free to trial ag-Grid Enterprise
-| | to see what you think. You only need to get in touch if you want to start using ag-Grid Enterprise
+| | Grouping is a feature exclusive to AG Grid Enterprise. You are free to trial AG Grid Enterprise
+| | to see what you think. You only need to get in touch if you want to start using AG Grid Enterprise
 | | in a project intended for production.
 |
-| In addition to filtering and sorting, [grouping](../grouping/)
+| In addition to filtering and sorting, [grouping](/grouping/)
 | is another effective way for the user to make sense out of large amounts of data.
 |
 | Our current data set is pretty small so let's switch to a larger one:
@@ -1625,19 +1574,18 @@ title: "Get Started with ag-Grid"
 | the grid got a few UI improvements - a custom context menu and fancier column menu
 | popup - feel free to look around:
 |
-| ![ag-Grid final](resources/step3.png)
+| ![AG Grid final](resources/step3.png)
 |
-| Now, let's enable grouping! Update the `AgGridReact` configuration to this:
+| Now let's enable grouping! Update the `AgGridReact` configuration to this:
 |
 | ```diff
 |  <div className="ag-theme-alpine" style={{ height: 400, width: 600 }}>
 |      <button onClick={onButtonClick}>Get selected rows</button>
 |      <AgGridReact
-|          onGridReady={onGridReady}
 |          rowData={rowData}
 |          rowSelection="multiple"
 | +        groupSelectsChildren={true}
-| +        autoGroupColumnDef=<span>{</span>{
+| +        autoGroupColumnDef={{
 | +            headerName: "Model",
 | +            field: "model",
 | +            cellRenderer:'agGroupCellRenderer',
@@ -1665,7 +1613,7 @@ title: "Get Started with ag-Grid"
 |
 | The last thing which we are going to do is to change the grid look and feel by customising a theme.
 |
-| By default, ag-Grid ships a set of [pre-built theme stylesheets](../themes/). If we want to tweak
+| By default, AG Grid ships a set of [pre-built theme stylesheets](/themes/). If we want to tweak
 | the colors and the fonts of theme, we should add a Sass preprocessor to our project, override the theme
 | variable values, and refer the ag-grid Sass files instead of the pre-built stylesheets so that the variable
 | overrides are applied.
@@ -1694,18 +1642,19 @@ title: "Get Started with ag-Grid"
 |
 | - import 'ag-grid-community/dist/styles/ag-grid.css';
 | - import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
+| + import './App.scss'
 | ```
 |
 | If everything is configured correctly, the second row of the grid will be blue. Congratulations!
 | You now know now bend the grid look to your will - there are a few dozens more theme parameters
 | variables that let you control the font family and size, border color, header background color
 | and even the amount of spacing in the cells and columns. The
-| [full list of theme parameters](../themes-provided/#customising-themes)
+| [full list of theme parameters](/themes-provided/#customising-themes)
 | is available in the themes documentation section.
 |
-| ## ag-Grid & React Compatibility Chart
+| ## AG Grid & React Compatibility Chart
 |
-| | React Version | ag-Grid Versions |
+| | React Version | AG Grid Versions |
 | | ------------- | ---------------- |
 | | 15.x          | 18 - 21.2.0      |
 | | 16.3+         | 22+              |
@@ -1719,8 +1668,8 @@ title: "Get Started with ag-Grid"
 
 
 [[only-vue]]
-| <video-section src="https://www.youtube.com/embed/eW3qCti1lsA" title="Getting Started Video Tutorial">
-|     In this article, we will walk you through the necessary steps to add ag-Grid
+| <video-section id="eW3qCti1lsA" title="Getting Started Video Tutorial">
+|     In this article, we will walk you through the necessary steps to add AG Grid
 |     (both <a href="../licensing/">Community and Enterprise</a> are covered)
 |     to an existing Vue project, configure some of the essential features of it.
 |     We will show you some of the fundamentals of the grid (passing properties, using the API, etc).
@@ -1730,7 +1679,7 @@ title: "Get Started with ag-Grid"
 | <br/><br/>
 |
 | [[note]]
-| | We offer two versions of Vue support - one for Vue 2 and one for Vue 3.The only difference
+| | We offer two versions of Vue support - one for Vue 2 and one for Vue 3. The only difference
 | | in use is how you import the dependency:
 | |
 | | | Version | Package Imports         | Module Imports |
@@ -1740,12 +1689,15 @@ title: "Get Started with ag-Grid"
 | |
 | | If you unsure what import type to use you should use the package import type
 | | (i.e. `ag-grid-vue`/ `ag-grid-vue3`).
+| | 
+| | For more information on import types please refer to the documentation [here.](/modules/)
 | |
-| | Our example all use Vue 2 by default.
+| | This tutorial, as well as ll of our examples, use Vue 2 by default. 
 | |
-| | For more information on import types please refer to the documentation [here.](../modules/)
+| | For the Vue 3 version of this tutorial please see the documentaiton [here.](/vue3/)
+| |
 |
-| ## Add ag-Grid to Your Project
+| ## Add AG Grid to Your Project
 |
 | For the purposes of this tutorial, we are going to scaffold an Vue app with
 | [Vue CLI](https://cli.vuejs.org/). Don't worry if your project has a different configuration.
@@ -1760,22 +1712,84 @@ title: "Get Started with ag-Grid"
 |
 | When prompted choose "Manually select features":
 |
-| <img src="resources/vue-cli-step1.png" alt="Manually Select Features" />
+|```shell
+|Vue CLI v4.5.12
+|? Please pick a preset:
+|   Default ([Vue 2] babel, eslint)
+|   Default (Vue 3 Preview) ([Vue 3] babel, eslint)
+|❯ Manually select features
+|```
 |
 | Next, select `Babel` and `CSS Pre-processors` (we've also deselected `Linter` here, but
 | this is optional):
 |
-| ![Select Features](resources/vue-cli-step2.png)
+|```shell
+|Vue CLI v4.5.12
+|? Please pick a preset: Manually select features
+|? Check the features needed for your project:
+|   ◉ Choose Vue version
+|   ◉ Babel
+|   ◯ TypeScript
+|   ◯ Progressive Web App (PWA) Support
+|   ◯ Router
+|   ◯ Vuex
+|❯ ◉ CSS Pre-processors
+|   ◯ Linter / Formatter
+|   ◯ Unit Testing
+|   ◯ E2E Testing
+|```
 |
-| Next select `SASS/SCSS` as the CSS Pre-processor:
+| Select version `2.x` when prompted:
 |
-| ![CSS Pre-processor](resources/vue-cli-step3.png)
+|```shell
+|Vue CLI v4.5.12
+|? Please pick a preset: Manually select features
+|? Check the features needed for your project: Choose Vue version, Babel, CSS Pre-processors
+|? Choose a version of Vue.js that you want to start the project with (Use arrow keys)
+|❯ 2.x
+|   3.x (Preview)
+|```
 |
-| Finally choose where to store the configuration data - we've opted for `dedicated config files`:
+| Next select `Sass/SCSS (with node-sass)` as the CSS Pre-processor:
 |
-| ![Config files](resources/vue-cli-step4.png)
+|```shell
+|Vue CLI v4.5.12
+|? Please pick a preset: Manually select features
+|? Check the features needed for your project: Choose Vue version, Babel, CSS Pre-processors
+|? Choose a version of Vue.js that you want to start the project with 2.x
+|? Pick a CSS pre-processor (PostCSS, Autoprefixer and CSS Modules are supported by default):
+|   Sass/SCSS (with dart-sass)
+|❯ Sass/SCSS (with node-sass)
+|   Less
+|   Stylus
+|```
 |
-| We're now ready to start our application:
+| Now choose where to store the configuration data - we've opted for `dedicated config files`:
+|
+|```shell
+|Vue CLI v4.5.12
+|? Please pick a preset: Manually select features
+|? Check the features needed for your project: Choose Vue version, Babel, CSS Pre-processors
+|? Choose a version of Vue.js that you want to start the project with 2.x
+|? Pick a CSS pre-processor (PostCSS, Autoprefixer and CSS Modules are supported by default): Sass/SCSS (with node-sass)
+|? Where do you prefer placing config for Babel, ESLint, etc.? (Use arrow keys)
+|❯ In dedicated config files
+|   In package.json
+|```
+|Finally you can choose to save this configuration for all future projects - what you choose here will depend on your development setup & standards, so 
+|for the purposes of this tutorial we'll select `No`:
+|
+|```shell
+|Vue CLI v4.5.12
+|? Please pick a preset: Manually select features
+|? Check the features needed for your project: Choose Vue version, Babel, CSS Pre-processors
+|? Choose a version of Vue.js that you want to start the project with 2.x
+|? Pick a CSS pre-processor (PostCSS, Autoprefixer and CSS Modules are supported by default): Sass/SCSS (with node-sass)
+|? Where do you prefer placing config for Babel, ESLint, etc.? In dedicated config files
+|? Save this as a preset for future projects? (y/N) N
+|```
+|
+| After a few seconds the newly created `my-project` will be ready - let's start our application:
 |
 | ```bash
 | cd my-project
@@ -1785,15 +1799,15 @@ title: "Get Started with ag-Grid"
 | If everything goes well, `npm run serve` has started the web server. You can open the
 | default app at <a href="http://localhost:8080" target="_blank">localhost:8080</a>.
 |
-| As a next step, let's add the ag-Grid NPM packages. run the following command in
-| `my-project` (you may need a new instance of the terminal):
+| Next let's add the AG Grid NPM packages. Run the following command in
+| `my-project`:
 |
 | ```bash
-| npm install --save ag-grid-community ag-grid-vue vue-property-decorator
+| npm install --save ag-grid-community ag-grid-vue vue-property-decorator@^8.0.0
 | ```
 |
 | After a few seconds of waiting, you should be good to go. Let's get to the actual coding!
-|  As a first step, let's add the ag-Grid styles - import them in the style section of `src/App.vue`:
+| As a first step, let's add the AG Grid styles - replace the `style` block in `src/App.vue` with the follow:
 |
 | ```scss
 | <style lang="scss">
@@ -1803,14 +1817,14 @@ title: "Get Started with ag-Grid"
 | ```
 |
 | The code above imports the grid "structure" stylesheet (`ag-grid.css`), and one of the
-| available grid themes: (`ag-theme-alpine.css`). ships several different themes; pick one that
-| matches your project design.
+| available grid themes: (`ag-theme-alpine.css`). AG Grid ships several different themes - pick one that
+| matches your project design. 
 |
 | [[note]]
 | | In a later section we documentation on how you can [Customise the Theme Look](#customise-the-theme-look-2)
 | | using SCSS, which is our recommended approach.
 |
-| As this will be a simple example we can delete the `src/components` directory. Our example
+| As this will be a simple example we can delete the `src/components` directory - our example
 | application will live in `src/App.vue`.
 |
 | Let's add the component definition to our template. Edit `app/App.vue` and replace the scaffold code:
@@ -1824,7 +1838,13 @@ title: "Get Started with ag-Grid"
 |     </ag-grid-vue>
 | </template>
 | ```
-| The basic grid configuration. Edit `src/App.vue`:
+|
+| This is the ag-grid component definition, with two property bindings - `rowData` and `columnDefs`.
+| The component also accepts the standard DOM `style` and `class`. We have set the class to `ag-theme-alpine`,
+| which defines the grid theme. As you may have already noticed, the CSS class matches the name of CSS file
+| we imported earlier.
+|
+| Now let's replace the `script` section of`src/App.vue`:
 |
 | ```js
 | <script>
@@ -1856,29 +1876,29 @@ title: "Get Started with ag-Grid"
 |         }
 |     }
 | </script>
+|
+|<style lang="scss">
+|    @import "../node_modules/ag-grid-community/dist/styles/ag-grid.css";
+|    @import "../node_modules/ag-grid-community/dist/styles/ag-theme-alpine.css";
+|</style>
 | ```
 |
 | The code above presents two essential configuration properties of the grid -
-| [the column definitions](../column-definitions/) (`columnDefs`) and the data (`rowData`).
+| [the column definitions](/column-definitions/) (`columnDefs`) and the data (`rowData`).
 | In our case, the column definitions contain three columns; column entry specifies the header
 | label and the data field to be displayed in the body of the table.
 |
-| This is the ag-grid component definition, with two property bindings - `rowData` and `columnDefs`.
-| The component also accepts the standard DOM `style` and `class`. We have set the class to `ag-theme-alpine`,
-| which defines the grid theme. As you may have already noticed, the CSS class matches the name of CSS file
-| we imported earlier.
-|
 | Finally, note that we've imported the `ag-grid-vue` component - this is actual component that will
-| provide the ag-Grid functionality.
+| provide the AG Grid functionality.
 |
 | If everything works as expected, you should see a simple grid like the one on the screenshot:
 |
-| ![ag-Grid hello world](resources/step1.png)
+| ![AG Grid hello world](resources/step1.png)
 |
 | ## Enable Sorting And Filtering
 |
 | So far, so good. But wouldn't it be nice to be able to sort the data to help us see which car
-| is the least/most expensive? Well, enabling sorting in ag-Grid is actually quite simple -
+| is the least/most expensive? Well, enabling sorting in AG Grid is actually quite simple -
 | all you need to do is set the `sortable` property to the column definitions.
 |
 | ```js
@@ -1889,12 +1909,12 @@ title: "Get Started with ag-Grid"
 | ];
 | ```
 |
-| After adding the property, you should be able to sort the grid by clicking on the column headers.
+| After adding the `sortable` property you should be able to sort the grid by clicking on the column headers.
 | Clicking on a header toggles through ascending, descending and no-sort.
 |
 | Our application doesn't have too many rows, so it's fairly easy to find data. But it's easy to
 | imagine how a real-world application may have hundreds (or even hundreds of thousands!) of rows,
-| with many columns. In a data set like this [filtering](../filtering/)
+| with many columns. In a data set like this [filtering](/filtering/)
 | is your friend.
 |
 | As with sorting, enabling filtering is as easy as setting the `filter` property:
@@ -1911,12 +1931,12 @@ title: "Get Started with ag-Grid"
 | Pressing it will display a popup with a filtering UI which lets you choose the kind of filter and
 | the text that you want to filter by.
 |
-| ![ag-Grid sorting and filtering](resources/step2.png)
+| ![AG Grid sorting and filtering](resources/step2.png)
 |
 | ## Fetch Remote Data
 |
 | Displaying hard-coded data in JavaScript is not going to get us very far. In the real world, most of
-| the time, we are dealing with data that resides on a remote server. Thanks to React, implementing this
+| the time, we are dealing with data that resides on a remote server. Thanks to Vue, implementing this
 | is actually quite simple. Notice that the actual data fetching is performed outside of the grid
 | component - We are using the HTML5 `fetch` API.
 |
@@ -1943,13 +1963,13 @@ title: "Get Started with ag-Grid"
 |
 | ## Enable Selection
 |
-| Being a programmer is a hectic job. Just when we thought that we are done with our assignment, the
+| Being a programmer is a hectic job - just when we thought that we are done with our assignment, the
 | manager shows up with a fresh set of requirements! It turned out that we need to allow the user to
 | select certain rows from the grid and to mark them as flagged in the system. We will leave the flag
 | toggle state and persistence to the backend team. On our side, we should enable the selection and,
 | afterwards, to obtain the selected records and pass them with an API call to a remote service endpoint.
 |
-| Fortunately, the above task is quite simple with ag-Grid. As you may have already guessed, it is
+| Fortunately the above task is quite simple with AG Grid. As you may have already guessed, it is
 | just a matter of adding and changing couple of properties.
 |
 | ```jsx
@@ -1964,60 +1984,50 @@ title: "Get Started with ag-Grid"
 | ```
 |
 | ```html
-| <script>
-|     import { AgGridVue } from "ag-grid-vue";
+|<script>
+|import {AgGridVue} from "ag-grid-vue";
 |
-|     export default {
-|         name: 'App',
-|         data() {
-|             return {
-|                 columnDefs: null,
-|                 rowData: null
-|             }
-|         },
-|         components: {
-|             AgGridVue
-|         },
-|         beforeMount() {
-|             this.columnDefs = [
-|                 {headerName: 'Make', field: 'make', checkboxSelection: true},
-|                 {headerName: 'Model', field: 'model'},
-|                 {headerName: 'Price', field: 'price'}
-|             ];
+|export default {
+|    name: 'App',
+|    data() {
+|        return {
+|            columnDefs: null,
+|            rowData: null,
+|            gridApi: null,
+|            columnApi: null
+|        }
+|    },
+|    components: {
+|        AgGridVue
+|    },
+|    beforeMount() {
+|        this.columnDefs = [
+|            {field: 'make', sortable: true, filter: true, checkboxSelection: true},
+|            {field: 'model', sortable: true, filter: true},
+|            {field: 'price', sortable: true, filter: true}
+|        ];
 |
-|             fetch('https://www.ag-grid.com/example-assets/small-row-data.json')
-|                 .then(result => result.json())
-|                 .then(rowData => this.rowData = rowData);
-|         }
-|     }
-| </script>
+|        fetch('https://www.ag-grid.com/example-assets/small-row-data.json')
+|                .then(result => result.json())
+|                .then(rowData => this.rowData = rowData);
+|    }
+|}
+|</script>
 |
-| <style></style>
+|<style lang="scss">
+|@import "../node_modules/ag-grid-community/dist/styles/ag-grid.css";
+|@import "../node_modules/ag-grid-community/dist/styles/ag-theme-alpine.css";
+|</style>
 | ```
 |
-| Next let's enable [multiple row selection](../row-selection/#example-multiple-row-selection),
-| so that the user can pick many rows:
+| We've enabled [multiple row selection](/row-selection/#example-multiple-row-selection) by adding `rowSelection="multiple"`, and we've
+| also added a checkbox to the `make` column with `checkboxSelection: true`.
 |
-| ```jsx
-| <ag-grid-vue style="width: 500px; height: 500px;"
-|     class="ag-theme-alpine"
-|     :columnDefs="columnDefs"
-|     :rowData="rowData"
-|
-|     rowSelection="multiple">
-| </ag-grid-vue>
-| ```
-|
-| We've added a checkbox to the `make` column with `checkboxSelection: true` and then enabled multiple
-| row selection with `rowSelection="multiple"`.
-|
-| [[note]]
-| | We took a bit of a shortcut here, by not binding the property value. Without `[]`, the assignment
-| | will pass the attribute value as a string, which is fine for our purposes.
+| ![Vue AG Grid Selection](resources/vue-grid-1.png)
 |
 | Great! Now the first column contains a checkbox that, when clicked, selects the row. The only thing
 | we have to add is a button that gets the selected data and sends it to the server. To do this, we are
-| going to use the [ag-Grid API](../grid-api/) - we will store a reference to both the grid and
+| going to use the [AG Grid API](/grid-api/) - we will store a reference to both the grid and
 | column API's in the `gridReady` event
 |
 | To test this we'll add a button that gets the selected data and sends it to the server.
@@ -2033,12 +2043,12 @@ title: "Get Started with ag-Grid"
 |             :columnDefs="columnDefs"
 |             :rowData="rowData"
 |             rowSelection="multiple"
-|
 |             @grid-ready="onGridReady">
 |         </ag-grid-vue>
 |     </div>
 | </template>
 | ```
+|
 | ```html
 | <script>
 |     import { AgGridVue } from "ag-grid-vue";
@@ -2049,6 +2059,8 @@ title: "Get Started with ag-Grid"
 |             return {
 |                 columnDefs: null,
 |                 rowData: null
+|                 gridApi: null,
+|                 columnApi: null
 |             }
 |         },
 |         components: {
@@ -2062,7 +2074,7 @@ title: "Get Started with ag-Grid"
 |             getSelectedRows() {
 |                 const selectedNodes = this.gridApi.getSelectedNodes();
 |                 const selectedData = selectedNodes.map( node => node.data );
-|                 const selectedDataStringPresentation = selectedData.map( node => node.make + ' ' + node.model).join(', ');
+|                 const selectedDataStringPresentation = selectedData.map( node => `${node.make} ${node.model}`).join(', ');
 |                 alert(`Selected nodes: ${selectedDataStringPresentation}`);
 |             }
 |         },
@@ -2080,7 +2092,10 @@ title: "Get Started with ag-Grid"
 |     }
 | </script>
 |
-| <style></style>
+|<style lang="scss">
+|@import "../node_modules/ag-grid-community/dist/styles/ag-grid.css";
+|@import "../node_modules/ag-grid-community/dist/styles/ag-theme-alpine.css";
+|</style>
 | ```
 |
 | Well, we cheated a bit. Calling `alert` is not exactly a call to our backend. Hopefully
@@ -2091,11 +2106,11 @@ title: "Get Started with ag-Grid"
 | ## Grouping
 |
 | [[note]]
-| | Grouping is a feature exclusive to ag-Grid Enterprise. You are free to trial ag-Grid Enterprise
-| | to see what you think. You only need to get in touch if you want to start using ag-Grid Enterprise
+| | Grouping is a feature exclusive to AG Grid Enterprise. You are free to trial AG Grid Enterprise
+| | to see what you think. You only need to get in touch if you want to start using AG Grid Enterprise
 | | in a project intended for production.
 |
-| In addition to filtering and sorting, [grouping](../grouping/) is another effective way for the user
+| In addition to filtering and sorting, [grouping](/grouping/) is another effective way for the user
 | to make sense out of large amounts of data.
 |
 | Our current data set is pretty small so let's switch to a larger one:
@@ -2121,12 +2136,12 @@ title: "Get Started with ag-Grid"
 |   import App from './App'
 | ```
 |
-| If everything is ok, you should see a message in the console that tells you there is no
+| After restarting the application you should see a message in the console that tells you there is no
 | enterprise license key. You can ignore the message as we are trialing. In addition to that,
 | the grid got a few UI improvements - a custom context menu and fancier column menu popup -
 | feel free to look around:
 |
-| ![ag-Grid final](resources/step3.png)
+| ![AG Grid final](resources/step3.png)
 |
 | Now, let's enable grouping! Add an `autoGroupColumnDef` property, bind to it, and update
 | the `columnDefs` with a `rowGroup`:
@@ -2139,13 +2154,14 @@ title: "Get Started with ag-Grid"
 |             class="ag-theme-alpine"
 |             :columnDefs="columnDefs"
 |             :rowData="rowData"
+|             :autoGroupColumnDef="autoGroupColumnDef"
 |             rowSelection="multiple"
-|
 |             @grid-ready="onGridReady">
 |         </ag-grid-vue>
 |     </div>
 | </template>
 | ```
+|
 | ```html
 | <script>
 |     import { AgGridVue } from "ag-grid-vue";
@@ -2172,7 +2188,7 @@ title: "Get Started with ag-Grid"
 |             getSelectedRows() {
 |                 const selectedNodes = this.gridApi.getSelectedNodes();
 |                 const selectedData = selectedNodes.map(node => node.data);
-|                 const selectedDataStringPresentation = selectedData.map(node => node.make + ' ' + node.model).join(', ');
+|                 const selectedDataStringPresentation = selectedData.map(node => `${node.make} ${node.model}`).join(', ');
 |                 alert(`Selected nodes: ${selectedDataStringPresentation}`);
 |             }
 |         },
@@ -2199,12 +2215,18 @@ title: "Get Started with ag-Grid"
 |     }
 | </script>
 |
-| <style></style>
+| <style lang="scss">
+|   @import "../node_modules/ag-grid-community/dist/styles/ag-grid.css";
+|   @import "../node_modules/ag-grid-community/dist/styles/ag-theme-alpine.css";
+| </style>
 | ```
 |
 | There we go! The grid now groups the data by `make`, while listing the `model` field value when expanded.
 | Notice that grouping works with checkboxes as well - the `groupSelectsChildren` property adds a group-level
 | checkbox that selects/deselects all items in the group.
+|
+| Note that we also removed `checkboxSelection: true` from the `make` column definition as the `autoGroupColumnDef` definition allows for checkbox selection
+| at both the group and leaf level.
 |
 | [[note]]
 | | Don't worry if this step feels a bit overwhelming - the  grouping feature is very powerful and
@@ -2216,30 +2238,32 @@ title: "Get Started with ag-Grid"
 | The last thing which we are going to do is to change the grid look and feel by modifying some
 | of the theme's Sass variables.
 |
-| By default, ag-Grid ships a set of
-| [pre-built theme stylesheets](../themes/). If we want to tweak the colors and the fonts of
+| By default, AG Grid ships a set of
+| [pre-built theme stylesheets](/themes/). If we want to tweak the colors and the fonts of
 | theme, we should add a Sass preprocessor to our project, override the theme variable values,
 | and refer the ag-grid Sass files instead of the pre-built stylesheets so that the variable
 | overrides are applied.
 |
 | The `vue cli` did a lot of for us including providing support for Sass. Let's switch to using
-| the provided ag-Grid SCSS files - replace the `style` block in `src/App.vue` with:
+| the provided AG Grid SCSS files - replace the `style` block in `src/App.vue` with:
 |
 | ```scss
 | <style lang="scss">
 |   @import "../node_modules/ag-grid-community/src/styles/ag-grid.scss";
 |   @import "../node_modules/ag-grid-community/src/styles/ag-theme-alpine/sass/ag-theme-alpine-mixin.scss";
 |
-|   -alpine((
-|       add-row-background-color: #ACE
-|   ));
+|   .ag-theme-alpine {
+|       @include ag-theme-alpine((
+|           odd-row-background-color: #ACE
+|       ));
+|   }
 | </style>
 | ```
 |
 | If everything is configured correctly, the second row of the grid will be blue. Congratulations!
 | You now know now bend the grid look to your will - there are a few dozens more Sass variables that
 | let you control the font family and size, border color, header background color and even the amount
-| of spacing in the cells and columns. The full [Sass variable list](../themes-customising/#full-list-of-theme-parameters)
+| of spacing in the cells and columns. The full [Sass variable list](/themes-customising/#full-list-of-theme-parameters)
 | is available in the themes documentation section.
 |
 | ## Summary

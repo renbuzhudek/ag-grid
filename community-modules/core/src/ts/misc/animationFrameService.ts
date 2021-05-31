@@ -1,8 +1,9 @@
 
-import { Bean, PostConstruct } from "../context/context";
+import { Autowired, Bean, PostConstruct } from "../context/context";
 import { AnimationQueueEmptyEvent } from "../events";
 import { Events } from "../eventKeys";
 import { BeanStub } from "../context/beanStub";
+import { ControllersService } from "../controllersService";
 
 interface TaskItem {
     task: () => void;
@@ -16,6 +17,8 @@ interface TaskList {
 }
 @Bean('animationFrameService')
 export class AnimationFrameService extends BeanStub {
+
+    @Autowired('controllersService') private controllersService: ControllersService;
 
     // p1 and p2 are create tasks are to do with row and cell creation.
     // for them we want to execute according to row order, so we use
@@ -48,13 +51,13 @@ export class AnimationFrameService extends BeanStub {
         this.useAnimationFrame = !this.gridOptionsWrapper.isSuppressAnimationFrame();
     }
 
-    // this method is for our ag-Grid sanity only - if animation frames are turned off,
+    // this method is for our AG Grid sanity only - if animation frames are turned off,
     // then no place in the code should be looking to add any work to be done in animation
     // frames. this stops bugs - where some code is asking for a frame to be executed
     // when it should not.
     private verifyAnimationFrameOn(methodName: string): void {
         if (this.useAnimationFrame === false) {
-            console.warn(`ag-Grid: AnimationFrameService.${methodName} called but animation frames are off`);
+            console.warn(`AG Grid: AnimationFrameService.${methodName} called but animation frames are off`);
         }
     }
 
@@ -107,24 +110,30 @@ export class AnimationFrameService extends BeanStub {
 
         // 16ms is 60 fps
         const noMaxMillis = millis <= 0;
+
+        const gridBodyCon = this.controllersService.getGridBodyController();
+
         while (noMaxMillis || duration < millis) {
-            let task: () => void;
+            const gridBodyDidSomething = gridBodyCon.getScrollFeature().executeAnimationFrameScroll();
 
-            if (p1Tasks.length) {
-                this.sortTaskList(p1TaskList);
-                task = p1Tasks.pop()!.task;
-            } else if (p2Tasks.length) {
-                this.sortTaskList(p2TaskList);
-                task = p2Tasks.pop()!.task;
-            } else if (destroyTasks.length) {
-                task = destroyTasks.pop()!;
-            } else {
-                this.cancelledTasks.clear();
-                break;
-            }
+            if (!gridBodyDidSomething) {
+                let task: () => void;
+                if (p1Tasks.length) {
+                    this.sortTaskList(p1TaskList);
+                    task = p1Tasks.pop()!.task;
+                } else if (p2Tasks.length) {
+                    this.sortTaskList(p2TaskList);
+                    task = p2Tasks.pop()!.task;
+                } else if (destroyTasks.length) {
+                    task = destroyTasks.pop()!;
+                } else {
+                    this.cancelledTasks.clear();
+                    break;
+                }
 
-            if (!this.cancelledTasks.has(task)) {
-                task();
+                if (!this.cancelledTasks.has(task)) {
+                    task();
+                }
             }
 
             duration = (new Date().getTime()) - frameStart;

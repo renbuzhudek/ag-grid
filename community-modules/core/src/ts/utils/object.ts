@@ -11,7 +11,7 @@ export function iterateObject<T>(object: { [p: string]: T; } | T[] | null | unde
     }
 }
 
-export function cloneObject<T>(object: T): T {
+export function cloneObject<T extends {}>(object: T): T {
     const copy = {} as T;
     const keys = Object.keys(object);
 
@@ -100,9 +100,9 @@ export function getAllKeysInObjects(objects: any[]): string[] {
 
 export function getAllValuesInObject<T extends Object>(obj: T): any[] {
     if (!obj) { return []; }
-
-    if (typeof Object.values === 'function') {
-        return Object.values(obj);
+    const anyObject = Object as any;
+    if (typeof anyObject.values === 'function') {
+        return anyObject.values(obj);
     }
 
     const ret: any[] = [];
@@ -254,7 +254,7 @@ export function removeAllReferences(obj: any, objectName: string): void {
         if (typeof value === 'function') {
             const func = () => {
                 console.warn(
-                    `ag-Grid: ${objectName} function ${key}() cannot be called as the grid has been destroyed.
+                    `AG Grid: ${objectName} function ${key}() cannot be called as the grid has been destroyed.
                      Please don't call grid API functions on destroyed grids - as a matter of fact you shouldn't
                      be keeping the API reference, your application has a memory leak! Remove the API reference
                      when the grid is destroyed.`

@@ -126,7 +126,7 @@ function format(source, parser) {
 }
 
 function createExampleGenerator(prefix, importTypes) {
-    const [parser, vanillaToVue, vanillaToReact, vanillaToReactFunctional, vanillaToAngular] = getGeneratorCode(prefix);
+    const [parser, vanillaToVue, vanillaToVue3, vanillaToReact, vanillaToReactFunctional, vanillaToAngular] = getGeneratorCode(prefix);
     const appModuleAngular = new Map();
 
     importTypes.forEach(importType => {
@@ -296,8 +296,29 @@ function createExampleGenerator(prefix, importTypes) {
             importTypes.forEach(importType => writeExampleFiles(importType, 'vue', 'vue', vueScripts, vueConfigs.get(importType), undefined, 'Vue'));
         }
 
+        if (type === 'mixed' && providedExamples['vue3']) {
+            importTypes.forEach(importType => copyProvidedExample(importType, 'vue3', providedExamples['vue3']));
+        } else {
+            if(vanillaToVue3) {
+                const vueScripts = getMatchingPaths('*_vue3*');
+                const vueConfigs = new Map();
+                try {
+                    const getSource = vanillaToVue3(bindings, extractComponentFileNames(vueScripts, '_vue3', 'Vue'));
+
+                    importTypes.forEach(importType => vueConfigs.set(importType, { 'main.js': getSource(importType) }));
+                } catch (e) {
+                    console.error(`Failed to process Vue 3 example in ${examplePath}`, e);
+                    throw e;
+                }
+
+                // we rename the files so that they end with "Vue.js" - we do this so that we can (later, at runtime) exclude these
+                // from index.html will still including other non-component files
+                importTypes.forEach(importType => writeExampleFiles(importType, 'vue3', 'vue3', vueScripts, vueConfigs.get(importType), undefined, 'Vue'));
+            }
+        }
+
         inlineStyles = undefined; // unset these as they don't need to be copied for vanilla
-        const vanillaScripts = getMatchingPaths('*.{html,js}', { ignore: ['**/*_{angular,react,vue}.js'] });
+        const vanillaScripts = getMatchingPaths('*.{html,js}', { ignore: ['**/*_{angular,react,vue,vue3}.js'] });
         importTypes.forEach(importType => writeExampleFiles(importType, 'vanilla', 'vanilla', vanillaScripts, {}));
     };
 }
@@ -307,20 +328,22 @@ function getGeneratorCode(prefix) {
     const { vanillaToVue } = require(`${prefix}vanilla-to-vue.ts`);
     const { vanillaToReact } = require(`${prefix}vanilla-to-react.ts`);
 
-    // spl todo - add charts support in time
+    // spl todo - add charts & vue 3 support in time
     let vanillaToReactFunctional = null;
+    let vanillaToVue3 = null;
 
-    if (prefix === './src/example-runner/grid-') {
+    if (prefix === './src/example-generation/grid-') {
         vanillaToReactFunctional = require(`${prefix}vanilla-to-react-functional.ts`).vanillaToReactFunctional;
+        vanillaToVue3 = require(`${prefix}vanilla-to-vue3.ts`).vanillaToVue3;
     }
 
     const { vanillaToAngular } = require(`${prefix}vanilla-to-angular.ts`);
 
-    return [parser, vanillaToVue, vanillaToReact, vanillaToReactFunctional, vanillaToAngular];
+    return [parser, vanillaToVue, vanillaToVue3, vanillaToReact, vanillaToReactFunctional, vanillaToAngular];
 }
 
 function generateExamples(type, importTypes, scope, trigger, done) {
-    const exampleGenerator = createExampleGenerator(`./src/example-runner/${type}-`, importTypes);
+    const exampleGenerator = createExampleGenerator(`./src/example-generation/${type}-`, importTypes);
     const regex = new RegExp(`<${type}-example.*?name=['"](.*?)['"].*?type=['"](.*?)['"](.*?options='(.*?)')?`, 'g');
 
     forEachExample(done, type, regex, exampleGenerator, scope, trigger);
@@ -332,6 +355,7 @@ module.exports.generateGridExamples = (scope, trigger, done) => {
         generateExamples('grid', ['packages', 'modules'], scope, trigger, done);
     } catch (e) {
         console.error('Failed to generate grid examples', e);
+
         if (done) {
             done(e);
         }
@@ -344,13 +368,14 @@ module.exports.generateChartExamples = (scope, trigger, done) => {
         generateExamples('chart', ['packages'], scope, trigger, done);
     } catch (e) {
         console.error('Failed to generate chart examples', e);
+
         if (done) {
             done(e);
         }
     }
 };
 
-module.exports.generateExamples = async (scope, trigger) => {
+module.exports.generateDocumentationExamples = async (scope, trigger) => {
     if (trigger) {
         console.log(`\u270E ${trigger} was changed`);
         console.log(`\u27F3 Re-generating affected documentation examples...`);
@@ -362,6 +387,7 @@ module.exports.generateExamples = async (scope, trigger) => {
 
     return new Promise(resolve => {
         module.exports.generateGridExamples(
-            scope, trigger, () => module.exports.generateChartExamples(scope, trigger, () => resolve()));
+            scope, trigger, () => module.exports.generateChartExamples(scope, trigger, () => resolve())
+        );
     });
 };

@@ -1,5 +1,5 @@
 import { Component } from "../../widgets/component";
-import { PostConstruct } from "../../context/context";
+import { Autowired, PostConstruct, PreDestroy } from "../../context/context";
 import { RowNode } from "../../entities/rowNode";
 import { DragItem, DragSource, DragSourceType } from "../../dragAndDrop/dragAndDropService";
 import { Events } from "../../eventKeys";
@@ -14,22 +14,30 @@ export interface IRowDragItem extends DragItem {
 }
 
 export class RowDragComp extends Component {
+    public isCustomGui: boolean = false;
+    private dragSource: DragSource | null = null;
 
     constructor(
-        private readonly rowNode: RowNode,
-        private readonly column: Column,
         private readonly cellValueFn: () => string,
-        private readonly beans: Beans
-    ) {
-        super(/* html */ `<div class="ag-drag-handle ag-row-drag" aria-hidden="true"></div>`);
-    }
+        private readonly rowNode: RowNode,
+        private readonly column?: Column,
+        private readonly customGui?: HTMLElement,
+        private readonly dragStartPixels?: number
+    ) { super(); }
+
+    @Autowired('beans') private beans: Beans;
 
     @PostConstruct
     private postConstruct(): void {
-        const eGui = this.getGui();
-
-        eGui.appendChild(createIconNoSpan('rowDrag', this.beans.gridOptionsWrapper, null)!);
-        this.addDragSource();
+        if (!this.customGui) {
+            this.setTemplate(/* html */ `<div class="ag-drag-handle ag-row-drag" aria-hidden="true"></div>`);
+            const eGui = this.getGui();
+            eGui.appendChild(createIconNoSpan('rowDrag', this.beans.gridOptionsWrapper, null)!);
+            this.addDragSource();
+        } else {
+            this.isCustomGui = true;
+            this.setDragElement(this.customGui, this.dragStartPixels);
+        }
 
         this.checkCompatibility();
 
@@ -40,11 +48,16 @@ export class RowDragComp extends Component {
         this.createManagedBean(strategy, this.beans.context);
     }
 
+    public setDragElement(dragElement: HTMLElement, dragStartPixels?: number) {
+        this.setTemplateFromElement(dragElement);
+        this.addDragSource(dragStartPixels);
+    }
+
     private getSelectedCount(): number {
         const multiRowEnabled = this.beans.gridOptionsWrapper.isEnableMultiRowDragging();
         if (!multiRowEnabled) { return 1; }
 
-        const selection = this.beans.selectionController.getSelectedNodes();
+        const selection = this.beans.selectionService.getSelectedNodes();
 
         return selection.indexOf(this.rowNode) !== -1 ? selection.length : 1;
     }
@@ -56,22 +69,25 @@ export class RowDragComp extends Component {
 
         if (treeData && managed) {
             doOnce(() =>
-                console.warn('ag-Grid: If using row drag with tree data, you cannot have rowDragManaged=true'),
+                console.warn('AG Grid: If using row drag with tree data, you cannot have rowDragManaged=true'),
                 'RowDragComp.managedAndTreeData'
             );
         }
     }
 
-    private addDragSource(): void {
+    private addDragSource(dragStartPixels: number = 4): void {
+        // if this is changing the drag element, delete the previous dragSource
+        if (this.dragSource) { this.removeDragSource(); }
+
         const dragItem: IRowDragItem = {
             rowNode: this.rowNode,
-            columns: [this.column],
+            columns: this.column ? [this.column] : undefined,
             defaultTextValue: this.cellValueFn(),
         };
 
-        const rowDragText = this.column.getColDef().rowDragText;
+        const rowDragText = this.column && this.column.getColDef().rowDragText;
 
-        const dragSource: DragSource = {
+        this.dragSource = {
             type: DragSourceType.RowDrag,
             eElement: this.getGui(),
             dragItemName: () => {
@@ -83,21 +99,28 @@ export class RowDragComp extends Component {
                 return dragItemCount === 1 ? this.cellValueFn() : `${dragItemCount} rows`;
             },
             getDragItem: () => dragItem,
-            dragStartPixels: 0,
+            dragStartPixels,
             dragSourceDomDataKey: this.beans.gridOptionsWrapper.getDomDataKey()
         };
 
-        this.beans.dragAndDropService.addDragSource(dragSource, true);
-        this.addDestroyFunc(() => this.beans.dragAndDropService.removeDragSource(dragSource));
+        this.beans.dragAndDropService.addDragSource(this.dragSource, true);
+    }
+
+    @PreDestroy
+    private removeDragSource() {
+        if (this.dragSource) {
+            this.beans.dragAndDropService.removeDragSource(this.dragSource);
+        }
+        this.dragSource = null;
     }
 }
 
 class VisibilityStrategy extends BeanStub {
     private readonly parent: RowDragComp;
-    private readonly column: Column;
+    private readonly column: Column | undefined;
     protected readonly rowNode: RowNode;
 
-    constructor(parent: RowDragComp, rowNode: RowNode, column: Column) {
+    constructor(parent: RowDragComp, rowNode: RowNode, column?: Column) {
         super();
         this.parent = parent;
         this.column = column;
@@ -108,8 +131,13 @@ class VisibilityStrategy extends BeanStub {
         if (neverDisplayed) {
             this.parent.setDisplayed(false);
         } else {
-            const shown = this.column.isRowDrag(this.rowNode);
-            const isShownSometimes = isFunction(this.column.getColDef().rowDrag);
+            let shown: boolean = true;
+            let isShownSometimes: boolean = false;
+
+            if (this.column) {
+                shown = this.column.isRowDrag(this.rowNode) || this.parent.isCustomGui;
+                isShownSometimes = isFunction(this.column.getColDef().rowDrag);
+            }
 
             // if shown sometimes, them some rows can have drag handle while other don't,
             // so we use setVisible to keep the handles horizontally aligned (as setVisible
@@ -128,7 +156,7 @@ class VisibilityStrategy extends BeanStub {
 class NonManagedVisibilityStrategy extends VisibilityStrategy {
     private readonly beans: Beans;
 
-    constructor(parent: RowDragComp, beans: Beans, rowNode: RowNode, column: Column) {
+    constructor(parent: RowDragComp, beans: Beans, rowNode: RowNode, column?: Column) {
         super(parent, rowNode, column);
         this.beans = beans;
     }
@@ -160,7 +188,7 @@ class ManagedVisibilityStrategy extends VisibilityStrategy {
 
     private readonly beans: Beans;
 
-    constructor(parent: RowDragComp, beans: Beans, rowNode: RowNode, column: Column) {
+    constructor(parent: RowDragComp, beans: Beans, rowNode: RowNode, column?: Column) {
         super(parent, rowNode, column);
         this.beans = beans;
     }
@@ -188,7 +216,8 @@ class ManagedVisibilityStrategy extends VisibilityStrategy {
 
     private workOutVisibility(): void {
         // only show the drag if both sort and filter are not present
-        const rowDragFeature = this.beans.gridPanel.getRowDragFeature();
+        const gridBodyCon = this.beans.controllersService.getGridBodyController();
+        const rowDragFeature = gridBodyCon.getRowDragFeature();
         const shouldPreventRowMove = rowDragFeature && rowDragFeature.shouldPreventRowMove();
         const suppressRowDrag = this.beans.gridOptionsWrapper.isSuppressRowDrag();
         const hasExternalDropZones = this.beans.dragAndDropService.hasExternalDropZones();

@@ -12,7 +12,7 @@ import { ColDef } from '../../entities/colDef';
 import { IFilterComp, IFilterDef } from '../../interfaces/iFilter';
 import { UserComponentFactory } from '../../components/framework/userComponentFactory';
 import { GridApi } from '../../gridApi';
-import { ColumnApi } from '../../columnController/columnApi';
+import { ColumnApi } from '../../columns/columnApi';
 import { FilterManager } from './../filterManager';
 import { ReadOnlyFloatingFilter } from './provided/readOnlyFloatingFilter';
 import { ModuleNames } from '../../modules/moduleNames';
@@ -27,7 +27,7 @@ import { KeyCode } from '../../constants/keyCode';
 
 export class FloatingFilterWrapper extends AbstractHeaderWrapper {
     private static TEMPLATE = /* html */
-        `<div class="ag-header-cell" role="columnheader" tabindex="-1">
+        `<div class="ag-header-cell" role="gridcell" tabindex="-1">
             <div class="ag-floating-filter-full-body" ref="eFloatingFilterBody" role="presentation"></div>
             <div class="ag-floating-filter-button ag-hidden" ref="eButtonWrapper" role="presentation">
                 <button type="button" aria-label="Open Filter Menu" class="ag-floating-filter-button-button" ref="eButtonShowMainFilter" tabindex="-1"></button>
@@ -80,7 +80,7 @@ export class FloatingFilterWrapper extends AbstractHeaderWrapper {
 
         e.preventDefault();
 
-        const nextFocusableEl = this.focusController.findNextFocusableElement(eGui, null, e.shiftKey);
+        const nextFocusableEl = this.focusService.findNextFocusableElement(eGui, null, e.shiftKey);
 
         if (nextFocusableEl) {
             nextFocusableEl.focus();
@@ -106,7 +106,7 @@ export class FloatingFilterWrapper extends AbstractHeaderWrapper {
                 e.stopPropagation();
             case KeyCode.ENTER:
                 if (wrapperHasFocus) {
-                    if (this.focusController.focusInto(eGui)) {
+                    if (this.focusService.focusInto(eGui)) {
                         e.preventDefault();
                     }
                 }
@@ -123,7 +123,7 @@ export class FloatingFilterWrapper extends AbstractHeaderWrapper {
 
         if (!eGui.contains(e.relatedTarget as HTMLElement)) {
             const headerRow = this.getParentComponent() as HeaderRowComp;
-            this.beans.focusController.setFocusedHeader(headerRow.getRowIndex(), this.getColumn());
+            this.beans.focusService.setFocusedHeader(headerRow.getRowIndex(), this.getColumn());
         }
     }
 
@@ -271,33 +271,13 @@ export class FloatingFilterWrapper extends AbstractHeaderWrapper {
         let promise = this.userComponentFactory.newFloatingFilterComponent(colDef, params, defaultFloatingFilterType);
 
         if (!promise) {
-            const filterComponent = this.getFilterComponentPrototype(colDef);
-            const getModelAsStringExists = filterComponent && filterComponent.prototype && filterComponent.prototype.getModelAsString;
+            const compInstance =
+                this.userComponentFactory.createUserComponentFromConcreteClass(ReadOnlyFloatingFilter, params);
 
-            if (getModelAsStringExists) {
-                const compInstance =
-                    this.userComponentFactory.createUserComponentFromConcreteClass(ReadOnlyFloatingFilter, params);
-
-                promise = AgPromise.resolve(compInstance);
-            }
+            promise = AgPromise.resolve(compInstance);
         }
 
         return promise;
-    }
-
-    private createDynamicParams(): any {
-        return {
-            column: this.column,
-            colDef: this.column.getColDef(),
-            api: this.gridApi,
-            columnApi: this.columnApi
-        };
-    }
-
-    private getFilterComponentPrototype(colDef: ColDef): { new(): any; } | null {
-        const resolvedComponent = this.userComponentFactory.lookupComponentClassDef(colDef, 'filter', this.createDynamicParams());
-
-        return resolvedComponent ? resolvedComponent.component : null;
     }
 
     private currentParentModel(): any {
@@ -313,7 +293,7 @@ export class FloatingFilterWrapper extends AbstractHeaderWrapper {
     }
 
     private onFloatingFilterChanged(): void {
-        console.warn('ag-Grid: since version 21.x, how floating filters are implemented has changed. ' +
+        console.warn('AG Grid: since version 21.x, how floating filters are implemented has changed. ' +
             'Instead of calling params.onFloatingFilterChanged(), get a reference to the main filter via ' +
             'params.parentFilterInstance() and then set a value on the parent filter directly.');
     }

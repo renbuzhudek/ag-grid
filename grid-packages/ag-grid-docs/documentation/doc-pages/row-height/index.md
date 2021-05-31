@@ -6,7 +6,7 @@ By default, the grid will display rows with a height of `25px`. You can change t
 individually to give each row a different height.
 
 [[note]]
-| You cannot use variable row height when using [Viewport Row Model](../viewport/).
+| You cannot use variable row height when using [Viewport Row Model](/viewport/).
 | This is because this row model needs to work out the position of rows that are not loaded and hence needs to assume the row height is fixed.
 
 ## rowHeight Property
@@ -14,42 +14,11 @@ individually to give each row a different height.
 To change the row height for the whole grid, set the property `rowHeight` to a positive number.
 For example, to set the height to 50px, do the following:
 
-[[only-javascript]]
-| ```js
-| const gridOptions = {
-|     rowHeight: 50,
-|
-|     // other grid options ...
-| }
-| ```
-
-[[only-angular]]
-| ```js
-| <ag-grid-angular
-|     [rowHeight]="rowHeight"
-|     // other grid options ...>
-| </ag-grid-angular>
-|
-| this.rowHeight = 50;
-| ```
-
-[[only-react]]
-| ```js
-| <AgGridReact rowHeight={50}>
-|     // column definitions ...
-| </AgGridReact>
-| ```
-
-[[only-vue]]
-| ```js
-| <ag-grid-vue
-|     :rowHeight="rowHeight" 
-|     // other grid options ...>
-| </ag-grid-vue>
-|
-| this.rowHeight = 50;
-| ```
-
+<snippet>
+const gridOptions = {
+    rowHeight: 50,
+}
+</snippet>
 
 Changing the property will set a new row height for all rows, including pinned rows top and bottom.
 
@@ -59,52 +28,18 @@ To change the row height so that each row can have a different height,
 implement the `getRowHeight()` callback. For example, to set the height
 to 50px for all non-pinned rows and 25px for pinned rows, do the following:
 
-[[only-javascript]]
-| ```js
-| const gridOptions = {
-|     getRowHeight: params => params.node.group ? 50 : 20,
-|
-|     // other grid options ...
-| }
-| ```
-
-[[only-angular]]
-| ```js
-| <ag-grid-angular
-|     [getRowHeight]="getRowHeight"
-|     // other grid options ...>
-| </ag-grid-angular>
-|
-| this.getRowHeight = params => params.node.group ? 50 : 20;
-| ```
-
-[[only-react]]
-| ```js
-| <AgGridReact getRowHeight={getRowHeight}>
-|     // column definitions ...
-| </AgGridReact>
-|
-| const getRowHeight = params => params.node.group ? 50 : 20;
-|
-| ```
-
-[[only-vue]]
-| ```js
-| <ag-grid-vue
-|     :getRowHeight="getRowHeight"
-|     // other grid options ...>
-| </ag-grid-vue>
-|
-| this.getRowHeight = params => params.node.group ? 50 : 20;
-| ```
-
+<snippet>
+const gridOptions = {
+    getRowHeight: params => params.node.group ? 50 : 20,
+}
+</snippet>
 
 The params object passed to the callback has the following values:
 
-- **node:** The [rowNode](../row-object/) in question.
+- **node:** The [rowNode](/row-object/) in question.
 - **data:** The data for the row.
-- **api:** The [grid API](../grid-api/).
-- **context:** The [grid context](../context/).
+- **api:** The [grid API](/grid-api/).
+- **context:** The [grid context](/context/).
 
 The example below shows dynamic row height, specifying a different row height for each row. It uses the `getRowHeight()` callback to achieve this.
 
@@ -121,7 +56,7 @@ being applied to the cell, which causes the text to wrap.
 <grid-example title='Row Height Complex' name='row-height-complex' type='generated'></grid-example>
 
 [[note]]
-| If you are providing a custom [Cell Renderer Component](../component-cell-renderer/),
+| If you are providing a custom [Cell Renderer Component](/component-cell-renderer/),
 | you can implement text wrapping in the custom component in your own way. The property `wrapText`
 | is intended to be used when you are not using a custom Cell Renderer.
 
@@ -135,7 +70,7 @@ that column to determine the line height.
 
 `autoHeight` is typically used with `wrapText`.
 If `wrapText` is not set, and no custom
-[Cell Renderer Component](../component-cell-renderer/)
+[Cell Renderer Component](/component-cell-renderer/)
 is used, then the cell will display all it's contents on one line. This is probably not
 the intention if using Auto Row Height.
 
@@ -225,8 +160,8 @@ The example below changes the row height in the different ways described above.
 - **Swimming Leaf Rows:** Same technique is used here as above. You will need to expand a group with swimming (e.g. United States) and the grid works out all row heights again.
 - **Russia Leaf Rows:** The row height is set directly on the `rowNode`, and then the grid is told to reposition all rows again by calling `api.onRowHeightChanged()`.
 
-Note that this example uses ag-Grid Enterprise as it uses grouping. Setting the row
-height is an ag-Grid free feature, we just demonstrate it against groups and normal
+Note that this example uses AG Grid Enterprise as it uses grouping. Setting the row
+height is an AG Grid Community feature, we just demonstrate it against groups and normal
 rows below.
 
 <grid-example title='Changing Row Height' name='row-height-change' type='generated' options=' { "enterprise": true, "exampleHeight": 590, "modules": ["clientside", "rowgrouping", "menu", "columnpanel"] }'></grid-example>

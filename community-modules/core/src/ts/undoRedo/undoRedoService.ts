@@ -1,7 +1,7 @@
 import { Autowired, Bean, PostConstruct } from "../context/context";
 import { Events } from "../eventKeys";
 import { CellValueChangedEvent, FillEndEvent } from "../events";
-import { FocusController } from "../focusController";
+import { FocusService } from "../focusService";
 import { IRowModel } from "../interfaces/iRowModel";
 import { GridApi } from "../gridApi";
 import { PinnedRowModel } from "../pinnedRowModel/pinnedRowModel";
@@ -11,13 +11,13 @@ import { RowNode } from "../entities/rowNode";
 import { Constants } from "../constants/constants";
 import { ModuleNames } from "../modules/moduleNames";
 import { ModuleRegistry } from "../modules/moduleRegistry";
-import { CellRange, CellRangeParams } from "../interfaces/iRangeController";
+import { CellRange, CellRangeParams } from "../interfaces/IRangeService";
 import { BeanStub } from "../context/beanStub";
 
 @Bean('undoRedoService')
 export class UndoRedoService extends BeanStub {
 
-    @Autowired('focusController') private focusController: FocusController;
+    @Autowired('focusService') private focusService: FocusService;
     @Autowired('gridApi') private gridApi: GridApi;
     @Autowired('rowModel') private rowModel: IRowModel;
     @Autowired('pinnedRowModel') private pinnedRowModel: PinnedRowModel;
@@ -75,11 +75,11 @@ export class UndoRedoService extends BeanStub {
         const { rowPinned, rowIndex, column, oldValue, value } = event;
 
         const cellValueChange: CellValueChange = {
-            rowPinned: rowPinned,
-            rowIndex: rowIndex,
+            rowPinned,
+            rowIndex: rowIndex!,
             columnId: column.getColId(),
-            oldValue: oldValue,
-            newValue: value
+            newValue: value,
+            oldValue
         };
 
         this.cellValueChanges.push(cellValueChange);
@@ -147,7 +147,7 @@ export class UndoRedoService extends BeanStub {
             const currentRow = this.getRowNode(rowPosition);
 
             // checks if the row has been filtered out
-            if (currentRow!.rowTop == null) {
+            if (!currentRow!.displayed) {
                 return;
             }
 
@@ -208,7 +208,7 @@ export class UndoRedoService extends BeanStub {
             this.gridApi.clearRangeSelection();
         }
 
-        this.focusController.setFocusedCell(rowIndex, columnId, rowPinned, true);
+        this.focusService.setFocusedCell(rowIndex, columnId, rowPinned, true);
     }
 
     private addRowEditingListeners(): void {

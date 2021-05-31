@@ -18,13 +18,12 @@ The example below shows print layout. The following can be noted:
 
 Print layout can be turned on by setting the property `domLayout='print'` or by calling the grid API `setDomLayout('print')`. Similarly the layout can be set back to normal by unsetting the `domLayout` property or calling the grid API `setDomLayout(null)`.
 
-```js
+<snippet>
 // setting the grid layout to 'print'
-api.setDomLayout('print');
-
+gridOptions.api.setDomLayout('print');
 // resetting the layout back to normal
-api.setDomLayout(null);
-```
+gridOptions.api.setDomLayout(null);
+</snippet>
 
 ## Toggling Grid Size
 
@@ -61,7 +60,7 @@ When in print layout the grid will redraw the entire grid any time there is a ch
 
 ## Don't Print Large Data
 
-Do not use this technique for printing if you are showing a large number of rows or columns. This is not a problem with the grid, it is a limitation on browsers on how much data they can easily display in one web page. If you try to render lots of data into the web page, the web page will create lots of DOM elements and will either slow things down or simply hang the browser. ag-Grid gets around this problem by virtualising the rows and columns. However if you render the whole grid, there is no possibility of virtualising the rows or columns.
+Do not use this technique for printing if you are showing a large number of rows or columns. This is not a problem with the grid, it is a limitation on browsers on how much data they can easily display in one web page. If you try to render lots of data into the web page, the web page will create lots of DOM elements and will either slow things down or simply hang the browser. AG Grid gets around this problem by virtualising the rows and columns. However if you render the whole grid, there is no possibility of virtualising the rows or columns.
 
 If you want to allow printing large data sets it's best to get your users to export to CSV or Excel and then print from another non-web based application.
 
@@ -71,6 +70,6 @@ When the grid is in print layout, it will be rendering all cells without using r
 
 ## Row Models
 
-The only [Row Model](../row-models/) that print layout works with is the default [Client Side](../client-side-model/) row model. It will not work with the others ([Infinite](../infinite-scrolling/), [Server-Side](../server-side-model/) or [Viewport](../viewport/)). This is because the grid will render the entire data-set which goes against the philosophy of the other row models which lazy load data.
+The only [Row Model](/row-models/) that print layout works with is the default [Client Side](/client-side-model/) row model. It will not work with the others ([Infinite](/infinite-scrolling/), [Server-Side](/server-side-model/) or [Viewport](/viewport/)). This is because the grid will render the entire data-set which goes against the philosophy of the other row models which lazy load data.
 
 

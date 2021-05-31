@@ -100,6 +100,10 @@ export const iconNameClassMap: { [key: string]: string; } = {
     rowDrag: 'grip',
     // context menu export item
     save: 'save',
+    // csv export
+    csvExport: 'csv',
+    // excel export,
+    excelExport: 'excel',
     // icon on dropdown editors
     smallDown: 'small-down',
     // version of small-right used in RTL mode
@@ -173,14 +177,14 @@ export function createIconNoSpan(iconName: string, gridOptionsWrapper: GridOptio
             return rendererResult as HTMLElement;
         }
 
-        console.warn('ag-Grid: iconRenderer should return back a string or a dom object');
+        console.warn('AG Grid: iconRenderer should return back a string or a dom object');
     } else {
         const span = document.createElement('span');
         let cssClass = iconNameClassMap[iconName];
 
         if (!cssClass) {
             if (!forceCreate) {
-                console.warn(`ag-Grid: Did not find icon ${iconName}`);
+                console.warn(`AG Grid: Did not find icon ${iconName}`);
                 cssClass = '';
             } else {
                 cssClass = iconName;

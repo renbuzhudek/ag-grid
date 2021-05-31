@@ -1,23 +1,22 @@
 const os = require('os');
-const fs = require('fs');
+const fs = require('fs-extra');
 const cp = require('child_process');
 const glob = require('glob');
-const resolve = require('path').resolve
-const rimraf = require('rimraf');
+const resolve = require('path').resolve;
 const express = require('express');
 const realWebpack = require('webpack');
 const proxy = require('express-http-proxy');
 const webpackMiddleware = require('webpack-dev-middleware');
 const chokidar = require('chokidar');
 const tcpPortUsed = require('tcp-port-used');
-const { generateExamples: generateDocumentationExamples } = require('./example-generator-documentation');
+const { generateDocumentationExamples } = require('./example-generator-documentation');
 const { updateBetweenStrings, getAllModules } = require('./utils');
 const { getFlattenedBuildChainInfo, buildPackages, buildCss, watchCss } = require('./lernaOperations');
+const { EOL } = os;
 
 const flattenArray = array => [].concat.apply([], array);
 
 const lnk = require('lnk').sync;
-const mkdirp = require('mkdir-p').sync;
 
 const EXPRESS_PORT = 8080;
 const PHP_PORT = 8888;
@@ -100,6 +99,7 @@ function launchPhpCP(app) {
 }
 
 function launchGatsby() {
+    console.log("Launching Gatsby");
     const npm = WINDOWS ? 'npm.cmd' : 'npm';
     const gatsby = cp.spawn(npm, ['start'], {
         cwd: 'documentation',
@@ -128,6 +128,8 @@ function serveCoreModules(app, gridCommunityModules, gridEnterpriseModules, char
     });
 }
 
+
+
 function getTscPath() {
     return WINDOWS ? 'node_modules\\.bin\\tsc.cmd' : 'node_modules/.bin/tsc';
 }
@@ -136,20 +138,22 @@ function symlinkModules(gridCommunityModules, gridEnterpriseModules, chartCommun
     // we delete the _dev folder each time we run now as we're constantly adding new modules etc
     // this saves us having to manually delete _dev each time
     if (fs.existsSync('_dev')) {
-        rimraf.sync("_dev");
+        fs.removeSync('_dev');
     }
 
-    mkdirp('_dev/');
-    mkdirp('_dev/@ag-grid-community/');
-    mkdirp('_dev/@ag-grid-enterprise/');
+    fs.ensureDirSync('_dev/');
+    fs.ensureDirSync('_dev/@ag-grid-community/');
+    fs.ensureDirSync('_dev/@ag-grid-enterprise/');
 
     let linkType = 'symbolic';
+
     if (WINDOWS) {
         console.log('creating window links...');
         linkType = 'junction';
     }
 
     lnk('../../community-modules/vue/', '_dev/@ag-grid-community', { force: true, type: linkType, rename: 'vue' });
+    lnk('../../community-modules/vue3/', '_dev/@ag-grid-community', { force: true, type: linkType, rename: 'vue3' });
     lnk('../../community-modules/angular/', '_dev/@ag-grid-community', {
         force: true,
         type: linkType,
@@ -230,11 +234,16 @@ function symlinkModules(gridCommunityModules, gridEnterpriseModules, chartCommun
         type: linkType,
         rename: 'ag-grid-vue'
     });
+    lnk('../../grid-packages/ag-grid-vue3/', '_dev/', {
+        force: true,
+        type: linkType,
+        rename: 'ag-grid-vue3'
+    });
 }
 
 const exampleDirMatch = new RegExp('src/([\-\\w]+)/');
 
-function regenerateDocumentationExamplesForFileChange(file) {
+async function regenerateDocumentationExamplesForFileChange(file) {
     let scope;
 
     try {
@@ -244,7 +253,7 @@ function regenerateDocumentationExamplesForFileChange(file) {
     }
 
     if (scope) {
-        generateDocumentationExamples(scope, file);
+        await generateDocumentationExamples(scope, file);
     }
 }
 
@@ -268,34 +277,29 @@ async function watchAndGenerateExamples() {
 }
 
 const updateLegacyWebpackSourceFiles = (gridCommunityModules, gridEnterpriseModules) => {
-    const communityModulesEntries = gridCommunityModules
-        .filter(module => module.moduleDirName !== 'core')
-        .filter(module => module.moduleDirName !== 'all-modules')
-        .map(module => `require("../../../${module.fullJsPath.replace('.ts', '')}");
-const ${module.moduleName} = require("../../../${module.fullJsPath.replace('.ts', '')}").${module.moduleName};
-        `);
+    const getImport = module => [
+        `require("../../../${module.fullJsPath.replace('.ts', '')}");`,
+        `const ${module.moduleName} = require("../../../${module.fullJsPath.replace('.ts', '')}").${module.moduleName};`,
+        ''
+    ].join(EOL);
 
-    const communityRegisterModuleLines = gridCommunityModules
-        .filter(module => module.moduleDirName !== 'core')
-        .filter(module => module.moduleDirName !== 'all-modules')
+    const getFilteredModules = modules =>
+        modules.filter(module => module.moduleDirName !== 'core' && module.moduleDirName !== 'all-modules');
+
+    const communityModulesEntries = getFilteredModules(gridCommunityModules).map(getImport);
+
+    const communityRegisterModuleLines = getFilteredModules(gridCommunityModules)
         .map(module => `ModuleRegistry.ModuleRegistry.register(${module.moduleName});`);
 
-    const enterpriseModulesEntries = gridEnterpriseModules
-        .filter(module => module.moduleDirName !== 'core')
-        .filter(module => module.moduleDirName !== 'all-modules')
-        .map(module => `require("../../../${module.fullJsPath.replace('.ts', '')}");
-const ${module.moduleName} = require("../../../${module.fullJsPath.replace('.ts', '')}").${module.moduleName};
-        `);
+    const enterpriseModulesEntries = getFilteredModules(gridEnterpriseModules).map(getImport);
 
-    const enterpriseRegisterModuleLines = gridEnterpriseModules
-        .filter(module => module.moduleDirName !== 'core')
-        .filter(module => module.moduleDirName !== 'all-modules')
+    const enterpriseRegisterModuleLines = getFilteredModules(gridEnterpriseModules)
         .map(module => `ModuleRegistry.ModuleRegistry.register(${module.moduleName});`);
 
     const enterpriseBundleFilename = './src/_assets/ts/enterprise-grid-all-modules-umd.js';
     const communityFilename = 'src/_assets/ts/community-grid-all-modules-umd.js';
 
-    const existingEnterpriseBundleLines = fs.readFileSync(enterpriseBundleFilename, 'UTF-8').split('\n');
+    const existingEnterpriseBundleLines = fs.readFileSync(enterpriseBundleFilename, 'UTF-8').split(EOL);
     let modulesLineFound = false;
     const newEnterpriseBundleLines = [];
     existingEnterpriseBundleLines.forEach(line => {
@@ -305,9 +309,9 @@ const ${module.moduleName} = require("../../../${module.fullJsPath.replace('.ts'
         }
     });
     const newEnterpriseBundleContent = newEnterpriseBundleLines.concat(enterpriseModulesEntries).concat(communityModulesEntries);
-    fs.writeFileSync(enterpriseBundleFilename, newEnterpriseBundleContent.concat(enterpriseRegisterModuleLines).concat(communityRegisterModuleLines).join('\n'), 'UTF-8');
+    fs.writeFileSync(enterpriseBundleFilename, newEnterpriseBundleContent.concat(enterpriseRegisterModuleLines).concat(communityRegisterModuleLines).join(EOL), 'UTF-8');
 
-    const existingCommunityLines = fs.readFileSync(communityFilename).toString().split('\n');
+    const existingCommunityLines = fs.readFileSync(communityFilename).toString().split(EOL);
     modulesLineFound = false;
     const newCommunityLines = [];
     existingCommunityLines.forEach(line => {
@@ -316,7 +320,7 @@ const ${module.moduleName} = require("../../../${module.fullJsPath.replace('.ts'
             newCommunityLines.push(line);
         }
     });
-    fs.writeFileSync(communityFilename, newCommunityLines.concat(communityModulesEntries).concat(communityRegisterModuleLines).join('\n'), 'UTF-8');
+    fs.writeFileSync(communityFilename, newCommunityLines.concat(communityModulesEntries).concat(communityRegisterModuleLines).join(EOL), 'UTF-8');
 };
 
 const updateWebpackSourceFiles = (gridCommunityModules, gridEnterpriseModules) => {
@@ -343,7 +347,7 @@ const updateWebpackSourceFiles = (gridCommunityModules, gridEnterpriseModules) =
     const enterpriseBundleFilename = './src/_assets/ts/enterprise-grid-all-modules-umd-beta.js';
     const communityFilename = 'src/_assets/ts/community-grid-all-modules-umd-beta.js';
 
-    const existingEnterpriseBundleLines = fs.readFileSync(enterpriseBundleFilename, 'UTF-8').split('\n');
+    const existingEnterpriseBundleLines = fs.readFileSync(enterpriseBundleFilename, 'UTF-8').split(EOL);
     let modulesLineFound = false;
     const newEnterpriseBundleLines = [];
     existingEnterpriseBundleLines.forEach(line => {
@@ -353,9 +357,9 @@ const updateWebpackSourceFiles = (gridCommunityModules, gridEnterpriseModules) =
         }
     });
     const newEnterpriseBundleContent = newEnterpriseBundleLines.concat(enterpriseModulesEntries).concat(communityModulesEntries);
-    fs.writeFileSync(enterpriseBundleFilename, newEnterpriseBundleContent.concat(enterpriseRegisterModuleLines).concat(communityRegisterModuleLines).join('\n'), 'UTF-8');
+    fs.writeFileSync(enterpriseBundleFilename, newEnterpriseBundleContent.concat(enterpriseRegisterModuleLines).concat(communityRegisterModuleLines).join(EOL), 'UTF-8');
 
-    const existingCommunityLines = fs.readFileSync(communityFilename).toString().split('\n');
+    const existingCommunityLines = fs.readFileSync(communityFilename).toString().split(EOL);
     modulesLineFound = false;
     const newCommunityLines = [];
     existingCommunityLines.forEach(line => {
@@ -364,7 +368,7 @@ const updateWebpackSourceFiles = (gridCommunityModules, gridEnterpriseModules) =
             newCommunityLines.push(line);
         }
     });
-    fs.writeFileSync(communityFilename, newCommunityLines.concat(communityModulesEntries).concat(communityRegisterModuleLines).join('\n'), 'UTF-8');
+    fs.writeFileSync(communityFilename, newCommunityLines.concat(communityModulesEntries).concat(communityRegisterModuleLines).join(EOL), 'UTF-8');
 };
 
 function updateWebpackConfigWithBundles(gridCommunityModules, gridEnterpriseModules) {
@@ -400,8 +404,7 @@ function updateUtilsSystemJsMappingsForFrameworks(gridCommunityModules, gridEnte
         gridCommunityModules,
         [],
         module => `        "${module.publishedName}": \`\${localPrefix}/@ag-grid-community/all-modules/dist/ag-grid-community.cjs.js\`,`,
-        () => {
-        });
+        () => { });
 
     updatedUtilFileContents = updateBetweenStrings(updatedUtilFileContents,
         '        /* START OF GRID ENTERPRISE MODULES PATHS DEV - DO NOT DELETE */',
@@ -416,12 +419,11 @@ function updateUtilsSystemJsMappingsForFrameworks(gridCommunityModules, gridEnte
         '        /* END OF GRID CSS DEV - DO NOT DELETE */',
         cssFiles,
         [],
-        cssFile => {
-            return `        "@ag-grid-community/all-modules/dist/styles/${cssFile}": \`\${localPrefix}/@ag-grid-community/all-modules/dist/styles/${cssFile}\`,
-        "@ag-grid-community/core/dist/styles/${cssFile}": \`\${localPrefix}/@ag-grid-community/core/dist/styles/${cssFile}\`,`;
-        },
-        () => {
-        });
+        cssFile => [
+            `        "@ag-grid-community/all-modules/dist/styles/${cssFile}": \`\${localPrefix}/@ag-grid-community/all-modules/dist/styles/${cssFile}\`,`,
+            `        "@ag-grid-community/core/dist/styles/${cssFile}": \`\${localPrefix}/@ag-grid-community/core/dist/styles/${cssFile}\`,`
+        ].join(EOL),
+        () => { });
 
     updatedUtilFileContents = updateBetweenStrings(updatedUtilFileContents,
         '        /* START OF GRID COMMUNITY MODULES PATHS PROD - DO NOT DELETE */',
@@ -429,8 +431,7 @@ function updateUtilsSystemJsMappingsForFrameworks(gridCommunityModules, gridEnte
         gridCommunityModules,
         [],
         module => `        "${module.publishedName}": \`https://unpkg.com/@ag-grid-community/all-modules@\${agGridVersion}/dist/ag-grid-community.cjs.js\`,`,
-        () => {
-        });
+        () => { });
 
     updatedUtilFileContents = updateBetweenStrings(updatedUtilFileContents,
         '        /* START OF GRID ENTERPRISE MODULES PATHS PROD - DO NOT DELETE */',
@@ -445,12 +446,11 @@ function updateUtilsSystemJsMappingsForFrameworks(gridCommunityModules, gridEnte
         '        /* END OF GRID CSS PROD - DO NOT DELETE */',
         cssFiles,
         [],
-        cssFile => {
-            return `        "@ag-grid-community/all-modules/dist/styles/${cssFile}": \`https://unpkg.com/@ag-grid-community/all-modules@\${agGridVersion}/dist/styles/${cssFile}\`,
-        "@ag-grid-community/core/dist/styles/${cssFile}": \`https://unpkg.com/@ag-grid-community/core@\${agGridVersion}/dist/styles/${cssFile}\`,`;
-        },
-        () => {
-        });
+        cssFile => [
+            `        "@ag-grid-community/all-modules/dist/styles/${cssFile}": \`https://unpkg.com/@ag-grid-community/all-modules@\${agGridVersion}/dist/styles/${cssFile}\`,`,
+            `        "@ag-grid-community/core/dist/styles/${cssFile}": \`https://unpkg.com/@ag-grid-community/core@\${agGridVersion}/dist/styles/${cssFile}\`,`
+        ].join(EOL),
+        () => { });
 
     fs.writeFileSync(utilityFilename, updatedUtilFileContents, 'UTF-8');
 }
@@ -458,7 +458,7 @@ function updateUtilsSystemJsMappingsForFrameworks(gridCommunityModules, gridEnte
 const getLernaChainBuildInfo = async (skipFrameworks) => {
     const lernaBuildChainInfo = await getFlattenedBuildChainInfo();
 
-    const frameworks = ['angular', 'react', 'vue'];
+    const frameworks = ['angular', 'react', 'vue', 'vue3'];
 
     const filterBuildChain = filter => {
         Object.keys(lernaBuildChainInfo).forEach(packageName => {
@@ -563,16 +563,19 @@ const buildCoreModules = async (exitOnError) => {
             process.exit(result.status);
         }
 
-        return result.status;
+        return;
     }
+    console.log("Core Modules Built");
 
+    console.log("Rebuilding Packages Based on Change State");
     await rebuildPackagesBasedOnChangeState(false, false);
+    console.log("Changed Packages Rebuilt");
 
     // because we use TSC to build the core modules (and not npm) we need to manually update the changed
     // hashes on build
+    console.log("Updating Core Module Hashes");
     updateCoreModuleHashes();
-
-    return 0;
+    console.log("Core Module Hashes Updated");
 };
 
 function moduleChanged(moduleRoot) {
@@ -607,7 +610,15 @@ function updateSystemJsBoilerplateMappingsForFrameworks(gridCommunityModules, gr
     const systemJsFiles = [
         './documentation/static/example-runner/grid-angular-boilerplate/systemjs.config.dev.js',
         './documentation/static/example-runner/grid-react-boilerplate/systemjs.config.dev.js',
-        './documentation/static/example-runner/grid-vue-boilerplate/systemjs.config.dev.js'];
+        './documentation/static/example-runner/grid-vue-boilerplate/systemjs.config.dev.js',
+        './documentation/static/example-runner/grid-vue3-boilerplate/systemjs.config.dev.js'];
+
+    const getModuleConfig = module => [
+        `            '${module.publishedName}': {`,
+        `                main: './dist/cjs/main.js',`,
+        `                defaultExtension: 'js'`,
+        `            },`
+    ].join(EOL);
 
     systemJsFiles.forEach(systemJsFile => {
         const fileLines = fs.readFileSync(systemJsFile, 'UTF-8');
@@ -617,16 +628,8 @@ function updateSystemJsBoilerplateMappingsForFrameworks(gridCommunityModules, gr
             '            /* END OF MODULES - DO NOT DELETE */',
             gridCommunityModules.concat(chartsCommunityModules),
             gridEnterpriseModules,
-            module => `            '${module.publishedName}': {
-                main: './dist/cjs/main.js',
-                defaultExtension: 'js'
-            },`
-            ,
-            module => `            '${module.publishedName}': {
-                main: './dist/cjs/main.js',
-                defaultExtension: 'js'
-            },`
-            ,
+            getModuleConfig,
+            getModuleConfig,
         );
 
         fs.writeFileSync(systemJsFile, updateFileLines, 'UTF-8');
@@ -671,14 +674,14 @@ const watchFrameworkModules = async () => {
         '.hash',
     ];
 
-    const moduleFrameworks = ['angular', 'vue', 'react'];
+    const moduleFrameworks = ['angular', 'vue', 'vue3', 'react'];
     const moduleRootDirectory = WINDOWS ? `..\\..\\community-modules\\` : `../../community-modules/`;
     moduleFrameworks.forEach(moduleFramework => {
         const frameworkDirectory = resolve(`${moduleRootDirectory}${moduleFramework}`);
 
         const ignoredFolders = [...defaultIgnoreFolders];
         if (moduleFramework !== 'angular') {
-            ignoredFolders.push('**/lib/**/*')
+            ignoredFolders.push('**/lib/**/*');
         }
 
         chokidar.watch([`${frameworkDirectory}/**/*`], {
@@ -696,6 +699,7 @@ const serveModuleAndPackages = (app, gridCommunityModules, gridEnterpriseModules
 
     servePackage(app, '@ag-grid-community/angular');
     servePackage(app, '@ag-grid-community/vue');
+    servePackage(app, '@ag-grid-community/vue3');
     servePackage(app, '@ag-grid-community/react');
     servePackage(app, 'ag-charts-react');
     servePackage(app, 'ag-charts-angular');
@@ -704,6 +708,7 @@ const serveModuleAndPackages = (app, gridCommunityModules, gridEnterpriseModules
     servePackage(app, 'ag-grid-enterprise');
     servePackage(app, 'ag-grid-angular');
     servePackage(app, 'ag-grid-vue');
+    servePackage(app, 'ag-grid-vue3');
     servePackage(app, 'ag-grid-react');
 };
 
@@ -762,10 +767,14 @@ module.exports = async (skipFrameworks, skipExampleFormatting, done) => {
 
             updateWebpackConfigWithBundles(gridCommunityModules, gridEnterpriseModules);
 
+            console.log("Performing Initial Build");
             await performInitialBuild();
+
+            console.log("Watch Core Modules & CSS");
             await watchCoreModulesAndCss(skipFrameworks);
 
             if (!skipFrameworks) {
+                console.log("Watch Framework Modules");
                 watchFrameworkModules();
             }
 
@@ -777,13 +786,15 @@ module.exports = async (skipFrameworks, skipExampleFormatting, done) => {
             serveModuleAndPackages(app, gridCommunityModules, gridEnterpriseModules, chartCommunityModules);
 
             // regenerate examples and then watch them
+            console.log("Watch and Generate Examples");
             await watchAndGenerateExamples();
+            console.log("Examples Generated");
 
             // websites
             launchPhpCP(app);
 
             app.listen(EXPRESS_PORT, function() {
-                console.log(`ag-Grid dev server now available on http://${HOST}:${EXPRESS_PORT}`);
+                console.log(`AG Grid dev server now available on http://${HOST}:${EXPRESS_PORT}`);
             });
 
             launchGatsby();

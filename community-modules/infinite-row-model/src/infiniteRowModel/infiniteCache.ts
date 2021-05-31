@@ -2,9 +2,7 @@ import {
     Autowired,
     BeanStub,
     StoreUpdatedEvent,
-    ColumnApi,
     Events,
-    GridApi,
     IDatasource,
     Logger,
     LoggerFactory,
@@ -14,7 +12,8 @@ import {
     RowNode,
     RowNodeBlockLoader,
     RowRenderer,
-    _
+    _,
+    FocusService
 } from "@ag-grid-community/core";
 import { InfiniteBlock } from "./infiniteBlock";
 
@@ -40,9 +39,8 @@ export class InfiniteCache extends BeanStub {
     // scrolled over are not needed to be loaded.
     private static MAX_EMPTY_BLOCKS_TO_KEEP = 2;
 
-    @Autowired('columnApi') private readonly columnApi: ColumnApi;
-    @Autowired('gridApi') private readonly gridApi: GridApi;
     @Autowired('rowRenderer') protected rowRenderer: RowRenderer;
+    @Autowired("focusService") private focusService: FocusService;
 
     private readonly params: InfiniteCacheParams;
 
@@ -99,6 +97,12 @@ export class InfiniteCache extends BeanStub {
     // state - eg if a node had children, but after the refresh it had data
     // for a different row, then the children would be with the wrong row node.
     public refreshCache(): void {
+        const nothingToRefresh = this.blockCount == 0;
+        if (nothingToRefresh) {
+            this.purgeCache();
+            return;
+        }
+
         this.getBlocksInOrder().forEach(block => block.setStateWaitingToLoad());
         this.params.rowNodeBlockLoader!.checkBlockToLoad();
     }
@@ -127,6 +131,9 @@ export class InfiniteCache extends BeanStub {
         this.logger.log(`onPageLoaded: page = ${block.getId()}, lastRow = ${lastRow}`);
 
         this.checkRowCount(block, lastRow);
+        // we fire cacheUpdated even if the row count has not changed, as some items need updating even
+        // if no new rows to render. for example the pagination panel has '?' as the total rows when loading
+        // is underway, which would need to get updated when loading finishes.
         this.onCacheUpdated();
     }
 
@@ -156,11 +163,26 @@ export class InfiniteCache extends BeanStub {
                 // but the screen is showing 20 rows, so at least 4 blocks are needed.
                 if (this.isBlockCurrentlyDisplayed(block)) { return; }
 
+                // don't want to loose keyboard focus, so keyboard navigation can continue. so keep focused blocks.
+                if (this.isBlockFocused(block)) { return; }
+
                 // at this point, block is not needed, so burn baby burn
                 this.removeBlockFromCache(block);
             }
 
         });
+    }
+
+    private isBlockFocused(block: InfiniteBlock): boolean {
+        const focusedCell = this.focusService.getFocusCellToUseAfterRefresh();
+        if (!focusedCell) { return false; }
+        if (focusedCell.rowPinned != null) { return false; }
+
+        const blockIndexStart = block.getStartRow();
+        const blockIndexEnd = block.getEndRow();
+
+        const hasFocus = focusedCell.rowIndex >= blockIndexStart && focusedCell.rowIndex < blockIndexEnd;
+        return hasFocus;
     }
 
     private isBlockCurrentlyDisplayed(block: InfiniteBlock): boolean {
@@ -184,7 +206,7 @@ export class InfiniteCache extends BeanStub {
         // if user deleted data and then called refresh on the grid.
         if (typeof lastRow === 'number' && lastRow >= 0) {
             this.rowCount = lastRow;
-            this.lastRowIndexKnown = true;
+            this.lastRowIndexKnown = true
         } else if (!this.lastRowIndexKnown) {
             // otherwise, see if we need to add some virtual rows
             const lastRowIndex = (block.getId() + 1) * this.params.blockSize!;

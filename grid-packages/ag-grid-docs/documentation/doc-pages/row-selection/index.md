@@ -3,7 +3,7 @@ title: "Row Selection"
 ---
 
 Select a row by clicking on it. Selecting a row will remove any previous selection unless you
-hold down `Ctrl` while clicking. Selecting a row and holding down `Shift`
+hold down <kbd>Ctrl</kbd> while clicking. Selecting a row and holding down <kbd>Shift</kbd>
 while clicking a second row will select the range.
 
 Remember Row Selection works with all frameworks (e.g. Angular and React) as well as plain JavaScript.
@@ -12,19 +12,18 @@ Configure row selection with the following properties:
 
 - `rowSelection`: Type of row selection, set to either `'single'` or `'multiple'` to enable selection. `'single'` will use single row selection, such that when you select a row, any previously selected row gets unselected. `'multiple'` allows multiple rows to be selected.
 
-- `rowMultiSelectWithClick`: Set to `true` to allow multiple rows to be selected with clicks. For example, if you click to select one row and then click to select another row, the first row will stay selected as well. Clicking a selected row in this mode will deselect the row. This is useful for touch devices where `Ctrl` and `Shift` clicking is not an option.
+- `rowMultiSelectWithClick`: Set to `true` to allow multiple rows to be selected with clicks. For example, if you click to select one row and then click to select another row, the first row will stay selected as well. Clicking a selected row in this mode will deselect the row. This is useful for touch devices where <kbd>Ctrl</kbd> and <kbd>Shift</kbd> clicking is not an option.
 
-- `suppressRowDeselection`: Set to `true` to prevent rows from being deselected if you hold down `Ctrl` and click the row (i.e. once a row is selected, it remains selected until another row is selected in its place). By default the grid allows deselection of rows.
+- `suppressRowDeselection`: Set to `true` to prevent rows from being deselected if you hold down <kbd>Ctrl</kbd> and click the row (i.e. once a row is selected, it remains selected until another row is selected in its place). By default the grid allows deselection of rows.
 
 - `suppressRowClickSelection`: If `true`, rows won't be selected when clicked. Use, for example, when you want checkbox selection, and don't want to also select the row when the row is clicked.
 
-When you pass data to the grid, it wraps each data item in a node object. This is explained in the section [Client-Side Row Model](../client-side-model/). When you query for the selected rows, there are two method types: ones that return nodes, and ones that return data items. To get the selected nodes / rows from the grid, use the following API methods:
-
+When you pass data to the grid, it wraps each data item in a node object. This is explained in the section [Client-Side Row Model](/client-side-model/). When you query for the selected rows, there are two method types: ones that return nodes, and ones that return data items. To get the selected nodes / rows from the grid, use the following API methods:
 
 - `api.getSelectedNodes()`: Returns an array of the selected nodes.
 - `api.getSelectedRows()`: Returns an array of data from the selected rows.
 
-Working with ag-Grid nodes is preferred over the row data as it provides you with more information and maps better to the internal representation of ag-Grid.
+Working with AG Grid nodes is preferred over the row data as it provides you with more information and maps better to the internal representation of AG Grid.
 
 ### Example: Single Row Selection
 
@@ -38,19 +37,16 @@ The example below shows single row selection.
 
 The example below shows multi-row selection.
 
-- Property `rowSelection='multiple'` is set to enable multiple row selection. Selecting multiple rows can be achieved by holding down `Ctrl` and mouse clicking the rows. A range of rows can be selected by using `Shift`.
-
+- Property `rowSelection='multiple'` is set to enable multiple row selection. Selecting multiple rows can be achieved by holding down <kbd>Ctrl</kbd> and mouse clicking the rows. A range of rows can be selected by using <kbd>Shift</kbd>.
 
 <grid-example title='Multiple Row Selection' name='multiple-row-selection' type='generated'></grid-example>
 
 ### Example: Multi Select With Click
 
-The example below shows multi-select with click. Clicking multiple rows will select a range of rows without the need for `Ctrl` or `Shift` keys. Clicking a selected row will deselect it. This is useful for touch devices where `Ctrl` and `Shift` clicks are not available.
+The example below shows multi-select with click. Clicking multiple rows will select a range of rows without the need for <kbd>Ctrl</kbd> or <kbd>Shift</kbd> keys. Clicking a selected row will deselect it. This is useful for touch devices where <kbd>Ctrl</kbd> and <kbd>Shift</kbd> clicks are not available.
 
 - Property `rowMultiSelectWithClick=true` is set to enable multiple row selection with clicks.
-
-- Clicking multiple rows will select multiple rows without needing to press `Ctrl` or `Shift` keys.
-
+- Clicking multiple rows will select multiple rows without needing to press <kbd>Ctrl</kbd> or <kbd>Shift</kbd> keys.
 - Clicking a selected row will deselect that row.
 
 <grid-example title='Multi Select With Click' name='multi-select-single-click' type='generated'></grid-example>
@@ -59,11 +55,53 @@ The example below shows multi-select with click. Clicking multiple rows will sel
 
 Checkbox selection can be used in two places: row selection and group selection.
 
-To include checkbox selection for a column, set the attribute `'checkboxSelection'` to `true` on the column definition. You can set this attribute on as many columns as you like, however it doesn't make sense to have it in more than one column in a table.
+To include checkbox selection for a column, set the attribute `'checkboxSelection'` to `true` on the column definition. 
+You can set this attribute on as many columns as you like, however it doesn't make sense to have it in more than one 
+column in a table.
 
-To enable checkbox selection for groups, set the attribute `'checkbox'` to `true` for the group renderer. See the grouping section for details on the group renderer.
+To enable checkbox selection for groups, set the attribute `'checkbox'` to `true` for the group renderer. See the 
+grouping section for details on the group renderer.
 
-`colDef.checkboxSelection` can also be a function that returns `true`/`false` - use this if you want checkboxes on some rows but not others. `gridOptions.checkboxSelection` can also be specified as a function - use this if you want, for example, the first column to have checkbox selection regardless of which column it is (you would do this by looping the columns using the column API, and check if the first column is the current one).
+`checkboxSelection` can also be specified as a function. This allows dynamically setting whether a cell
+has a checkbox or not. The callback is called when the Cell is drawn, and called again if there are any changes
+to the row's data or the column positions (e.g. the callback could be showing the checkbox depending on what
+value is displayed, or if the column in question is the first column to show a checkbox for the first column only).
+
+If the function returns false, a selection checkbox will still be created and in the DOM, 
+however it will not be visible using CSS `visibility: hidden`. This is to ensure the following UX properties:
+
+1. Where a column has a checkbox for only some cells, the values will remain aligned.
+2. When a checkbox visibility changes, the cells contents don't jump.
+
+The interface for the callback is as follows:
+
+```ts
+// function to enable/disable Checkbox Selection
+function checkboxSelection(params: CheckboxSelectionCallbackParams) => boolean;
+
+// interface for params
+interface CheckboxSelectionCallbackParams {
+    node: RowNode;
+    data: any;
+    column: Column;
+    colDef: ColDef;
+    context: any;
+    api: GridApi;
+    columnApi: ColumnApi;
+}
+```
+
+To be clear, there is a slight difference between a callback returning false, and false value provided explicitly.
+When a callback is used and returns false, the grid assumes a checkbox is sometimes used and as such creates one
+that is not visible.
+
+```ts
+// do not create checkbox
+colDef.checkboxSelection = false;
+
+// create checkbox, make checkbox not visible
+colDef.checkboxSelection = () => false;
+```
 
 ## Group Selection
 
@@ -105,24 +143,25 @@ To demonstrate, try this in the example:
 
 It is possible to have a checkbox in the header for selection. To configure the column to have a checkbox, set `colDef.headerCheckboxSelection=true`. `headerCheckboxSelection` can also be a function, if you want the checkbox to appear sometimes (e.g. if the column is ordered first in the grid).
 
-```js
-// the name column header always has a checkbox in the header
-colDef = {
-    field: 'name',
-    headerCheckboxSelection: true,
-    ...
+<snippet>
+const gridOptions = {
+    columnDefs: [
+        // the name column header always has a checkbox in the header
+        {
+            field: 'name',
+            headerCheckboxSelection: true
+        },
+        // the country column header only has checkbox if it is the first column
+        {
+            field: 'country',
+            headerCheckboxSelection: params => {
+                const displayedColumns = params.columnApi.getAllDisplayedColumns();
+                return displayedColumns[0] === params.column;
+            }
+        },
+    ],
 }
-
-// the country column header only has checkbox if it is the first column
-colDef = {
-    field: 'country',
-    headerCheckboxSelection: function(params) {
-        var displayedColumns = params.columnApi.getAllDisplayedColumns();
-        return displayedColumns[0] === params.column;
-    },
-    ...
-}
-```
+</snippet>
 
 If `headerCheckboxSelection` is a function, the function will be called every time there is a change to the displayed columns, to check for changes.
 
@@ -161,11 +200,11 @@ It is possible to specify which rows can be selected via the `gridOptions.isRowS
 
 For instance if we only wanted to allow rows where the 'year' property is less than 2007, we could implement the following:
 
-```js
-gridOptions.isRowSelectable: function(rowNode) {
-    return rowNode.data ? rowNode.data.year < 2007 : false;
+<snippet>
+const gridOptions = {
+    isRowSelectable: rowNode => rowNode.data ? rowNode.data.year < 2007 : false,
 }
-```
+</snippet>
 
 ### Example: Selectable Rows with Header Checkbox
 
@@ -210,19 +249,19 @@ To select rows programmatically, use the `node.setSelected()` method. This metho
 - **selected**: set to `true` to select, `false` to un-select.
 - **clearSelection** (optional): for selection only. If `true`, any other selected nodes will be deselected. Use this if you do not want multi-selection and want this node to be exclusively selected.
 
-```js
-// set selected, keep any other selections
-node.setSelected(true);
-
-// set selected, exclusively, remove any other selections
-node.setSelected(true, true);
-
-// un-select
-node.setSelected(false);
-
-// check status of node selection
-var selected = node.isSelected();
-```
+<snippet>
+|// set selected, keep any other selections
+|node.setSelected(true);
+|
+|// set selected, exclusively, remove any other selections
+|node.setSelected(true, true);
+|
+|// un-select
+|node.setSelected(false);
+|
+|// check status of node selection
+|const selected = node.isSelected();
+</snippet>
 
 The `isSelected()` method returns `true` if the node is selected, or `false` if it is not selected. If the node is a group node and the group selection is set to `'children'`, this will return `true` if all child (and grandchild) nodes are selected, `false` if all unselected, or `undefined` if a mixture.
 
@@ -239,13 +278,13 @@ The grid API has the following methods for selection:
 
 If you want to select only filtered-out row nodes, you could do this using the following:
 
-```js
+<snippet>
 // loop through each node when it is filtered out
-api.forEachNodeAfterFilter(function(node) {
-// select the node
-node.setSelected(true);
+gridOptions.api.forEachNodeAfterFilter(node => {
+    // select the node
+    node.setSelected(true);
 });
-```
+</snippet>
 
 ### Example: Using forEachNode
 
@@ -255,40 +294,36 @@ There is an API function `forEachNode`. This is useful for doing group selection
 
 ### Example: Selection with Keyboard Arrow Keys
 
-By default, you can select a row on mouse click, and navigate up and down the rows using your keyboard keys. However, the selection state does not correlate with the navigation keys, but we can add this behaviour using our own [Custom Navigation](../keyboard-navigation/#custom-navigation).
+By default, you can select a row on mouse click, and navigate up and down the rows using your keyboard keys. However, the selection state does not correlate with the navigation keys, but we can add this behaviour using our own [Custom Navigation](/keyboard-navigation/#custom-navigation).
 
-First we need to provide a callback to the `navigateToNextCell` property in `gridOptions` to override the default arrow key navigation:
+We need to provide a callback to the `navigateToNextCell` grid option to override the default arrow key navigation:
 
-```js
-var gridOptions = {
-navigateToNextCell: myNavigation,
-...
-}
-```
+<snippet>
+|const gridOptions = {
+|    navigateToNextCell: params => {
+|        const suggestedNextCell = params.nextCellPosition;
+|
+|        // this is some code
+|        const KEY_UP = 38;
+|        const KEY_DOWN = 40;
+|
+|        const noUpOrDownKeyPressed = params.key!==KEY_DOWN && params.key!==KEY_UP;
+|        if (noUpOrDownKeyPressed) {
+|            return suggestedNextCell;
+|        }
+|
+|        params.api.forEachNode(node => {
+|            if (node.rowIndex === suggestedNextCell.rowIndex) {
+|                node.setSelected(true);
+|            }
+|        });
+|
+|        return suggestedNextCell;
+|    },
+|}
+</snippet>
 
-From the code below you can see that we iterate over each node and call the `setSelected()` method if it matches the current `rowIndex`.
-
-```js
-function myNavigation(params) {
-    var suggestedNextCell = params.nextCellPosition;
-// this is some code
-    var KEY_UP = 38;
-    var KEY_DOWN = 40;
-
-    var noUpOrDownKeyPressed = params.key!==KEY_DOWN && params.key!==KEY_UP;
-    if (noUpOrDownKeyPressed) {
-        return suggestedNextCell;
-    }
-
-    gridOptions.api.forEachNode(function(node) {
-        if (node.rowIndex === suggestedNextCell.rowIndex) {
-            node.setSelected(true);
-        }
-    });
-
-    return suggestedNextCell;
-}
-```
+From the code above you can see that we iterate over each node and call the `setSelected()` method if it matches the current `rowIndex`.
 
 <grid-example title='Selection with Keyboard Arrow Keys' name='selection-with-arrow-keys' type='generated'></grid-example>
 

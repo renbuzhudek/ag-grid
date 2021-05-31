@@ -25,6 +25,7 @@ import {
 export interface AgFrameworkComponent<T> {
     agInit(params: T): void;
 
+    /* deprecated */
     afterGuiAttached?(params?: IAfterGuiAttachedParams): void;
 }
 
@@ -56,6 +57,9 @@ export interface AgEditorComponent extends ICellEditorAngularComp {
 }
 
 export interface AgFilterComponent extends IFilterAngularComp {
+}
+
+export interface AgFloatingFilterComponent extends IFloatingFilterComp {
 }
 
 export interface ILoadingCellRendererAngularComp extends AgFrameworkComponent<ILoadingCellRendererParams> {

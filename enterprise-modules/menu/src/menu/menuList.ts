@@ -41,7 +41,7 @@ export class MenuList extends ManagedFocusComponent {
                 const topMenu = this.findTopMenu();
 
                 if (topMenu) {
-                    this.focusController.focusInto(topMenu.getGui());
+                    this.focusService.focusInto(topMenu.getGui());
                 }
 
                 break;
@@ -62,7 +62,7 @@ export class MenuList extends ManagedFocusComponent {
             if (menuItemOrString === 'separator') {
                 this.addSeparator();
             } else if (typeof menuItemOrString === 'string') {
-                console.warn(`ag-Grid: unrecognised menu item ${menuItemOrString}`);
+                console.warn(`AG Grid: unrecognised menu item ${menuItemOrString}`);
             } else {
                 this.addItem(menuItemOrString);
             }

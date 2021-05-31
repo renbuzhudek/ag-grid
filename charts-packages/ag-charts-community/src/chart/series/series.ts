@@ -85,11 +85,13 @@ export abstract class Series extends Observable {
     tooltipEnabled: boolean = true;
     tooltip: SeriesTooltip;
 
-    setColors(fills: string[], strokes: string[]) {}
-
     @reactive('dataChange') data?: any[] = undefined;
     @reactive('dataChange') visible = true;
     @reactive('layoutChange') showInLegend = true;
+
+    cursor = 'default';
+
+    setColors(fills: string[], strokes: string[]) { }
 
     /**
      * Returns the actual keys used (to fetch the values from `data` items) for the given direction.

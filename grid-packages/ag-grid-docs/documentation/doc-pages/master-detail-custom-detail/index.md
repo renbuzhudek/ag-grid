@@ -7,19 +7,16 @@ When a Master Row is expanded, the grid uses the default Detail Cell Renderer to
 
 Configure the grid to use a customer Detail Cell Renderer using the grid property `detailCellRenderer`.
 
-```js
-gridOptions = {
-    // normally you leave this blank, means the grid
-    // will use the default Detail Cell Renderer
+<snippet spaceBetweenProperties="true">
+const gridOptions = {
+    // normally left blank, the grid will use the default Detail Cell Renderer
     detailCellRenderer: 'myCellRendererComp',
-
-    // these are the parameters that will get sent to the Detail Cell Renderer,
-    // in this case, to an instance of your MyCellRendererComp
-    detailCellRendererParams: {...},
+    // params sent to the Detail Cell Renderer, in this case your MyCellRendererComp
+    detailCellRendererParams: {},
 }
-```
+</snippet>
 
-The Detail Cell Renderer should be a [Cell Renderer](../component-cell-renderer/) component. See [Cell Renderer](../component-cell-renderer/) on how to build
+The Detail Cell Renderer should be a [Cell Renderer](/component-cell-renderer/) component. See [Cell Renderer](/component-cell-renderer/) on how to build
 and register a Cell Renderer with the grid.
 
 The following examples demonstrate minimalist custom Detail Cell Renderer. Note that where a Detail Grid would normally appear, only the message "My Customer Detail" is shown.
@@ -40,17 +37,17 @@ It is possible to provide a Customer Detail Grid that does a similar job to the 
 
 <grid-example title='Custom Detail Cell Renderer with Grid' name='custom-detail-with-grid' type='generated' options='{ "enterprise": true, "exampleHeight": 545, "modules": ["clientside", "masterdetail", "menu", "columnpanel"] }'></grid-example>
 
-In order for the Detail Grid's API to be available via the Master Grid as explained in [Accessing Detail Grids](../master-detail-grids/#accessing-detail-grids), a Grid Info object needs to be registered with the Master Grid.
+In order for the Detail Grid's API to be available via the Master Grid as explained in [Accessing Detail Grids](/master-detail-grids/#accessing-detail-grids), a Grid Info object needs to be registered with the Master Grid.
 
 When the Detail Grid is created, register it via `masterGridApi.addDetailGridInfo()` and when the Detail Grid is destroyed, unregister it via `masterGridApi.removeDetailGridInfo()`. A Detail ID is required when calling these methods. Any unique ID can be used, however for consistency with how the default Detail Cell Renderer works it's recommended to use the ID of the detail Row Node.
 
 ```js
 //////////////////////////////
 // Register with Master Grid
-var detailId = params.node.id;
+const detailId = params.node.id;
 
 // Create Grid Info object
-var detailGridInfo = {
+const detailGridInfo = {
     id: detailId,
     api: params.api,
     columnApi: params.columnApi
@@ -65,7 +62,7 @@ this.masterGridApi.removeDetailGridInfo(detailId);
 
 ## Refreshing
 
-When data is updated in the grid using [Transaction Updates](../data-update-transactions/), the grid will call refresh on all Detail Cell Renderer's.
+When data is updated in the grid using [Transaction Updates](/data-update-transactions/), the grid will call refresh on all Detail Cell Renderer's.
 
 It is up to the Detail Cell Renderer whether it wants to act on the refresh or not. If the `refresh()` method returns `true`, the grid will assume the Detail Cell Renderer has refreshed successfully and nothing more will happen. However if `false` is returned, the grid will destroy the Detail Cell Renderer and re-create it again.
 

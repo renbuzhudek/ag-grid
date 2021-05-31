@@ -1,15 +1,23 @@
 import { Autowired, Bean } from "../context/context";
-import { GridCore } from "../gridCore";
 import { PostProcessPopupParams } from "../entities/gridOptions";
 import { RowNode } from "../entities/rowNode";
 import { Column } from "../entities/column";
 import { Environment } from "../environment";
 import { Events } from '../events';
 import { BeanStub } from "../context/beanStub";
-import { addCssClass, removeCssClass, getAbsoluteHeight, getAbsoluteWidth, containsClass, addOrRemoveCssClass } from '../utils/dom';
-import { forEach, findIndex, last } from '../utils/array';
+import {
+    addCssClass,
+    addOrRemoveCssClass,
+    containsClass,
+    getAbsoluteHeight,
+    getAbsoluteWidth,
+    removeCssClass
+} from '../utils/dom';
+import { findIndex, forEach, last } from '../utils/array';
 import { isElementInEventPath } from '../utils/event';
 import { KeyCode } from '../constants/keyCode';
+import { FocusService } from "../focusService";
+import { GridCtrl } from "../gridComp/gridCtrl";
 
 export interface PopupEventParams {
     originalMouseEvent?: MouseEvent | Touch | null;
@@ -72,19 +80,20 @@ export class PopupService extends BeanStub {
     // really this should be using eGridDiv, not sure why it's not working.
     // maybe popups in the future should be parent to the body??
     @Autowired('environment') private environment: Environment;
+    @Autowired('focusService') private focusService: FocusService;
 
-    private gridCore: GridCore;
+    private gridCompController: GridCtrl;
     private popupList: AgPopup[] = [];
 
-    public registerGridCore(gridCore: GridCore): void {
-        this.gridCore = gridCore;
+    public registerGridCompController(gridCompController: GridCtrl): void {
+        this.gridCompController = gridCompController;
 
-        this.addManagedListener(this.gridCore, Events.EVENT_KEYBOARD_FOCUS, () => {
-            forEach(this.popupList, popup => addCssClass(popup.element, 'ag-keyboard-focus'));
+        this.addManagedListener(this.gridCompController, Events.EVENT_KEYBOARD_FOCUS, () => {
+            forEach(this.popupList, popup => addCssClass(popup.element, FocusService.AG_KEYBOARD_FOCUS));
         });
 
-        this.addManagedListener(this.gridCore, Events.EVENT_MOUSE_FOCUS, () => {
-            forEach(this.popupList, popup => removeCssClass(popup.element, 'ag-keyboard-focus'));
+        this.addManagedListener(this.gridCompController, Events.EVENT_MOUSE_FOCUS, () => {
+            forEach(this.popupList, popup => removeCssClass(popup.element, FocusService.AG_KEYBOARD_FOCUS));
         });
     }
 
@@ -93,7 +102,7 @@ export class PopupService extends BeanStub {
 
         if (ePopupParent) { return ePopupParent; }
 
-        return this.gridCore.getRootGui();
+        return this.gridCompController.getGui();
     }
 
     public positionPopupForMenu(params: { eventSource: HTMLElement, ePopup: HTMLElement; }): void {
@@ -486,6 +495,10 @@ export class PopupService extends BeanStub {
         addCssClass(eWrapper, 'ag-popup');
         addCssClass(eChild, this.gridOptionsWrapper.isEnableRtl() ? 'ag-rtl' : 'ag-ltr');
         addCssClass(eChild, 'ag-popup-child');
+
+        if (this.focusService.isKeyboardMode()) {
+            addCssClass(eChild, FocusService.AG_KEYBOARD_FOCUS)
+        }
 
         eWrapper.appendChild(eChild);
         ePopupParent.appendChild(eWrapper);

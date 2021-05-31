@@ -2,10 +2,18 @@
 title: "Column State"
 ---
 
-[Column Definitions](../column-definitions/) contain both stateful and non-stateful attributes. Stateful attributes can
+[Column Definitions](/column-definitions/) contain both stateful and non-stateful attributes. Stateful attributes can
 have their values changed by the grid (e.g. Column sort can be changed by the user clicking on the column header).
 Non-stateful attributes do not change from what is set in the Column Definition (e.g. once the Header Name is set as
 part of a Column Definition, it typically does not change).
+
+[[note]]
+| The DOM also has stateful vs non-stateful attributes. For example consider a DOM element and setting 
+| `element.style.width="100px"` will indefinitely set width to 100 pixels, the browser will not change this value. 
+| However setting `element.scrollTop=200` will set the scroll position, but the browser can change the scroll
+| position further following user interaction, thus scroll position is stateful as the browser can change
+| the state.
+
 
 The full list of stateful attributes of Columns are as follows:
 
@@ -26,32 +34,12 @@ This section details how such state items can be manipulated without having to u
 There are two API methods provided for getting and setting Column State. `columnApi.getColumnState()` gets the current
 column state and `columnApi.applyColumnState()` sets the column state.
 
-[[only-javascript]]
-| ```js
-| // save the columns state
-| const savedState = gridOptions.columnApi.getColumnState();
-| 
-| // restore the column state
-| gridOptions.columnApi.applyColumnState({ state: savedState });
-| ```
-
-[[only-angular-or-vue]]
-| ```js
-| // save the columns state
-| const savedState = this.gridColumnApi.getColumnState();
-|
-| // restore the column state
-| this.gridColumnApi.applyColumnState({ state: savedState });
-| ```
-
-[[only-react]]
-| ```js
-| // save the columns state
-| const savedState = gridColumnApi.getColumnState();
-|
-| // restore the column state
-| gridColumnApi.applyColumnState({ state: savedState });
-| ```
+<snippet>
+// save the columns state
+const savedState = gridOptions.columnApi.getColumnState();
+// restore the column state
+gridOptions.columnApi.applyColumnState({ state: savedState });
+</snippet>
 
 The example below demonstrates saving and restoring column state. Try the following:
 
@@ -116,9 +104,9 @@ that Column but other attributes, such as Sort, are left intact.
 Combining these rules together leaves for flexible fine grained state control. Take the following code snippets as
 examples:
 
-```js
+<snippet>
 // Sort Athlete column ascending
-columnApi.applyColumnState({
+gridOptions.columnApi.applyColumnState({
     state: [
         {
             colId: 'athlete',
@@ -126,9 +114,8 @@ columnApi.applyColumnState({
         }
     ]
 });
-
 // Sort Athlete column ascending and clear sort on all other columns
-columnApi.applyColumnState({
+gridOptions.columnApi.applyColumnState({
     state: [
         {
             colId: 'athlete',
@@ -140,18 +127,15 @@ columnApi.applyColumnState({
         sort: null
     }
 });
-
 // Clear sorting on all columns, leave all other attributes untouched
-columnApi.applyColumnState({
+gridOptions.columnApi.applyColumnState({
     defaultState: {
         // important to say 'null' as undefined means 'do nothing'
         sort: null
     }
 });
-
-// Clear sorting, row group, pivot and pinned on all columns,
-// leave all other attributes untouched
-columnApi.applyColumnState({
+// Clear sorting, row group, pivot and pinned on all columns, leave all other attributes untouched
+gridOptions.columnApi.applyColumnState({
     defaultState: {
         // important to say 'null' as undefined means 'do nothing'
         sort: null,
@@ -160,9 +144,8 @@ columnApi.applyColumnState({
         pinned: null
     }
 });
-
 // Order columns, but do nothing else
-columnApi.applyColumnState({
+gridOptions.columnApi.applyColumnState({
     state: [
         { colId: 'athlete' },
         { colId: 'country' },
@@ -171,7 +154,7 @@ columnApi.applyColumnState({
     ],
     applyOrder: true
 });
-```
+</snippet>
 
 The example below shows some fine grained access to Column State.
 
@@ -240,12 +223,6 @@ The example logs event information to the console, so best open the example in
 a new tab and observe the dev console.
 
 <grid-example title='Column Events' name='column-events' type='generated' options='{ "enterprise": true }'></grid-example>
-
-To suppress events raised when invoking `applyColumnState()` set the grid property `suppressColumnStateEvents=true`.
-
-The example below is similar to the example above, except no events are raised when the state is changed via the buttons.
-
-<grid-example title='Suppress Events' name='suppress-events' type='generated' options='{ "enterprise": true }'></grid-example>
 
 ## Column Group State
 

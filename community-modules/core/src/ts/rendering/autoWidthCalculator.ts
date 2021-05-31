@@ -1,23 +1,28 @@
 import { RowRenderer } from "./rowRenderer";
-import { GridPanel } from "../gridPanel/gridPanel";
 import { Column } from "../entities/column";
-import { Autowired, Bean } from "../context/context";
+import { Autowired, Bean, PostConstruct } from "../context/context";
 import { HeaderWrapperComp } from "../headerRendering/header/headerWrapperComp";
 import { Component } from "../widgets/component";
 import { HeaderRootComp } from "../headerRendering/headerRootComp";
 import { BeanStub } from "../context/beanStub";
 import { containsClass, addCssClass } from "../utils/dom";
+import { ControllersService } from "../controllersService";
+import { RowContainerCtrl } from "../gridBodyComp/rowContainer/rowContainerCtrl";
 
 @Bean('autoWidthCalculator')
 export class AutoWidthCalculator extends BeanStub {
 
     @Autowired('rowRenderer') private rowRenderer: RowRenderer;
+    @Autowired('controllersService') private controllersService: ControllersService;
 
-    private gridPanel: GridPanel;
+    private centerRowContainerCon: RowContainerCtrl;
     private headerRootComp: HeaderRootComp;
 
-    public registerGridComp(gridPanel: GridPanel): void {
-        this.gridPanel = gridPanel;
+    @PostConstruct
+    private postConstruct(): void {
+        this.controllersService.whenReady(p => {
+            this.centerRowContainerCon = p.centerRowContainerCon;
+        });
     }
 
     public registerHeaderRootComp(headerRootComp: HeaderRootComp): void {
@@ -39,7 +44,7 @@ export class AutoWidthCalculator extends BeanStub {
 
         // we put the dummy into the body container, so it will inherit all the
         // css styles that the real cells are inheriting
-        const eBodyContainer = this.gridPanel.getCenterContainer();
+        const eBodyContainer = this.centerRowContainerCon.getContainerElement();
         eBodyContainer.appendChild(eDummyContainer);
 
         // get all the cells that are currently displayed (this only brings back

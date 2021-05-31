@@ -11,195 +11,62 @@ This page describes how to get your grid data sorting. Row sorting works with al
 Enable sorting for columns by setting the `sortable` column definition attribute.
 You can then sort a column by clicking on the column header.
 
+<snippet>
+const gridOptions = {
+    // enable sorting on 'name' and 'age' columns only
+    columnDefs: [
+        { field: 'name', sortable: true },
+        { field: 'age', sortable: true },
+        { field: 'address' },
+    ],
+}
+</snippet>
 
-[[only-javascript]]
-| ```js
-| const gridOptions = {
-|     // enable sorting on name and age columns only
-|     columnDefs: [
-|         { field: 'name', sortable: true },
-|         { field: 'age', sortable: true },
-|         { field: 'address' },
-|     ],
-|
-|     // other grid options ...
-| }
-| ```
+To enable sorting for all columns, set sorting in the [default column definition](/column-definitions/).
 
-[[only-angular]]
-| ```js
-| <ag-grid-angular
-|     [columnDefs]="columnDefs"
-|     // other grid options ...>
-| </ag-grid-angular>
-|
-| // enable sorting on name and age columns only
-| this.columnDefs = [
-|     { field: 'name', sortable: true },
-|     { field: 'age', sortable: true },
-|     { field: 'address' },
-| ];
-| ```
-
-[[only-react]]
-| ```js
-| <AgGridReact>
-|     // enable sorting on name and age columns only
-|     <AgGridColumn field='name' sortable={true} />
-|     <AgGridColumn field='age' sortable={true} />
-|     <AgGridColumn field='address' />
-| </AgGridReact>
-| ```
-
-[[only-vue]]
-| ```js
-| <ag-grid-vue
-|     :columnDefs="columnDefs"  
-|     // other grid options ...>
-| </ag-grid-vue>
-|
-| // enable sorting on name and age columns only
-| this.columnDefs = [
-|     { field: 'name', sortable: true },
-|     { field: 'age', sortable: true },
-|     { field: 'address' },
-| ];
-| ```
-
-To enable sorting for all columns, set sorting in the [default column definition](../column-definitions/).
-
-
-[[only-javascript]]
-| ```js
-| gridOptions: {
-|     // enable sorting on all columns by default
-|     defaultColDef: {
-|         sortable: true
-|     },
-|     columnDefs: [
-|         { field: 'name' },
-|         { field: 'age' },
-|         // suppress sorting on address column
-|         { field: 'address', sortable: false },
-|     ],
-|
-|     // other grid options ...
-| }
-| ```
-
-[[only-angular]]
-| ```js
-| <ag-grid-angular
-|     [defaultColDef]="defaultColDef"
-|     [columnDefs]="columnDefs"
-|     // other grid options ...>
-| </ag-grid-angular>
-|
-| // enable sorting on all columns by default
-| this.defaultColDef = {
-|     sortable: true
-| },
-| this.columnDefs = [
-|     { field: 'name' },
-|     { field: 'age' },
-|     // suppress sorting on address column
-|     { field: 'address', sortable: false },
-| ];
-| ```
-
-[[only-react]]
-| ```js
-| <AgGridReact defaultColDef={{ sortable: true }} > 
-|     <AgGridColumn field='name' />
-|     <AgGridColumn field='age' />
-|     // suppress sorting on address column 
-|     <AgGridColumn field='address' sortable={false} />
-| </AgGridReact>
-| ```
-
-[[only-vue]]
-| ```js
-| <ag-grid-vue
-|     :defaultColDef="defaultColDef"
-|     :columnDefs="columnDefs"  
-|     // other grid options ...>
-| </ag-grid-vue>
-|
-| // enable sorting on all columns by default
-| this.defaultColDef = {
-|     sortable: true
-| },
-| this.columnDefs = [
-|     { field: 'name' },
-|     { field: 'age' },
-|     // suppress sorting on address column
-|     { field: 'address', sortable: false },
-| ];
-| ```
+<snippet>
+const gridOptions = {
+    // enable sorting on all columns by default
+    defaultColDef: {
+        sortable: true
+    },
+    columnDefs: [
+        { field: 'name' },
+        { field: 'age' },
+        // suppress sorting on address column
+        { field: 'address', sortable: false },
+    ],
+}
+</snippet>
 
 ## Custom Sorting
 
 Custom sorting is provided at a column level by configuring a comparator on the column definition.
 
-[[only-javascript]]
-| ```js
-| columnDefs: [
-|     { 
-|         field: 'age', 
-|         // simple number comparator
-|         comparator: (valueA, valueB, nodeA, nodeB, isInverted) => valueA - valueB
-|     },
-|     { 
-|         field: 'name',
-|         // simple string comparator
-|         comparator: (valueA, valueB, nodeA, nodeB, isInverted) => {
-|             if (valueA == valueB) return 0;
-|             return (valueA > valueB) ? 1 : -1;
-|         }
-|     }
-| ]
-| ```
-
-[[only-angular-or-vue]]
-| ```js
-| this.columnDefs = [
-|     {
-|         field: 'age',
-|         // simple number comparator
-|         comparator: (valueA, valueB, nodeA, nodeB, isInverted) => valueA - valueB
-|     },
-|     {
-|         field: 'name',
-|         // simple string comparator
-|         comparator: (valueA, valueB, nodeA, nodeB, isInverted) => {
-|             if (valueA == valueB) return 0;
-|             return (valueA > valueB) ? 1 : -1;
-|         }
-|     }
-| ];
-| ```
-
-[[only-react]]
-| ```js
-| <AgGridColumn headerName='Group A'>
-|     <AgGridColumn field='age' comparator={customNumberCompartor}/>
-|     <AgGridColumn field='name' comparator={customStringComparator}/>
-| </AgGridColumn>
-|
-| // simple number comparator
-| const customNumberCompartor = (valueA, valueB, nodeA, nodeB, isInverted) => valueA - valueB;
-|
-| // simple string comparator
-| const customStringComparator = (valueA, valueB, nodeA, nodeB, isInverted) => {
-|     if (valueA == valueB) return 0;
-|     return (valueA > valueB) ? 1 : -1;
-| };
-| ```
+<snippet spaceBetweenProperties="true">
+const gridOptions = {
+    columnDefs: [
+        {
+            field: 'age',
+            // simple number comparator
+            comparator: (valueA, valueB, nodeA, nodeB, isInverted) => valueA - valueB
+        },
+        {
+            field: 'name',
+            // simple string comparator
+            comparator: (valueA, valueB, nodeA, nodeB, isInverted) => {
+                if (valueA == valueB) return 0;
+                return (valueA > valueB) ? 1 : -1;
+            }
+        }
+    ]
+}
+</snippet>
 
 The parameters are as follows:
 
 - `valueA, valueB`: The values in the cells to be compared. Typically sorts are done on these values only.
-- `nodeA, nodeB`: The [Row Nodes](../row-object/) for the rows getting sorted. These can be used if more information, such as data from other columns, are needed for the comparison.
+- `nodeA, nodeB`: The [Row Nodes](/row-object/) for the rows getting sorted. These can be used if more information, such as data from other columns, are needed for the comparison.
 - `isInverted`: `true` for Ascending, `false` for Descending.
 
 
@@ -215,43 +82,32 @@ Example below shows the following:
 
 ### Example: Custom Sorting Groups
 
-When [Row Grouping](../grouping/) it is possible to override the sort order of the Row Group columns. If using the Auto Group Column, provide a comparator via the `autoGroupColumnDef` grid property.
+When [Row Grouping](/grouping/) it is possible to override the sort order of the Row Group columns. If using the Auto Group Column, provide a comparator via the `autoGroupColumnDef` grid property.
 
-[[only-javascript]]
-| ```js
-| autoGroupColumnDef: {
-|     comparator: [yourOwnComparator]
-| },
-| ```
 
-[[only-angular-or-vue]]
-| ```js
-| this.autoGroupColumnDef = {
-|     comparator: [yourOwnComparator]
-| };
-| ```
-
-[[only-react]]
-| ```js
-| autoGroupColumnDef={{
-|     comparator: [yourOwnComparator]
-| }}
-| ```
+<snippet>
+var gridOptions = {
+    autoGroupColumnDef: {
+        field: 'athlete',
+        comparator: function(valueA, valueB, nodeA, nodeB, isInverted) {
+            return (valueA == valueB) ? 0 : (valueA > valueB) ? 1 : -1;
+        },
+    }
+};
+</snippet>
 
 <grid-example title='Custom Sorting Groups' name='custom-sorting-groups' type='generated' options='{ "enterprise": true }'></grid-example>
 
 ## Multi Column Sorting
 
-
 It is possible to sort by multiple columns. The default action for multiple column sorting is for
-the user to hold down `Shift` while clicking the column header. To change the default action to use
-the `Ctrl` key (or `Cmd` key on Apple) instead set the property `multiSortKey='ctrl'`.
+the user to hold down <kbd>Shift</kbd> while clicking the column header. To change the default action to use
+the <kbd>Ctrl</kbd> key (or <kbd>Command</kbd> key on Apple) instead set the property `multiSortKey='ctrl'`.
 
 The example below demonstrates the following:
 
 - The grid sorts by **Country** then **Athlete** by default.
-
-- The property `multiSortKey='ctrl'` is set so multiple column sorting is achieved by holding down `Ctrl` and selecting multiple columns.
+- The property `multiSortKey='ctrl'` is set so multiple column sorting is achieved by holding down <kbd>Ctrl</kbd> and selecting multiple columns.
 
 <grid-example title='Multi Column Sort' name='multi-column' type='generated'></grid-example>
 
@@ -260,7 +116,6 @@ The example below demonstrates the following:
 To enable animation of the rows after sorting, set grid property `animateRows=true`.
 
 ## Sorting Order
-
 
 By default, the sorting order is as follows:
 
@@ -293,7 +148,7 @@ The example below shows animation of the rows plus different combinations of sor
 
 ## Sorting API
 
-What sorting is applied is controlled via [Column State](../column-state/). The below examples uses the Column State API to control column sorting.
+What sorting is applied is controlled via [Column State](/column-state/). The below examples uses the Column State API to control column sorting.
 
 <grid-example title='Sorting API' name='sorting-api' type='generated'></grid-example>
 
@@ -316,84 +171,23 @@ It is also possible to perform some post-sorting if you require additional contr
 
 This is provided via the `postSort` grid callback function as shown below:
 
-[[only-javascript]]
-| ```js
-| const gridOptions = {
-|     postSort: rowNodes => {
-|         // here we put Ireland rows on top while preserving the sort order  
-|         let nextInsertPos = 0;
-|         for (let i = 0; i < rowNodes.length; i++) {
-|             const country = rowNodes[i].data.country;      
-|             if (country === 'Ireland') {        
-|                 rowNodes.splice(nextInsertPos, 0, rowNodes.splice(i, 1)[0]);
-|                 nextInsertPos++;
-|             }
-|         }
-|     },
-| 
-|     // other grid options ...
-| };
-| ```
+<snippet>
+const gridOptions = {
+    postSort: rowNodes => {
+        // here we put Ireland rows on top while preserving the sort order
+        let nextInsertPos = 0;
+        for (let i = 0; i < rowNodes.length; i++) {
+            const country = rowNodes[i].data.country;
+            if (country === 'Ireland') {
+                rowNodes.splice(nextInsertPos, 0, rowNodes.splice(i, 1)[0]);
+                nextInsertPos++;
+            }
+        }
+    }
+};
+</snippet>
 
-[[only-angular]]
-| ```js
-| <ag-grid-angular
-|     [postSort]="postSort"
-|     // other grid options ...>
-| </ag-grid-angular>
-|
-| this.postSort = rowNodes => {
-|     // here we put Ireland rows on top while preserving the sort order  
-|     let nextInsertPos = 0;
-|     for (let i = 0; i < rowNodes.length; i++) {
-|         const country = rowNodes[i].data.country;      
-|         if (country === 'Ireland') {        
-|             rowNodes.splice(nextInsertPos, 0, rowNodes.splice(i, 1)[0]);
-|             nextInsertPos++;
-|         }
-|     }
-| };
-| ```
-
-[[only-react]]
-| ```js
-| <AgGridReact postSort={customPostSort} >
-|     // column definitions ...
-| </AgGridReact>
-|
-| const customPostSort = rowNodes => {
-|     // here we put Ireland rows on top while preserving the sort order  
-|     let nextInsertPos = 0;
-|     for (let i = 0; i < rowNodes.length; i++) {
-|         const country = rowNodes[i].data.country;      
-|         if (country === 'Ireland') {        
-|             rowNodes.splice(nextInsertPos, 0, rowNodes.splice(i, 1)[0]);
-|             nextInsertPos++;
-|         }
-|     }
-| };
-| ```
-
-[[only-vue]]
-| ```js
-| <ag-grid-vue
-|     :postSort="postSort"
-|     // other grid options ...>
-| </ag-grid-vue>
-|
-| this.postSort: rowNodes => {
-|     // here we put Ireland rows on top while preserving the sort order  
-|     let nextInsertPos = 0;
-|     for (let i = 0; i < rowNodes.length; i++) {
-|         const country = rowNodes[i].data.country;      
-|         if (country === 'Ireland') {        
-|             rowNodes.splice(nextInsertPos, 0, rowNodes.splice(i, 1)[0]);
-|             nextInsertPos++;
-|         }
-|     }
-| };
-| ```
-
-The following example uses this configuration to perform a post-sort on the rows.
+The following example uses this configuration to perform a post-sort on the rows. The custom function
+puts rows with Ireland at the top always.
 
 <grid-example title='Post Sort' name='post-sort' type='generated'></grid-example>

@@ -1,12 +1,12 @@
 ---
-title: "ag-Grid Modules - Overview"
+title: "AG Grid Modules - Overview"
 ---
 
-ag-Grid `modules` allow you to pick and choose which features you require, resulting in a smaller application size overall, with the trade-off being that you need to register the modules you require.
+AG Grid `modules` allow you to just import the features which you need, resulting in a smaller application size overall.
 
 [[note]]
 | The introduction of modules in version 22.0.0 is a significant first step towards reducing
-| the size of ag-Grid inside applications. As most of the new modules cover enterprise
+| the size of AG Grid inside applications. As most of the new modules cover enterprise
 | features, community users should not expect to see a size reduction right away. However,
 | in the coming releases, we will strive to reduce the size of the community-core module
 | by splitting it out into separate community modules.
@@ -15,7 +15,7 @@ ag-Grid `modules` allow you to pick and choose which features you require, resul
 
 ### Modules
 
-The below table summarizes the modules provided in the ag-Grid Community and ag-Grid Enterprise packages.
+The below table summarizes the modules provided in the AG Grid Community and AG Grid Enterprise packages.
 
 <matrix-table src='modules/modules.json' columns='{ "title": "", "module": "Community Module", "exported": "Exported" }' stringonly="true" showcondition="notIn(enterprise, framework)"></matrix-table>
 <matrix-table src='modules/modules.json' columns='{ "title": "", "module": "Enterprise Module<enterprise-icon></enterprise-icon>", "exported": "Exported" }' stringonly="true" showcondition="in(enterprise)"></matrix-table>
@@ -23,7 +23,12 @@ The below table summarizes the modules provided in the ag-Grid Community and ag-
 Note that neither `@ag-grid-community/all-modules` nor `@ag-grid-enterprise/all-modules` contain
 framework support - if you require framework support you need to explicitly specify it:
 
-<matrix-table src='modules/modules.json' columns='{ "title": "", "module": "Framework Module", "exported": "Exported" }' stringonly="true" showcondition="in(framework)"></matrix-table>
+[[only-angular]]
+|<matrix-table src='modules/modules.json' columns='{ "title": "", "module": "Framework Module", "exported": "Exported" }' stringonly="true" showcondition="in(angular)"></matrix-table>
+[[only-react]]
+|<matrix-table src='modules/modules.json' columns='{ "title": "", "module": "Framework Module", "exported": "Exported" }' stringonly="true" showcondition="in(react)"></matrix-table>
+[[only-vue]]
+|<matrix-table src='modules/modules.json' columns='{ "title": "", "module": "Framework Module", "exported": "Exported" }' stringonly="true" showcondition="in(vue)"></matrix-table>
 
 ### All Modules Bundles
 
@@ -36,7 +41,7 @@ framework support - if you require framework support you need to explicitly spec
 `@ag-grid-enterprise/all-modules` can be considered to be equivalent to `ag-grid-enterprise`,
     but with the additional
     need to register modules within. If using this module you might be better off using `ag-grid-enterprise`
-    (along with `ag-grid-enterprise)` as the bundle size will be similar and will reduce the need to register
+    as the bundle size will be similar and will reduce the need to register
     modules.
 
 [[note]]
@@ -57,15 +62,15 @@ You **cannot** mix `packages` and `modules` - in other words you cannot have a m
 
 ```js
 "dependencies": {
-    "ag-grid-community": "^23.0.0" <- a package dependency
-    "@ag-grid-enterprise/all-modules": "^23.0.0"  <- a module dependency
+    "ag-grid-community": "~25.3.0" <- a package dependency
+    "@ag-grid-enterprise/all-modules": "~25.3.0"  <- a module dependency
     //...other dependencies...
 }
 ```
 
-## Installing ag-Grid Modules
+## Installing AG Grid Modules
 
-If you choose to select individual modules then at a minimum the a [Row Model](../row-models/) need to be specified. After that all other modules are optional depending on your requirements.
+If you choose to select individual modules then at a minimum the a [Row Model](/row-models/) need to be specified. After that all other modules are optional depending on your requirements.
 
 There are two ways to supply modules to the grid - either globally or by individual grid.
 
@@ -81,11 +86,11 @@ A real-world example might be that we wish to use the `Client Side Row Model` (t
 
 ```js
 "dependencies": {
-    "@ag-grid-community/client-side-row-model": "^23.0.0",
-    "@ag-grid-community/csv-export": "^23.0.0",
-    "@ag-grid-enterprise/excel-export": "^23.0.0",
-    "@ag-grid-enterprise/master-detail": "^23.0.0",
-    "@ag-grid-community/react": "^23.0.0",
+    "@ag-grid-community/client-side-row-model": "~25.3.0",
+    "@ag-grid-community/csv-export": "~25.3.0",
+    "@ag-grid-enterprise/excel-export": "~25.3.0",
+    "@ag-grid-enterprise/master-detail": "~25.3.0",
+    "@ag-grid-community/react": "~25.3.0",
     //...other dependencies...
 }
 ```
@@ -124,11 +129,11 @@ Using the same real-world example above let us assume that we wish to use the `C
 
 ```js
 "dependencies": {
-    "@ag-grid-community/client-side-row-model": "^23.0.0",
-    "@ag-grid-community/csv-export": "^23.0.0",
-    "@ag-grid-enterprise/excel-export": "^23.0.0",
-    "@ag-grid-enterprise/master-detail": "^23.0.0",
-    "@ag-grid-community/react": "^23.0.0",
+    "@ag-grid-community/client-side-row-model": "~25.3.0",
+    "@ag-grid-community/csv-export": "~25.3.0",
+    "@ag-grid-enterprise/excel-export": "~25.3.0",
+    "@ag-grid-enterprise/master-detail": "~25.3.0",
+    "@ag-grid-community/react": "~25.3.0",
     //...other dependencies...
 }
 ```
@@ -218,11 +223,11 @@ Let us assume we have the following modules specified:
 
 ```js
 "dependencies": {
-    "@ag-grid-community/client-side-row-model": "^23.0.0",
-    "@ag-grid-community/csv-export": "^23.0.0",
-    "@ag-grid-enterprise/excel-export": "^23.0.0",
-    "@ag-grid-enterprise/master-detail": "^23.0.0",
-    "@ag-grid-community/react": "^23.0.0",
+    "@ag-grid-community/client-side-row-model": "~25.3.0",
+    "@ag-grid-community/csv-export": "~25.3.0",
+    "@ag-grid-enterprise/excel-export": "~25.3.0",
+    "@ag-grid-enterprise/master-detail": "~25.3.0",
+    "@ag-grid-community/react": "~25.3.0",
     //...other dependencies...
 }
 ```

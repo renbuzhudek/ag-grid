@@ -3,7 +3,7 @@ import { ICellEditorComp, ICellEditorParams } from "../interfaces/iCellEditor";
 import { ICellRendererComp, ICellRendererFunc, ICellRendererParams } from "../rendering/cellRenderers/iCellRenderer";
 import { Column } from "./column";
 import { GridApi } from "../gridApi";
-import { ColumnApi } from "../columnController/columnApi";
+import { ColumnApi } from "../columns/columnApi";
 import { IHeaderGroupComp } from "../headerRendering/headerGroup/headerGroupComp";
 import { CellClickedEvent, CellContextMenuEvent, CellDoubleClickedEvent } from "../events";
 import { ITooltipComp, ITooltipParams } from "../rendering/tooltipComponent";
@@ -11,6 +11,7 @@ import { ComponentSelectorResult } from "../components/framework/userComponentFa
 import { IRowDragItem } from "../rendering/row/rowDragComp";
 import { IFilterDef } from '../interfaces/iFilter';
 import { ColumnGroup } from "./columnGroup";
+import { RowClassParams } from "./gridOptions";
 
 /***********************************************************************
  * Don't forget to update PropertyKeys if changing this class. PLEASE! *
@@ -57,11 +58,11 @@ export interface ColGroupDef extends AbstractColDef {
     openByDefault?: boolean;
     /** If true, group cannot be broken up by column moving, child columns will always appear side by side, however you can rearrange child columns within the group */
     marryChildren?: boolean;
-    /** The custom header group component to be used for rendering the component header. If none specified the default ag-Grid is used**/
+    /** The custom header group component to be used for rendering the component header. If none specified the default AG Grid is used**/
     headerGroupComponent?: string | { new(): IHeaderGroupComp; };
-    /** The custom header group component to be used for rendering the component header in the hosting framework (ie: React/Angular). If none specified the default ag-Grid is used**/
+    /** The custom header group component to be used for rendering the component header in the hosting framework (ie: React/Angular). If none specified the default AG Grid is used**/
     headerGroupComponentFramework?: any;
-    /** The custom header group component to be used for rendering the component header. If none specified the default ag-Grid is used**/
+    /** The custom header group component to be used for rendering the component header. If none specified the default AG Grid is used**/
     headerGroupComponentParams?: any;
 }
 
@@ -231,7 +232,7 @@ export interface ColDef extends AbstractColDef, IFilterDef {
     pivotComparator?: (valueA: string, valueB: string) => number;
 
     /** Set to true to render a selection checkbox in the column. */
-    checkboxSelection?: boolean | ((params: any) => boolean) | null;
+    checkboxSelection?: boolean | ((params: CheckboxSelectionCallbackParams) => boolean);
 
     /** If true, a 'select all' checkbox will be put into the header */
     headerCheckboxSelection?: boolean | ((params: any) => boolean);
@@ -240,13 +241,13 @@ export interface ColDef extends AbstractColDef, IFilterDef {
     headerCheckboxSelectionFilteredOnly?: boolean;
 
     /** For grid row dragging, set to true to enable row dragging within the grid */
-    rowDrag?: boolean | ((params: any) => boolean);
+    rowDrag?: boolean | ((params: RowDragCallbackParams) => boolean);
 
     /** To configure the text to be displayed in the floating div while dragging a row when rowDrag is true */
     rowDragText?: ((params: IRowDragItem, dragItemCount: number) => string);
 
     /** For native drag and drop, set to true to enable drag source */
-    dndSource?: boolean | ((params: any) => boolean);
+    dndSource?: boolean | ((params: DndSourceCallbackParams) => boolean);
 
     /** For native drag and drop, set to true to allow custom onRowDrag processing */
     dndSourceOnRowDrag?: ((params: { rowNode: RowNode, dragEvent: DragEvent; }) => void);
@@ -301,17 +302,17 @@ export interface ColDef extends AbstractColDef, IFilterDef {
     enableValue?: boolean;
 
     /** Set to true if this col is editable, otherwise false. Can also be a function to have different rows editable. */
-    editable?: boolean | IsColumnFunc;
+    editable?: boolean | ((params: EditableCallbackParams) => boolean);
 
     colSpan?: (params: ColSpanParams) => number;
 
     rowSpan?: (params: RowSpanParams) => number;
 
     /** Set to true if this col should not be allowed take new values from the clipboard . */
-    suppressPaste?: boolean | IsColumnFunc;
+    suppressPaste?: boolean | ((params: SuppressPasteCallbackParams) => boolean);
 
-    /** Set to tru if this col should not be navigable with the tab key. Can also be a function to have different rows editable. */
-    suppressNavigable?: boolean | IsColumnFunc;
+    /** Set to true if this col should not be navigable with the tab key. Can also be a function to have different rows editable. */
+    suppressNavigable?: boolean | ((params: SuppressNavigableCallbackParams) => boolean);
 
     /** To create the quick filter text for this column, if toString is not good enough on the value. */
     getQuickFilterText?: (params: GetQuickFilterTextParams) => string;
@@ -363,9 +364,9 @@ export interface ColDef extends AbstractColDef, IFilterDef {
     /** Never set this, it is used internally by grid when doing in-grid pivoting */
     pivotTotalColumnIds?: string[];
 
-    /** The custom header component to be used for rendering the component header. If none specified the default ag-Grid is used**/
+    /** The custom header component to be used for rendering the component header. If none specified the default AG Grid is used**/
     headerComponent?: string | { new(): any; };
-    /** The custom header component to be used for rendering the component header in the hosting framework (ie: React/Angular). If none specified the default ag-Grid is used**/
+    /** The custom header component to be used for rendering the component header in the hosting framework (ie: React/Angular). If none specified the default AG Grid is used**/
     headerComponentFramework?: any;
     /** The custom header component parameters**/
     headerComponentParams?: any;
@@ -382,11 +383,7 @@ export interface ColDef extends AbstractColDef, IFilterDef {
     columnsMenuParams?: ColumnsMenuParams;
 }
 
-export interface IsColumnFunc {
-    (params: IsColumnFuncParams): boolean;
-}
-
-export interface IsColumnFuncParams {
+export interface ColumnFunctionCallbackParams {
     node: RowNode;
     data: any;
     column: Column;
@@ -395,6 +392,27 @@ export interface IsColumnFuncParams {
     api: GridApi | null | undefined;
     columnApi: ColumnApi | null | undefined;
 }
+
+export interface CheckboxSelectionCallbackParams extends ColumnFunctionCallbackParams {}
+export interface RowDragCallbackParams extends ColumnFunctionCallbackParams {}
+export interface DndSourceCallbackParams extends ColumnFunctionCallbackParams {}
+export interface EditableCallbackParams extends ColumnFunctionCallbackParams {}
+export interface SuppressPasteCallbackParams extends ColumnFunctionCallbackParams {}
+export interface SuppressNavigableCallbackParams extends ColumnFunctionCallbackParams {}
+
+/**
+ * @deprecated
+ * No longer in use. Replaced with (params: ColumnFunctionCallbackParams) => boolean.
+ */
+export interface IsColumnFunc {
+    (params: IsColumnFuncParams): boolean;
+}
+
+/**
+ * @deprecated
+ * Replaced with ColumnFunctionCallbackParams
+ */
+export interface IsColumnFuncParams extends ColumnFunctionCallbackParams {}
 
 export interface GetQuickFilterTextParams {
     value: any;
@@ -451,7 +469,7 @@ export interface ColSpanParams extends BaseColDefParams {
 export interface RowSpanParams extends BaseColDefParams {
 }
 
-export interface SuppressKeyboardEventParams extends IsColumnFuncParams {
+export interface SuppressKeyboardEventParams extends ColumnFunctionCallbackParams {
     // the keyboard event the grid received
     event: KeyboardEvent;
     // whether the cell is editing or not
@@ -468,14 +486,7 @@ export interface SuppressHeaderKeyboardEventParams {
     event: KeyboardEvent;
 }
 
-export interface CellClassParams {
+export interface CellClassParams extends RowClassParams {
+    colDef: ColDef;
     value: any;
-    data: any;
-    node: RowNode;
-    colDef?: ColDef;
-    rowIndex: number;
-    $scope: any;
-    api: GridApi;
-    columnApi: ColumnApi;
-    context: any;
 }

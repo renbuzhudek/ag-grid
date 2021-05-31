@@ -4,9 +4,9 @@ title: "Quick Filter"
 
 In addition to the column specific filtering, a 'quick filter' (influenced by how filtering is done in Google's Gmail) can also be applied. Set the quick filter by using the Grid's API:
 
-```js
-api.setQuickFilter('new filter text');
-```
+<snippet>
+gridOptions.api.setQuickFilter('new filter text');
+</snippet>
 
 If you are using a framework such as Angular or React, you can bind the quick filter text to the `quickFilter` attribute.
 
@@ -16,14 +16,18 @@ The quick filter text will check all words provided against the full row. For ex
 
 If your data contains complex objects, the quick filter will end up comparing against `[object Object]` instead of searchable string values. Alternatively, you might want to format string values specifically for searching (e.g. replace accented characters in strings, or remove commas from numbers). If you want to do this, provide `getQuickFilterText` to the column definition, e.g.:
 
-```js
-colDef = {
-    headerName: 'D', field: 'd',
-    getQuickFilterText: function(params) {
-        return params.value.name;
-    }
+<snippet>
+const gridOptions = {
+    columnDefs: [
+        {
+            field: 'country',
+            getQuickFilterText: params => {
+                return params.value.name;
+            }
+        }
+    ]
 }
-```
+</snippet>
 
 The `params` object contains `{ value, node, data, column, colDef, context }`.
 
@@ -63,5 +67,5 @@ The example also demonstrates having the quick filter cache turned on or off. Th
 
 ## Server Side Data
 
-Quick Filters only make sense with client side data (i.e. when using the [client-side row model](../client-side-model/)). For the other row models you would need to implement your own server-side filtering to replicate Quick Filter functionality.
+Quick Filters only make sense with client side data (i.e. when using the [client-side row model](/client-side-model/)). For the other row models you would need to implement your own server-side filtering to replicate Quick Filter functionality.
 

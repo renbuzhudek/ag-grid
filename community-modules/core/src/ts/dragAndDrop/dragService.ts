@@ -1,7 +1,7 @@
 import { Bean, PreDestroy, Autowired, PostConstruct } from "../context/context";
 import { LoggerFactory, Logger } from "../logger";
 import { DragStartedEvent, DragStoppedEvent, Events } from "../events";
-import { ColumnApi } from "../columnController/columnApi";
+import { ColumnApi } from "../columns/columnApi";
 import { GridApi } from "../gridApi";
 import { BeanStub } from "../context/beanStub";
 import { find, exists } from "../utils/generic";
@@ -9,7 +9,7 @@ import { removeFromArray } from "../utils/array";
 import { addOrRemoveCssClass } from "../utils/dom";
 import { areEventsNear } from "../utils/mouse";
 
-/** Adds drag listening onto an element. In ag-Grid this is used twice, first is resizing columns,
+/** Adds drag listening onto an element. In AG Grid this is used twice, first is resizing columns,
  * second is moving the columns and column groups around (ie the 'drag' part of Drag and Drop. */
 @Bean('dragService')
 export class DragService extends BeanStub {
@@ -66,7 +66,7 @@ export class DragService extends BeanStub {
         const eDocument = this.gridOptionsWrapper.getDocument();
         const eBody = eDocument.querySelector('body') as HTMLElement;
         if (exists(eBody)) {
-            // when we drag the mouse in ag-Grid, this class gets added / removed from the body, so that
+            // when we drag the mouse in AG Grid, this class gets added / removed from the body, so that
             // the mouse isn't selecting text when dragging.
             addOrRemoveCssClass(eBody, 'ag-unselectable', noSelect);
         }

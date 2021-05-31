@@ -1,7 +1,7 @@
 import React from 'react';
-import { localPrefix, agGridVersion, agChartsVersion } from './consts';
+import { localPrefix, agGridVersion, agChartsVersion } from 'utils/consts';
 import { isUsingPublishedPackages } from './helpers';
-import isDevelopment from '../../utils/is-development';
+import isDevelopment from 'utils/is-development';
 
 const localConfiguration = {
     gridMap: {
@@ -30,6 +30,7 @@ const localConfiguration = {
         "@ag-grid-community/react": `${localPrefix}/@ag-grid-community/react`,
         "@ag-grid-community/angular": `${localPrefix}/@ag-grid-community/angular`,
         "@ag-grid-community/vue": `${localPrefix}/@ag-grid-community/vue`,
+        "@ag-grid-community/vue3": `${localPrefix}/@ag-grid-community/vue3`,
         "ag-charts-react": `${localPrefix}/ag-charts-react`,
         "ag-charts-angular": `${localPrefix}/ag-charts-angular`,
         "ag-charts-vue": `${localPrefix}/ag-charts-vue`,
@@ -37,7 +38,8 @@ const localConfiguration = {
         "ag-grid-enterprise": `${localPrefix}/ag-grid-enterprise`,
         "ag-grid-angular": `${localPrefix}/ag-grid-angular`,
         "ag-grid-react": `${localPrefix}/ag-grid-react`,
-        "ag-grid-vue": `${localPrefix}/ag-grid-vue`
+        "ag-grid-vue": `${localPrefix}/ag-grid-vue`,
+        "ag-grid-vue3": `${localPrefix}/ag-grid-vue3`
     },
     gridCommunityPaths: {
         /* START OF GRID COMMUNITY MODULES PATHS DEV - DO NOT DELETE */
@@ -115,11 +117,12 @@ const publishedConfiguration = {
         "@ag-grid-community/react": `https://unpkg.com/@ag-grid-community/react@${agGridVersion}/`,
         "@ag-grid-community/angular": `https://unpkg.com/@ag-grid-community/angular@${agGridVersion}/`,
         "@ag-grid-community/vue": `https://unpkg.com/@ag-grid-community/vue@${agGridVersion}/`,
+        "@ag-grid-community/vue3": `https://unpkg.com/@ag-grid-community/vue3@${agGridVersion}/`,
         "ag-grid-community": `https://unpkg.com/ag-grid-community@${agGridVersion}/`,
         "ag-grid-enterprise": `https://unpkg.com/ag-grid-enterprise@${agGridVersion}/`,
         "ag-grid-angular": `https://unpkg.com/ag-grid-angular@${agGridVersion}/`,
         "ag-grid-react": `https://unpkg.com/ag-grid-react@${agGridVersion}/`,
-        "ag-grid-vue": `https://unpkg.com/ag-grid-vue@${agGridVersion}/`
+        "ag-grid-vue3": `https://unpkg.com/ag-grid-vue3@${agGridVersion}/`
     },
     gridCommunityPaths: {
         /* START OF GRID COMMUNITY MODULES PATHS PROD - DO NOT DELETE */
@@ -167,6 +170,10 @@ const publishedConfiguration = {
     chartPaths: {}
 };
 
+/**
+ * Our framework examples use SystemJS to load the various dependencies. This component is used to insert the required
+ * code to load SystemJS and the relevant modules depending on the framework.
+ */
 const SystemJs = ({ library, boilerplatePath, appLocation, startFile, options }) => {
     const { enterprise: isEnterprise } = options;
     const systemJsPath = `${boilerplatePath}systemjs.config${isDevelopment() ? '.dev' : ''}.js`;
@@ -223,16 +230,19 @@ const SystemJs = ({ library, boilerplatePath, appLocation, startFile, options })
 
     return <>
         <script dangerouslySetInnerHTML={{
-            __html: `var appLocation = '${appLocation}';
-        var boilerplatePath = '${boilerplatePath}';
-        var systemJsMap = ${JSON.stringify(systemJsMap, null, 2)};
-        ${Object.keys(systemJsPaths).length > 0 ? `var systemJsPaths = ${JSON.stringify(systemJsPaths, null, 2)};` : ''}`
-        }}></script>
-
-        <script src="https://unpkg.com/systemjs@0.19.47/dist/system.js"></script>
-        <script src={systemJsPath}></script>
-        <script dangerouslySetInnerHTML={{ __html: `System.import('${startFile}').catch(function(err) { console.error(err); });` }}></script>
+            __html: `
+            var appLocation = '${appLocation}';
+            var boilerplatePath = '${boilerplatePath}';
+            var systemJsMap = ${format(systemJsMap)};
+            ${Object.keys(systemJsPaths).length > 0 ? `var systemJsPaths = ${format(systemJsPaths)};` : ''}
+        `
+        }} />
+        <script src="https://unpkg.com/systemjs@0.19.47/dist/system.js" />
+        <script src={systemJsPath} />
+        <script dangerouslySetInnerHTML={{ __html: `System.import('${startFile}').catch(function(err) { console.error(err); });` }} />
     </>;
 };
+
+const format = value => JSON.stringify(value, null, 4).replace(/\n/g, '\n            ');
 
 export default SystemJs;

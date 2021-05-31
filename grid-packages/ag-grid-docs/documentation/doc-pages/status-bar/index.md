@@ -25,20 +25,22 @@ The status bar is configured using the `statusBar` grid option. The option takes
 
 If `align` is not specified the components will default to being aligned to the right.
 
-`key` is useful for accessing status bar component instances - [see here](../status-bar-component/#accessing-status-bar-panel-instances) for more information.</p>
+`key` is useful for accessing status bar component instances - [see here](/component-status-bar/#accessing-status-bar-panel-instances) for more information.</p>
 
 The snippet below shows a status bar configured with the grid provided components.
 
-```js
-gridOptions: {
+<snippet>
+const gridOptions = {
     statusBar: {
         statusPanels: [
-            { statusPanel: 'agTotalAndFilteredRowCountComponent', align: 'left' }
+            {
+                statusPanel: 'agTotalAndFilteredRowCountComponent',
+                align: 'left',
+            }
         ]
     }
-    // ...other grid properties
 }
-```
+</snippet>
 
 ### Component Alignment
 
@@ -58,7 +60,7 @@ The example below shows a simply configured status bar. Note the following:
 
 ### Configuring The Aggregation Panel
 
-If you have multiple ranges selected (by holding down ctrl while dragging) and a cell is in multiple ranges, the cell will be only included once in the aggregation.
+If you have multiple ranges selected (by holding down <kbd>Ctrl</kbd> while dragging) and a cell is in multiple ranges, the cell will be only included once in the aggregation.
 
 If the cell does not contain a simple number value, then it will not be included in average, min max or sum, however it will still be included in count.
 
@@ -70,8 +72,8 @@ By default all of the aggregations available will be displayed but you can confi
 
 In this code snippet we have configured the aggregation component to only show `min, max and average`:
 
-```js
-gridOptions: {
+<snippet>
+const gridOptions = {
     statusBar: {
         statusPanels: [
             {
@@ -83,15 +85,14 @@ gridOptions: {
             }
         ]
     }
-    // ...other grid properties
 }
-```
+</snippet>
 
 ### Accessing Status Panels
 
 Accessing status panel instances is possible using `api.getStatusPanel(key)`. The key will be the value provided in the component configuration (see above), but will default to the component name if not provided.
 
-See [Accessing Status Bar Panel Instances](../component-status-bar/#accessing-status-bar-comp-instances) for more information.
+See [Accessing Status Bar Panel Instances](/component-status-bar/#accessing-status-bar-comp-instances) for more information.
 
 ## Configuration with Component Parameters
 
@@ -99,8 +100,8 @@ Some of the status panel components, or your own custom components, can take fur
 
 The snippet below shows a status bar configured with the grid provided aggregation component only. The component is further configured to only show average and sum functions.
 
-```js
-gridOptions: {
+<snippet>
+const gridOptions = {
     statusBar: {
         statusPanels: [
             {
@@ -112,9 +113,8 @@ gridOptions: {
             }
         ]
     }
-    // ...other grid properties
 }
-```
+</snippet>
 
 ### Example Component Parameters
 
@@ -162,6 +162,6 @@ To force the the status bar to have a fixed height, add CSS to the status bar di
 
 ## Custom Status Bar Components
 
-Applications that are not using the [Client-Side Row Model](../client-side-model/) or which require bespoke status bar panels can provide their own custom status bar components.
+Applications that are not using the [Client-Side Row Model](/client-side-model/) or which require bespoke status bar panels can provide their own custom status bar components.
 
-For more details see the following section: [Status Bar Panels (Components)](../component-status-bar/).
+For more details see the following section: [Status Bar Panels (Components)](/component-status-bar/).

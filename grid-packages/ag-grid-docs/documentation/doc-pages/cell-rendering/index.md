@@ -14,34 +14,37 @@ The cell editor for a column is set via `colDef.cellRenderer` and can be any of 
 
 The code snippet below demonstrates each of these method types.
 
-
-```js
-// 1 - undefined / null - Grid renders the value as a string.
-var colDef1 = {
-    cellRenderer: null,
-    ...
+<snippet spaceBetweenProperties="true">
+const gridOptions = {
+    columnDefs: [
+        // 1 - undefined / null - Grid renders the value as a string.
+        {
+            field: 'name',
+            cellRenderer: null,
+        },
+        // 2 - String - The name of a cell renderer registered with the grid.
+        {
+            field: 'age',
+            cellRenderer: 'agGroupCellRenderer',
+        },
+        // 3 - Class - Provide your own cell renderer component directly without registering.
+        {
+            field: 'sport',
+            cellRenderer: MyCustomCellRendererClass,
+        },
+        // 4 - Function - A function that returns an HTML string or DOM element for display
+        {
+            field: 'year',
+            cellRenderer: params => {
+                // put the value in bold
+                return 'Value is **' + params.value + '**';
+            }
+        }
+    ]
 }
+</snippet>
 
-// 2 - String - The name of a cell renderer registered with the grid.
-var colDef2 = {
-    cellRenderer: 'agGroupCellRenderer',
-    ...
-}
-
-// 3 - Class - Provide your own cell renderer component directly without registering.
-var colDef3 = {
-    cellRenderer: MyCustomCellRendererClass,
-    ...
-}
-
-// 4 - Function - A function that returns an HTML string or DOM element for display
-var colDef3 = function(params) {
-    // put the value in bold
-    return 'Value is **'+params.value+'**';
-}
-```
-
-This remainder of this documentation page goes through the grid provided cell renderer's. To build your own cell renderer see the section [Cell Rendering Components](../component-cell-renderer/).
+This remainder of this documentation page goes through the grid provided cell renderer's. To build your own cell renderer see the section [Cell Rendering Components](/component-cell-renderer/).
 
 ## No Cell Renderer
 
@@ -51,7 +54,7 @@ If you just want to do simple formatting of the data (eg currency or date format
 
 ## Cell Renderer Components
 
-Cell renderer components can be referenced by string or directly by class. They can be [Provided Cell Renderers](#provided-cell-renderers) (that come with the grid) or [Custom Cell Renderers](../component-cell-renderer/) (built by you).
+Cell renderer components can be referenced by string or directly by class. They can be [Provided Cell Renderers](#provided-cell-renderers) (that come with the grid) or [Custom Cell Renderers](/component-cell-renderer/) (built by you).
 
 ## Many Renderers One Column
 
@@ -66,26 +69,26 @@ The following example illustrates how to use different renderers and parameters 
 - `colDef.cellRendererSelector` is a function that selects the renderer based on the row data.
 
     ```js
-        cellRendererSelector:function (params) {
-            var moodDetails = {
-                component: 'moodCellRenderer'
-            };
+    cellRendererSelector: params => {
+        const moodDetails = {
+            component: 'moodCellRenderer'
+        };
 
-            var genderDetails = {
-                component: 'genderCellRenderer',
-                params: {values: ['Male', 'Female']}
-            };
+        const genderDetails = {
+            component: 'genderCellRenderer',
+            params: {values: ['Male', 'Female']}
+        };
 
-            if (params.data.type === 'gender') {
-                return genderDetails;
-            }
-                
-            if (params.data.type === 'mood') {
-                return moodDetails;
-            }
-
-            return null;
+        if (params.data.type === 'gender') {
+            return genderDetails;
         }
+
+        if (params.data.type === 'mood') {
+            return moodDetails;
+        }
+
+        return null;
+    }
     ```
 
 - The column 'Rendered Value' show the data rendered applying the component and params specified by `colDef.cellRendererSelector`
@@ -114,7 +117,7 @@ Notice the following in the example below:
 
 The grid comes with some provided cell renderers out of the box. These cell renderers cover some common complex cell rendering requirements.
 
-- [Group Cell Renderer](../group-cell-renderer/): For showing group details with expand & collapse functionality when using any of the [Row Grouping](../grouping/), [Master Detail](../master-detail/) or [Tree Data](../tree-data/).
+- [Group Cell Renderer](/group-cell-renderer/): For showing group details with expand & collapse functionality when using any of the [Row Grouping](/grouping/), [Master Detail](/master-detail/) or [Tree Data](/tree-data/).
 
-- [Show Change Cell Renderers](../change-cell-renderers/): For animating changes when data is changing.
+- [Show Change Cell Renderers](/change-cell-renderers/): For animating changes when data is changing.
 

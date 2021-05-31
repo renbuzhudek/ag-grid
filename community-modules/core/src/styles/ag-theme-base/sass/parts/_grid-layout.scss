@@ -9,8 +9,8 @@
         @include ag-border(primary);
     }
     
-    // support 20 levels here because row group indentation is used for tree data which can be quite deep
-    @for $i from 1 to 20 {
+    // support 100 levels here because row group indentation is used for tree data which can be quite deep
+    @for $i from 1 to 100 {
         .ag-row > .ag-cell-wrapper.ag-row-group-indent-#{$i} {
             @include ag-theme-rtl(( padding-left: ag-param(cell-horizontal-padding) + $i * ag-param(row-group-indent-size) ));
         }
@@ -19,9 +19,13 @@
             @include ag-theme-rtl(( padding-left: $i * ag-param(row-group-indent-size) ));
         }
 
-        .ag-row-level-#{$i} .ag-row-group-leaf-indent {
+        .ag-row-level-#{$i} .ag-pivot-leaf-group {
             @include ag-theme-rtl(( margin-left: ag-param(row-group-indent-size) ));
         }
+    }
+
+    .ag-row-group-leaf-indent {
+        @include ag-theme-rtl(( margin-left: ag-param(row-group-indent-size) ));
     }
 
     .ag-value-change-delta {
@@ -121,11 +125,12 @@
     }
 
     // right-align numeric values in cells with wrappers
-    .ag-right-aligned-cell .ag-cell-value {
+    .ag-right-aligned-cell .ag-cell-value,
+    .ag-right-aligned-cell .ag-group-value {
         @include ag-theme-rtl(( margin-left: auto ));
     }
 
-    .ag-cell {
+    .ag-cell, .ag-full-width-row .ag-cell-wrapper.ag-row-group {
         // draw a transparent border so that the cell size doesn't change when we add a range border
         border: 1px solid transparent;
         // adjust for transparent border

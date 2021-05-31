@@ -12,25 +12,28 @@ Expressions can be used in two different ways as follows:
 
 Expressions can be used inside column definitions instead of using functions for the getters, setters, formatters and parsers. To use an expression instead of a function, just put what the body of the function into a string.
 
-```js
-// this is using standard functions
-colDef = {
-    valueGetter: function(params) { return params.data.firstName; },
-    valueFormatter: function(params) { return params.value.toUpperCase(); }
-    ...
-};
-
-// this is the same as above but using expressions
-colDef = {
-    valueGetter: 'data.firstName',
-    valueFormatter: 'value.toUpperCase()'
-    ...
-};
-```
+<snippet>
+const gridOptions = {
+    columnDefs: [
+        // column definition using standard functions
+        {
+            field: 'employee',
+            valueGetter: params => params.data.firstName,
+            valueFormatter: params => params.value.toUpperCase(),
+        },
+        // column definition using expressions
+        {
+            field: 'manager',
+            valueGetter: 'data.firstName',
+            valueFormatter: 'value.toUpperCase()'
+        }
+    ]
+}
+</snippet>
 
 ## Example Column Definition Expressions
 
-Below is a very similar example to ["Example: Getters, Setters, Formatters, Parsers"](../value-getters/#example-value-getters). The difference is that expressions are used instead of functions. For example, where a `valueGetter` is used, a string is provided instead of a function.
+Below is a very similar example to ["Example: Getters, Setters, Formatters, Parsers"](/value-getters/#example-value-getters). The difference is that expressions are used instead of functions. For example, where a `valueGetter` is used, a string is provided instead of a function.
 
 <grid-example title='Column Definition Expressions' name='column-definition-expressions' type='mixed' options='{ "exampleHeight": 560 }'></grid-example>
 
@@ -76,8 +79,8 @@ Cell Expressions bring the expression power to the cell level, so your grid can 
 [[note]]
 | Although you can put expressions into cells like Excel, the intention is that your application
 | will decide what the expressions are. It is not intended that you give this power to your user
-| and have the cells editable. This is because ag-Grid is not trying to give Excel expressions
-| to the user, rather ag-Grid is giving you, the developer, the power to design reports and
+| and have the cells editable. This is because AG Grid is not trying to give Excel expressions
+| to the user, rather AG Grid is giving you, the developer, the power to design reports and
 | include JavaScript logic inside the cells.
 
 To enable cell expressions, set `enableCellExpressions=true` in the gridOptions. Then, whenever the grid comes across a value starting with '=', it will treat it as an expression.
@@ -106,7 +109,7 @@ When you provide and expression to the grid, the grid converts the expression in
 colDef.valueGetter = 'data.firstName';
 
 // the grid will then compile the above to this:
-___compiledValueGetter = function(node, data, colDef, column, api, columnApi, context, getValue) {
+___compiledValueGetter = (node, data, colDef, column, api, columnApi, context, getValue) => {
     return data.firstName;
 }
 ```

@@ -34,6 +34,9 @@ export interface AgChartThemeOverrides {
     polar?: AgPolarChartOptions<AgPolarAxesTheme, AgPolarSeriesTheme>;
     pie?: AgPolarChartOptions<AgPolarAxesTheme, AgPieSeriesOptions>;
 
+    hierarchy?: AgHierarchyChartOptions<AgHierarchySeriesTheme>;
+    treemap?: AgHierarchyChartOptions<AgHierarchySeriesOptions>;
+
     common?: any;
 }
 
@@ -45,12 +48,14 @@ interface AgCartesianAxisThemeOptions<T> {
 }
 
 export interface AgNumberAxisThemeOptions extends Omit<AgNumberAxisOptions, 'type'>, AgCartesianAxisThemeOptions<AgNumberAxisOptions> {}
+export interface AgLogAxisThemeOptions extends Omit<AgLogAxisOptions, 'type'>, AgCartesianAxisThemeOptions<AgLogAxisOptions> {}
 export interface AgCategoryAxisThemeOptions extends Omit<AgCategoryAxisOptions, 'type'>, AgCartesianAxisThemeOptions<AgCategoryAxisOptions> {}
 export interface AgGroupedCategoryAxisThemeOptions extends Omit<AgGroupedCategoryAxisOptions, 'type'>, AgCartesianAxisThemeOptions<AgGroupedCategoryAxisOptions> {}
 export interface AgTimeAxisThemeOptions extends Omit<AgTimeAxisOptions, 'type'>, AgCartesianAxisThemeOptions<AgTimeAxisOptions> {}
 
 export interface AgCartesianAxesTheme {
     number?: AgNumberAxisThemeOptions;
+    log?: AgLogAxisThemeOptions;
     category?: AgCategoryAxisThemeOptions;
     groupedCategory?: AgGroupedCategoryAxisThemeOptions;
     time?: AgTimeAxisThemeOptions;
@@ -72,6 +77,10 @@ export interface AgPolarAxesTheme {
 
 export interface AgPolarSeriesTheme {
     pie?: AgPieSeriesOptions;
+}
+
+export interface AgHierarchySeriesTheme {
+    treemap?: AgTreemapSeriesOptions;
 }
 
 export interface AgChartPaddingOptions {
@@ -307,6 +316,14 @@ interface AgNumberAxisOptions extends AgBaseCartesianAxisOptions {
     max?: number;
 }
 
+interface AgLogAxisOptions extends AgBaseCartesianAxisOptions {
+    type: 'log';
+    nice?: boolean;
+    min?: number;
+    max?: number;
+    base?: number;
+}
+
 interface AgCategoryAxisOptions extends AgBaseCartesianAxisOptions {
     type: 'category';
     paddingInner?: number;
@@ -324,6 +341,7 @@ interface AgTimeAxisOptions extends AgBaseCartesianAxisOptions {
 
 export type AgCartesianAxisOptions =
     AgNumberAxisOptions |
+    AgLogAxisOptions |
     AgCategoryAxisOptions |
     AgGroupedCategoryAxisOptions |
     AgTimeAxisOptions;
@@ -338,6 +356,7 @@ interface AgBaseSeriesOptions {
     data?: any[];
     visible?: boolean;
     showInLegend?: boolean;
+    cursor?: string;
     listeners?: { [key in string]: Function };
 }
 
@@ -537,6 +556,7 @@ export interface AgAreaSeriesOptions extends AgBaseSeriesOptions {
 
 interface AgBarSeriesLabelOptions extends AgChartLabelOptions {
     formatter?: (params: { value: number; }) => string;
+    placement?: 'inside' | 'outside';
 }
 
 export interface AgBarSeriesFormatterParams {
@@ -694,6 +714,50 @@ interface AgPieSeriesTooltipRendererParams extends AgPolarSeriesTooltipRendererP
     labelName?: string;
 }
 
+interface AgTreemapSeriesLabelOptions extends AgChartLabelOptions {
+    padding?: number;
+}
+
+interface AgTreemapNodeDatum {
+    data: any;
+    parent?: AgTreemapNodeDatum;
+    children?: AgTreemapNodeDatum[];
+    depth: number;
+}
+
+interface AgTreemapSeriesTooltipRendererParams {
+    datum: AgTreemapNodeDatum;
+    sizeKey: string;
+    labelKey: string;
+    valueKey: string;
+    color: string;
+}
+
+export interface AgTreemapSeriesTooltip extends AgSeriesTooltip {
+    renderer?: (params: AgTreemapSeriesTooltipRendererParams) => string | AgTooltipRendererResult;
+}
+
+export interface AgTreemapSeriesOptions extends AgBaseSeriesOptions {
+    type?: 'treemap';
+    title?: AgTreemapSeriesLabelOptions;
+    subtitle?: AgTreemapSeriesLabelOptions;
+    labels?: {
+        large?: AgChartLabelOptions;
+        medium?: AgChartLabelOptions;
+        small?: AgChartLabelOptions;
+        value?: AgChartLabelOptions;
+    },
+    labelKey?: string;
+    sizeKey?: string;
+    colorKey?: string;
+    colorDomain?: number[];
+    colorRange?: string[];
+    colorParents?: boolean;
+    tooltip?: AgTreemapSeriesTooltip;
+    nodePadding?: number;
+    gradient?: boolean;
+}
+
 type AgCartesianSeriesOptions =
     AgLineSeriesOptions |
     AgScatterSeriesOptions |
@@ -703,6 +767,8 @@ type AgCartesianSeriesOptions =
     AgOHLCSeriesOptions;
 
 type AgPolarSeriesOptions = AgPieSeriesOptions;
+
+type AgHierarchySeriesOptions = AgTreemapSeriesOptions;
 
 export interface AgCartesianChartOptions<TAxisOptions = AgCartesianAxisOptions[], TSeriesOptions = AgCartesianSeriesOptions[]> extends AgBaseChartOptions {
     type?: 'cartesian' | 'groupedCategory' | 'line' | 'bar' | 'column' | 'area' | 'scatter' | 'ohlc';
@@ -716,4 +782,10 @@ export interface AgPolarChartOptions<TAxisOptions = AgPolarAxisOptions[], TSerie
     series?: TSeriesOptions;
 }
 
-export type AgChartOptions = AgCartesianChartOptions | AgPolarChartOptions;
+export interface AgHierarchyChartOptions<TSeriesOptions = AgHierarchySeriesOptions[]> extends AgBaseChartOptions {
+    type?: 'hierarchy' | 'treemap';
+    data?: any;
+    series?: TSeriesOptions;
+}
+
+export type AgChartOptions = AgCartesianChartOptions | AgPolarChartOptions | AgHierarchyChartOptions;

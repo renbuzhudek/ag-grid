@@ -21,6 +21,10 @@ import { NavigatorMask } from "./navigator/navigatorMask";
 import { NavigatorHandle } from "./navigator/navigatorHandle";
 import { CartesianSeriesMarker } from "./series/cartesian/cartesianSeries";
 import { Chart } from "./chart";
+import { HierarchyChart } from "./hierarchyChart";
+import { TreemapSeries, TreemapSeriesLabel } from "./series/hierarchy/treemapSeries";
+import { LogAxis } from "./axis/logAxis";
+import { Label } from "./label";
 
 /*
     This file defines the specs for creating different kinds of charts, but
@@ -62,7 +66,7 @@ const commonChartMappings: any = {
         meta: {
             constructor: Caption,
             defaults: {
-                enabled: true,
+                enabled: false,
                 padding: {
                     meta: {
                         constructor: Padding,
@@ -87,7 +91,7 @@ const commonChartMappings: any = {
         meta: {
             constructor: Caption,
             defaults: {
-                enabled: true,
+                enabled: false,
                 padding: {
                     meta: {
                         constructor: Padding,
@@ -144,7 +148,8 @@ const commonChartMappings: any = {
                         fontStyle: undefined,
                         fontWeight: undefined,
                         fontSize: 12,
-                        fontFamily: 'Verdana, sans-serif'
+                        fontFamily: 'Verdana, sans-serif',
+                        formatter: undefined
                     }
                 }
             }
@@ -190,6 +195,7 @@ const chartMeta = {
 const axisDefaults: any = {
     defaults: {
         visibleRange: [0, 1],
+        thickness: 0,
         label: {},
         tick: {},
         title: {},
@@ -204,6 +210,7 @@ const axisDefaults: any = {
 const seriesDefaults: any = {
     visible: true,
     showInLegend: true,
+    cursor: 'default',
     listeners: undefined
 };
 
@@ -213,7 +220,7 @@ const columnSeriesDefaults: any = {
     xKey: '',
     xName: '',
     yKeys: [],
-    yNames: [],
+    yNames: {},
     grouped: false,
     normalizedTo: undefined,
     strokeWidth: 1,
@@ -254,7 +261,8 @@ const barLabelMapping: any = {
         meta: {
             defaults: {
                 ...labelDefaults,
-                formatter: undefined
+                formatter: undefined,
+                placement: 'inside'
             }
         }
     }
@@ -285,7 +293,6 @@ const axisMappings: any = {
         meta: {
             constructor: Caption,
             defaults: {
-                enabled: true,
                 padding: {
                     meta: {
                         constructor: Padding,
@@ -360,6 +367,15 @@ const mappings: any = {
                 },
                 ...axisMappings
             },
+            [LogAxis.type]: {
+                meta: {
+                    constructor: LogAxis,
+                    setAsIs: ['gridStyle', 'visibleRange'],
+                    ...axisDefaults,
+                    base: 10
+                },
+                ...axisMappings
+            },
             [CategoryAxis.type]: {
                 meta: {
                     constructor: CategoryAxis,
@@ -389,7 +405,7 @@ const mappings: any = {
             column: {
                 meta: {
                     constructor: BarSeries,
-                    setAsIs: ['lineDash'],
+                    setAsIs: ['lineDash', 'yNames'],
                     defaults: {
                         flipXY: false, // vertical bars
                         ...seriesDefaults,
@@ -404,7 +420,7 @@ const mappings: any = {
             [BarSeries.type]: {
                 meta: {
                     constructor: BarSeries,
-                    setAsIs: ['lineDash'],
+                    setAsIs: ['lineDash', 'yNames'],
                     defaults: {
                         flipXY: true, // horizontal bars
                         ...seriesDefaults,
@@ -711,6 +727,134 @@ const mappings: any = {
                 ...shadowMapping
             }
         }
+    },
+    [HierarchyChart.type]: {
+        meta: {
+            constructor: HierarchyChart,
+            ...chartMeta,
+            defaults: {
+                ...chartDefaults
+            }
+        },
+        ...commonChartMappings,
+        series: {
+            [TreemapSeries.type]: {
+                meta: {
+                    constructor: TreemapSeries,
+                    defaults: {
+                        ...seriesDefaults,
+                        showInLegend: false,
+                        labelKey: 'label',
+                        sizeKey: 'size',
+                        colorKey: 'color',
+                        colorDomain: [-5, 5],
+                        colorRange: ['#cb4b3f', '#6acb64'],
+                        colorParents: false,
+                        gradient: true,
+                        nodePadding: 2,
+                        title: {},
+                        subtitle: {},
+                        labels: {
+                            large: {},
+                            medium: {},
+                            small: {},
+                            color: {}
+                        }
+                    }
+                },
+                ...tooltipMapping,
+                title: {
+                    meta: {
+                        constructor: TreemapSeriesLabel,
+                        defaults: {
+                            enabled: true,
+                            color: 'white',
+                            fontStyle: undefined,
+                            fontWeight: 'bold',
+                            fontSize: 12,
+                            fontFamily: 'Verdana, sans-serif',
+                            padding: 15
+                        }
+                    }
+                },
+                subtitle: {
+                    meta: {
+                        constructor: TreemapSeriesLabel,
+                        defaults: {
+                            enabled: true,
+                            color: 'white',
+                            fontStyle: undefined,
+                            fontWeight: undefined,
+                            fontSize: 9,
+                            fontFamily: 'Verdana, sans-serif',
+                            padding: 13
+                        }
+                    }
+                },
+                labels: {
+                    meta: {
+                        defaults: {
+                            large: {},
+                            medium: {},
+                            small: {},
+                            color: {}
+                        }
+                    },
+                    large: {
+                        meta: {
+                            constructor: Label,
+                            defaults: {
+                                enabled: true,
+                                fontStyle: undefined,
+                                fontWeight: 'bold',
+                                fontSize: 18,
+                                fontFamily: 'Verdana, sans-serif',
+                                color: 'white'
+                            }
+                        }
+                    },
+                    medium: {
+                        meta: {
+                            constructor: Label,
+                            defaults: {
+                                enabled: true,
+                                fontStyle: undefined,
+                                fontWeight: 'bold',
+                                fontSize: 14,
+                                fontFamily: 'Verdana, sans-serif',
+                                color: 'white'
+                            }
+                        }
+                    },
+                    small: {
+                        meta: {
+                            constructor: Label,
+                            defaults: {
+                                enabled: true,
+                                fontStyle: undefined,
+                                fontWeight: 'bold',
+                                fontSize: 10,
+                                fontFamily: 'Verdana, sans-serif',
+                                color: 'white'
+                            }
+                        }
+                    },
+                    color: {
+                        meta: {
+                            constructor: Label,
+                            defaults: {
+                                enabled: true,
+                                fontStyle: undefined,
+                                fontWeight: undefined,
+                                fontSize: 12,
+                                fontFamily: 'Verdana, sans-serif',
+                                color: 'white'
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 };
 
@@ -718,7 +862,8 @@ const mappings: any = {
 {
     const typeToAliases: { [key in string]: string[] } = {
         cartesian: ['line', 'area', 'bar', 'column'],
-        polar: ['pie']
+        polar: ['pie'],
+        hierarchy: ['treemap']
     };
     for (const type in typeToAliases) {
         typeToAliases[type].forEach(alias => {

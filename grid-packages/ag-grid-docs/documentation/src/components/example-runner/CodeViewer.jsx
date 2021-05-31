@@ -1,36 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import classnames from 'classnames';
-import Prism from 'prismjs';
-import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-bash';
-import 'prismjs/components/prism-jsx';
-import 'prismjs/components/prism-java';
-import 'prismjs/components/prism-sql';
-import 'prismjs/components/prism-diff';
-import 'prismjs/components/prism-scss';
-import isServerSideRendering from '../../utils/is-server-side-rendering';
+import isServerSideRendering from 'utils/is-server-side-rendering';
 import { getEntryFile, getExampleFiles } from './helpers';
-import { doOnEnter } from '../key-handlers';
+import { doOnEnter } from 'components/key-handlers';
 import styles from './CodeViewer.module.scss';
+import Code from '../Code';
 
-const updateFiles = (exampleInfo, setFiles, setActiveFile) => {
-    if (isServerSideRendering()) { return; }
-
-    const { framework } = exampleInfo;
-
-    getExampleFiles(exampleInfo).then(files => {
-        setFiles(files);
-
-        const entryFile = getEntryFile(framework);
-
-        if (files[entryFile]) {
-            setActiveFile(entryFile);
-        } else {
-            setActiveFile(Object.keys(files).sort()[0]);
-        }
-    });
-};
-
+/**
+ * This renders the code viewer in the example runner.
+ */
 const CodeViewer = ({ isActive, exampleInfo }) => {
     const [files, setFiles] = useState(null);
     const [activeFile, setActiveFile] = useState(null);
@@ -60,6 +38,24 @@ const CodeViewer = ({ isActive, exampleInfo }) => {
     </div>;
 };
 
+const updateFiles = (exampleInfo, setFiles, setActiveFile) => {
+    if (isServerSideRendering()) { return; }
+
+    const { framework } = exampleInfo;
+
+    getExampleFiles(exampleInfo).then(files => {
+        setFiles(files);
+
+        const entryFile = getEntryFile(framework);
+
+        if (files[entryFile]) {
+            setActiveFile(entryFile);
+        } else {
+            setActiveFile(Object.keys(files).sort()[0]);
+        }
+    });
+};
+
 const FileItem = ({ path, isActive, onClick }) =>
     <div
         className={classnames(styles['code-viewer__file'], { [styles['code-viewer__file--active']]: isActive })}
@@ -71,25 +67,16 @@ const FileItem = ({ path, isActive, onClick }) =>
         {path}
     </div>;
 
-const LanguageMap = {
-    js: Prism.languages.javascript,
-    ts: Prism.languages.typescript,
-    css: Prism.languages.css,
-    sh: Prism.languages.bash,
-    html: Prism.languages.html,
-    jsx: Prism.languages.jsx,
-    java: Prism.languages.java,
-    sql: Prism.languages.sql,
-    vue: Prism.languages.html,
-    diff: Prism.languages.diff,
-    scss: Prism.languages.scss
+const ExtensionMap = {
+    sh: 'bash',
+    vue: 'html',
 };
 
 const FileView = ({ path, code }) => {
     const parts = path.split('.');
     const extension = parts[parts.length - 1];
 
-    return <pre className="language-"><code dangerouslySetInnerHTML={{ __html: Prism.highlight(code || '', LanguageMap[extension]) }}></code></pre>;
+    return <Code code={code} language={ExtensionMap[extension] || extension} />;
 };
 
 export default CodeViewer;

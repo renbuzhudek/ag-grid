@@ -25,6 +25,8 @@ export interface VisibleChangedEvent extends AgEvent {
     visible: boolean;
 }
 
+export let elementGettingCreated: HTMLElement;
+
 export class Component extends BeanStub {
 
     public static EVENT_DISPLAYED_CHANGED = 'displayedChanged';
@@ -62,8 +64,8 @@ export class Component extends BeanStub {
         }
     }
 
-    @PostConstruct
-    private postConstructOnComponent(): void {
+    @PreConstruct
+    private preConstructOnComponent(): void {
         this.usingBrowserTooltips = this.gridOptionsWrapper.isEnableBrowserTooltips();
     }
 
@@ -78,7 +80,7 @@ export class Component extends BeanStub {
         };
     }
 
-    public setTooltip(newTooltipText: string | undefined): void {
+    public setTooltip(newTooltipText?: string | null): void {
 
         const removeTooltip = () => {
             if (this.usingBrowserTooltips) {
@@ -101,10 +103,12 @@ export class Component extends BeanStub {
                 removeTooltip();
             }
 
-            this.tooltipText = newTooltipText;
+            if (newTooltipText != null) {
+                this.tooltipText = newTooltipText;
 
-            if (this.tooltipText) {
-                addTooltip();
+                if (this.tooltipText) {
+                    addTooltip();
+                }
             }
         }
     }
@@ -153,7 +157,10 @@ export class Component extends BeanStub {
         const ComponentClass = this.agStackComponentsRegistry.getComponentClass(key);
 
         if (ComponentClass) {
+            elementGettingCreated = element;
             const newComponent = new ComponentClass(componentParams) as Component;
+            newComponent.setParentComponent(this);
+
             this.createBean(newComponent, null, afterPreCreateCallback);
             return newComponent;
         }
@@ -231,13 +238,23 @@ export class Component extends BeanStub {
         const thisNoType = this as any;
 
         this.iterateOverQuerySelectors((querySelector: any) => {
-            const resultOfQuery = this.eGui.querySelector(querySelector.querySelector);
+            const setResult = (result: any) => thisNoType[querySelector.attributeName] = result;
 
-            if (resultOfQuery) {
-                thisNoType[querySelector.attributeName] = resultOfQuery.__agComponent || resultOfQuery;
+            // if it's a ref selector, and match is on top level component, we return
+            // the element. otherwise no way of components putting ref=xxx on the top
+            // level element as querySelector only looks at children.
+            const topLevelRefMatch = querySelector.refSelector
+                && this.eGui.getAttribute('ref') === querySelector.refSelector;
+            if (topLevelRefMatch) {
+                setResult(this.eGui);
             } else {
-                // put debug msg in here if query selector fails???
+                // otherwise use querySelector, which looks at children
+                const resultOfQuery = this.eGui.querySelector(querySelector.querySelector);
+                if (resultOfQuery) {
+                    setResult(resultOfQuery.__agComponent || resultOfQuery);
+                }
             }
+
         });
     }
 

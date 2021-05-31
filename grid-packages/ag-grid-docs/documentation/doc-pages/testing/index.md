@@ -1,10 +1,10 @@
 ---
-title: "Testing ag-Grid"
+title: "Testing AG Grid"
 ---
 
 [[only-javascript]]
 | We will walk through how you can use `Protractor` and `Jasmine` to do Unit & End to End (e2e)
-| testing with ag-Grid in this section.
+| testing with AG Grid in this section.
 |
 | ## Unit Testing with Jasmine - Waiting for the API
 |
@@ -39,12 +39,12 @@ title: "Testing ag-Grid"
 | ## End to End (e2e) Testing
 |
 | These recipes below are suggestions - there are many ways to do End to End testing, what we document
-| below is what we use here at ag-Grid.
+| below is what we use here at AG Grid.
 |
 | We do not document how to use either `Protractor` and `Jasmine` in depth here - please see either the
 | <a href="http://www.protractortest.org/#/" target="_blank">Protractor</a> or
 | <a href="https://jasmine.github.io/" target="_blank">Jasmine</a> for information around either of these tools.
-| We only describe how these tools can be used to test ag-Grid below.
+| We only describe how these tools can be used to test AG Grid below.
 |
 | [[note]]
 | | End to End testing can be fragile. If you change something trivial upstream it can have a big impact
@@ -84,7 +84,7 @@ title: "Testing ag-Grid"
 |
 | Remember that the interaction between your tests and the browser is as follows:
 |
-| ```
+| ```bash
 | [Test Scripts] < ------------ > [Selenium Server] < ------------ > [Browser Drivers]
 | ```
 |
@@ -111,11 +111,9 @@ title: "Testing ag-Grid"
 | | If you're testing against a non-Angular application then you need to tell `Protractor`
 | | not to wait for Angular by adding this to either your configuration or your tests: `browser.ignoreSynchronization = true;`
 |
-| For this test we'll testing a simple
-| [JavaScript based grid](https://www.ag-grid.com/example-runner/vanilla.php?section=javascript-grid&example=hello-world) which can be
-| found at the Getting Started -> JavaScript Section:
+| For this sample test we'll be testing this simple example:
 |
-| <image-caption src="testing/resources/example-js.png" alt="ag-Grid Example" maxwidth="50rem" constrained="true"></image-caption>
+| <grid-example title='Hello World' name='hello-world' type='vanilla' options='{ "exampleHeight": "210px" }'></grid-example>
 |
 | ## Checking Headers
 |
@@ -124,12 +122,12 @@ title: "Testing ag-Grid"
 |
 | ```js
 | // spec.js
-| describe('ag-Grid Protractor Test', function () {
+| describe('AG Grid Protractor Test', function () {
 |     // not an angular application
 |     browser.ignoreSynchronization = true;
 |
 |     beforeEach(() => {
-|         browser.get("https://www.ag-grid.com/example-runner/vanilla.php?section=javascript-grid&example=hello-world");
+|         browser.get('https://www.ag-grid.com/examples/testing/hello-world/index.html');
 |     });
 |
 |     it('should have expected column headers', () => {
@@ -170,13 +168,13 @@ title: "Testing ag-Grid"
 |
 | We can add this to `spec.js` and run the tests as before.
 |
-| ## ag-Grid Testing Utilities
+| ## AG Grid Testing Utilities
 |
 | [[note]]
 | | These utilities scripts should still be considered beta and are subject to change. Please provide feedback to
 | | the <a href="https://github.com/seanlandsman/ag-grid-testing" target="_blank">GitHub</a> repository.
 |
-| Here at ag-Grid we use a number of utility functions that make it easier for us to test ag-Grid functionality.
+| Here at AG Grid we use a number of utility functions that make it easier for us to test AG Grid functionality.
 |
 | The utilities can be installed & imported as follows:
 |
@@ -265,12 +263,12 @@ title: "Testing ag-Grid"
 | ```
 
 [[only-angular]]
-| We will walk through how you can use testing ag-Grid as part of your Angular application,
+| We will walk through how you can use testing AG Grid as part of your Angular application,
 | using default build tools provided when using the [Angular CLI](https://cli.angular.io/).
 |
 | ## Configuring the Test Module
 |
-| The first thing we need to do is to add ag-Grid's `AgGridModule` to the `TestBed.configureTestingModule(`:
+| The first thing we need to do is to add AG Grid's `AgGridModule` to the `TestBed.configureTestingModule(`:
 |
 | ```ts
 | beforeEach(async(() => {
@@ -289,7 +287,7 @@ title: "Testing ag-Grid"
 | }));
 | ```
 |
-| Now that the test bed is aware of ag-Grid we can continue with our testing. If however you wish
+| Now that the test bed is aware of AG Grid we can continue with our testing. If however you wish
 | to add any user provided components to the grid then you'll need to declare them here too:
 |
 | ```diff
@@ -392,7 +390,7 @@ title: "Testing ag-Grid"
 |                 style="width: 100%; height: 350px;" class="ag-theme-alpine"
 |                 [columnDefs]="columnDefs"
 |                 [rowData]="rowData"
-|                 [stopEditingWhenGridLosesFocus]="false"
+|                 [stopEditingWhenCellsLoseFocus]="false"
 |                 [frameworkComponents]="frameworkComponents"
 |                 (gridReady)="onGridReady($event)">
 |             </ag-grid-angular>
@@ -462,7 +460,7 @@ title: "Testing ag-Grid"
 | ```
 
 [[only-react]]
-| We will walk through how you can use testing ag-Grid as part of your React application, using default
+| We will walk through how you can use testing AG Grid as part of your React application, using default
 | build tools provided when using the [Create React App](https://github.com/facebook/create-react-app) utility.
 |
 | ## Waiting for the Grid to be Initialised
@@ -536,7 +534,7 @@ title: "Testing ag-Grid"
 | In the same way we need to wait for the Grid to be ready we also need to do something similar for user supplied
 | Grid components.
 |
-| For example, let us suppose a user provides a custom [Editor Component](../component-cell-editor/) and wants
+| For example, let us suppose a user provides a custom [Editor Component](/component-cell-editor/) and wants
 | to test this within the context of the Grid.
 |
 | ```jsx
@@ -654,9 +652,79 @@ title: "Testing ag-Grid"
 |
 | We also use the Grid API to initiate and end testing as we're can't readily perform double clicks in a unit
 | testing environment (but could if doing e2e with something like Protractor for example).
-
+|
+|##Testing React Hooks with Enzyme
+|
+|By default testing libraries won't return an accessible instance of a hook - in order to get access to methods you'll need
+|to wrap your component with a `forwardRef` and then expose methods you want to test with the `useImperativeHandle` hook.
+|
+|```jsx
+|import React, {forwardRef, useImperativeHandle, useState} from 'react';
+|import {AgGridReact} from 'ag-grid-react';
+|
+|export default forwardRef(function (props, ref) {
+|    const columnDefs = [...columns...];
+|    const rowData = [...rowData...];
+|
+|    const [api, setApi] = useState(null);
+|
+|    const onGridReady = (params) => {
+|        setApi(params.api);
+|    };
+|
+|    useImperativeHandle(ref, () => {
+|        return {
+|            getApi() {
+|                return api;
+|            }
+|        }
+|    });
+|
+|    return (
+|        <AgGridReact
+|            columnDefs={columnDefs}
+|            onGridReady={onGridReady}
+|            rowData={rowData}
+|        />
+|    );
+|});
+|```
+|
+|You can then test this hook by accessing it via a `ref`:
+|
+|```jsx
+|const ensureGridApiHasBeenSet = async (componentRef) => {
+|    await act(async () => {
+|        await new Promise(function (resolve, reject) {
+|            (function waitForGridReady() {
+|               // access the exposed "getApi" method on our hook
+|                if (componentRef.current.getApi()) {
+|                    if (componentRef.current.getApi().getRowNode(8)) {
+|                        return resolve();
+|                    }
+|
+|                }
+|                setTimeout(waitForGridReady, 10);
+|            })();
+|        })
+|
+|    });
+|};
+|
+|beforeEach(async () => {
+|    const ref = React.createRef()
+|    component = mount(<App ref={ref}/>);
+|    agGridReact = component.find(AgGridReact).instance();
+|    await ensureGridApiHasBeenSet(ref);
+|});
+|```
+|
+|Note that we're accessing exposed `getApi` method via the `ref`:  `componentRef.current.getApi()`.
+|
+|A full working example can be found in the following [GitHub Repo](https://github.com/seanlandsman/ag-grid-react-hook-testing).
+|
 [[only-vue]]
-| We will walk through how you can use testing ag-Grid as part of your Vue application, using default
+| We will walk through how you can use testing AG Grid as part of your Vue application, using default
 | build tools provided when using the [Vue CLI](https://cli.vuejs.org/) utility.
 |
 | ## Waiting for the Grid to be Initialised
@@ -703,7 +771,7 @@ title: "Testing ag-Grid"
 |
 | ## Testing User Supplied Components
 |
-| For example, let us suppose a user provides a custom [Editor Component](../component-cell-editor/) and wants
+| For example, let us suppose a user provides a custom [Editor Component](/component-cell-editor/) and wants
 | to test this within the context of the Grid.
 |
 | ```jsx
@@ -836,14 +904,14 @@ title: "Testing ag-Grid"
 | We use the Grid API to initiate and end testing as we're can't readily perform double clicks in a
 | unit testing environment (but could if doing e2e with something like Protractor for example).
 |
-| # Jest Configuration
-| 
+| ## Jest Configuration
+|
 | ### `SyntaxError: Cannot use import statement outside a module`
 |
-| If you experience the error above then depending on your build configuration you may need to exclude either 
+| If you experience the error above then depending on your build configuration you may need to exclude either
 | `ag-grid-vue` or `@ag-grid-community/vue` in your Jest configuration:
 |
-| ```
+| ```js
 | module.exports = {
 |   ...other configuration...
 |   transformIgnorePatterns: ["/node_modules/(?!ag-grid-vue)"],

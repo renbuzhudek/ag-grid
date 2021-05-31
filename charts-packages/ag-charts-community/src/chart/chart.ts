@@ -50,6 +50,12 @@ const defaultTooltipCss = `
     line-height: 1.7em;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
+    overflow: hidden;
+}
+
+.ag-chart-tooltip-content:empty {
+    padding: 0;
+    height: 7px;
 }
 
 .ag-chart-tooltip-arrow::before {
@@ -183,6 +189,7 @@ export class ChartTooltip extends Observable {
     }
 
     private showTimeout: number = 0;
+    private constrained = false;
     /**
      * Shows tooltip at the given event's coordinates.
      * If the `html` parameter is missing, moves the existing tooltip to the new position.
@@ -197,18 +204,24 @@ export class ChartTooltip extends Observable {
         }
 
         let left = meta.pageX - el.clientWidth / 2;
-        const top = meta.pageY - el.clientHeight - 8;
+        let top = meta.pageY - el.clientHeight - 8;
 
+        this.constrained = false;
         if (this.chart.container) {
             const tooltipRect = el.getBoundingClientRect();
             const minLeft = 0;
             const maxLeft = window.innerWidth - tooltipRect.width;
             if (left < minLeft) {
                 left = minLeft;
-                this.updateClass(true, true);
+                this.updateClass(true, this.constrained = true);
             } else if (left > maxLeft) {
                 left = maxLeft;
-                this.updateClass(true, true);
+                this.updateClass(true, this.constrained = true);
+            }
+
+            if (top < window.pageYOffset) {
+                top = meta.pageY + 20;
+                this.updateClass(true, this.constrained = true);
             }
         }
 
@@ -234,7 +247,7 @@ export class ChartTooltip extends Observable {
                 this.chart.lastPick = undefined;
             }
         }
-        this.updateClass(visible);
+        this.updateClass(visible, this.constrained);
     }
 
     constructor(chart: Chart) {
@@ -305,12 +318,12 @@ export abstract class Chart extends Observable {
         return this._container;
     }
 
-    private _data: any[] = [];
-    set data(data: any[]) {
+    protected _data: any = [];
+    set data(data: any) {
         this._data = data;
         this.series.forEach(series => series.data = data);
     }
-    get data(): any[] {
+    get data(): any {
         return this._data;
     }
 
@@ -412,6 +425,7 @@ export abstract class Chart extends Observable {
 
         const { legend } = this;
         legend.addEventListener('layoutChange', this.onLayoutChange, this);
+        legend.item.label.addPropertyListener('formatter', this.updateLegend, this);
         legend.addPropertyListener('position', this.onLegendPositionChange, this);
 
         this.tooltip = new ChartTooltip(this);
@@ -774,6 +788,15 @@ export abstract class Chart extends Observable {
 
         this.series.filter(s => s.showInLegend).forEach(series => series.listSeriesItems(legendData));
 
+        const { formatter } = this.legend.item.label;
+        if (formatter) {
+            legendData.forEach(datum => datum.label.text = formatter({
+                id: datum.id,
+                itemId: datum.itemId,
+                value: datum.label.text
+            }));
+        }
+
         this.legend.data = legendData;
     }
 
@@ -898,6 +921,9 @@ export abstract class Chart extends Observable {
 
     // Should be available after first layout.
     protected seriesRect?: BBox;
+    getSeriesRect(): Readonly<BBox | undefined> {
+        return this.seriesRect;
+    }
 
     // x/y are local canvas coordinates in CSS pixels, not actual pixels
     private pickSeriesNode(x: number, y: number): {
@@ -1114,7 +1140,7 @@ export abstract class Chart extends Observable {
             event
         };
 
-        this.highlightDatum(datum);
+        this.highlightDatum(datum, node);
 
         const html = datum.series.tooltip.enabled && datum.series.getTooltipHtml(datum);
 
@@ -1125,13 +1151,20 @@ export abstract class Chart extends Observable {
 
     highlightedDatum?: SeriesNodeDatum;
 
-    highlightDatum(datum: SeriesNodeDatum): void {
+    highlightDatum(datum: SeriesNodeDatum, node?: Shape): void {
+        const { style } = this.scene.canvas.element;
         this.highlightedDatum = datum;
-        this.series.forEach(s => s.onHighlightChange());
+        this.series.forEach(s => {
+            if (node) {
+                style.cursor = s.cursor;
+            }
+            s.onHighlightChange();
+        });
     }
 
     dehighlightDatum(): void {
         if (this.highlightedDatum) {
+            this.scene.canvas.element.style.cursor = 'default';
             this.highlightedDatum = undefined;
             this.series.forEach(s => s.onHighlightChange());
         }

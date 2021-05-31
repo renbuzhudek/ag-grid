@@ -7,15 +7,15 @@ import {
     CellPosition,
     CellPositionUtils,
     Column,
-    ColumnController,
+    ColumnModel,
     Component,
-    FocusController,
+    FocusService,
     GetContextMenuItems,
     GetContextMenuItemsParams,
-    GridPanel,
+    GridBodyComp,
     IAfterGuiAttachedParams,
     IContextMenuFactory,
-    IRangeController,
+    IRangeService,
     MenuItemDef,
     ModuleNames,
     ModuleRegistry,
@@ -35,14 +35,14 @@ const CSS_CONTEXT_MENU_OPEN = ' ag-context-menu-open';
 export class ContextMenuFactory extends BeanStub implements IContextMenuFactory {
 
     @Autowired('popupService') private popupService: PopupService;
-    @Optional('rangeController') private rangeController: IRangeController;
-    @Autowired('columnController') private columnController: ColumnController;
+    @Optional('rangeService') private rangeService: IRangeService;
+    @Autowired('columnModel') private columnModel: ColumnModel;
 
     private activeMenu: ContextMenu | null;
-    private gridPanel: GridPanel;
+    private gridBodyComp: GridBodyComp;
 
-    public registerGridComp(gridPanel: GridPanel): void {
-        this.gridPanel = gridPanel;
+    public registerGridComp(gridBodyComp: GridBodyComp): void {
+        this.gridBodyComp = gridBodyComp;
     }
 
     public hideActiveMenu(): void {
@@ -62,11 +62,11 @@ export class ContextMenuFactory extends BeanStub implements IContextMenuFactory 
         if (this.gridOptionsWrapper.isEnableCharts() &&
             ModuleRegistry.isRegistered(ModuleNames.RangeSelectionModule) &&
             ModuleRegistry.isRegistered(ModuleNames.GridChartsModule)) {
-            if (this.columnController.isPivotMode()) {
+            if (this.columnModel.isPivotMode()) {
                 defaultMenuOptions.push('pivotChart');
             }
 
-            if (this.rangeController && !this.rangeController.isEmpty()) {
+            if (this.rangeService && !this.rangeService.isEmpty()) {
                 defaultMenuOptions.push('chartRange');
             }
         }
@@ -102,8 +102,46 @@ export class ContextMenuFactory extends BeanStub implements IContextMenuFactory 
         return defaultMenuOptions;
     }
 
+    public onContextMenu(mouseEvent: MouseEvent | null, touchEvent: TouchEvent | null, rowNode: RowNode | null, column: Column | null, value: any, anchorToElement: HTMLElement): void {
+        // to allow us to debug in chrome, we ignore the event if ctrl is pressed.
+        // not everyone wants this, so first 'if' below allows to turn this hack off.
+        if (!this.gridOptionsWrapper.isAllowContextMenuWithControlKey()) {
+            // then do the check
+            if (mouseEvent && (mouseEvent.ctrlKey || mouseEvent.metaKey)) { return; }
+        }
+
+        if (this.gridOptionsWrapper.isSuppressContextMenu()) { return; }
+
+        const eventOrTouch: (MouseEvent | Touch) = mouseEvent ? mouseEvent : touchEvent!.touches[0];
+        if (this.showMenu(rowNode!, column!, value, eventOrTouch, anchorToElement)) {
+            const event = mouseEvent ? mouseEvent : touchEvent;
+            event!.preventDefault();
+        }
+
+        if (mouseEvent) {
+            this.preventDefaultOnContextMenu(mouseEvent);
+        }
+    }
+
+    private preventDefaultOnContextMenu(mouseEvent: MouseEvent): void {
+        // if we don't do this, then middle click will never result in a 'click' event, as 'mousedown'
+        // will be consumed by the browser to mean 'scroll' (as you can scroll with the middle mouse
+        // button in the browser). so this property allows the user to receive middle button clicks if
+        // they want.
+        const { gridOptionsWrapper } = this;
+        const { which } = mouseEvent;
+
+        if (
+            gridOptionsWrapper.isPreventDefaultOnContextMenu() ||
+            (gridOptionsWrapper.isSuppressMiddleClickScrolls() && which === 2)
+        ) {
+            mouseEvent.preventDefault();
+        }
+    }
+
     public showMenu(node: RowNode, column: Column, value: any, mouseEvent: MouseEvent | Touch, anchorToElement: HTMLElement): boolean {
         const menuItems = this.getMenuItems(node, column, value);
+        const eGridBodyGui = this.gridBodyComp.getGui();
 
         if (menuItems === undefined || _.missingOrEmpty(menuItems)) { return false; }
 
@@ -130,7 +168,7 @@ export class ContextMenuFactory extends BeanStub implements IContextMenuFactory 
             eChild: eMenuGui,
             closeOnEsc: true,
             closedCallback: () => {
-                _.removeCssClass(anchorToElement, CSS_CONTEXT_MENU_OPEN);
+                _.removeCssClass(eGridBodyGui, CSS_CONTEXT_MENU_OPEN);
                 this.destroyBean(menu);
             },
             click: mouseEvent,
@@ -140,7 +178,7 @@ export class ContextMenuFactory extends BeanStub implements IContextMenuFactory 
         });
 
         if (addPopupRes) {
-            _.addCssClass(anchorToElement, CSS_CONTEXT_MENU_OPEN);
+            _.addCssClass(eGridBodyGui, CSS_CONTEXT_MENU_OPEN);
             menu.afterGuiAttached({ container: 'contextMenu', hidePopup: addPopupRes.hideFunc });
         }
 
@@ -173,7 +211,7 @@ export class ContextMenuFactory extends BeanStub implements IContextMenuFactory 
 class ContextMenu extends Component {
 
     @Autowired('menuItemMapper') private menuItemMapper: MenuItemMapper;
-    @Autowired('focusController') private focusController: FocusController;
+    @Autowired('focusService') private focusService: FocusService;
     @Autowired('cellPositionUtils') private cellPositionUtils: CellPositionUtils;
 
     private menuItems: (MenuItemDef | string)[];
@@ -203,21 +241,28 @@ class ContextMenu extends Component {
             this.addDestroyFunc(params.hidePopup);
         }
 
-        this.focusedCell = this.focusController.getFocusedCell();
+        this.focusedCell = this.focusService.getFocusedCell();
 
         if (this.menuList) {
-            this.focusController.focusInto(this.menuList.getGui());
+            this.focusService.focusInto(this.menuList.getGui());
+        }
+    }
+
+    private restoreFocusedCell(): void {
+        const currentFocusedCell = this.focusService.getFocusedCell();
+
+        if (currentFocusedCell && this.focusedCell && this.cellPositionUtils.equals(currentFocusedCell, this.focusedCell)) {
+            const { rowIndex, rowPinned, column } = this.focusedCell;
+            const doc = this.gridOptionsWrapper.getDocument();
+
+            if (doc.activeElement === doc.body) {
+                this.focusService.setFocusedCell(rowIndex, column, rowPinned, true);
+            }
         }
     }
 
     protected destroy(): void {
-        const currentFocusedCell = this.focusController.getFocusedCell();
-
-        if (currentFocusedCell && this.focusedCell && this.cellPositionUtils.equals(currentFocusedCell, this.focusedCell)) {
-            const { rowIndex, rowPinned, column } = this.focusedCell;
-            this.focusController.setFocusedCell(rowIndex, column, rowPinned, true);
-        }
-
+        this.restoreFocusedCell();
         super.destroy();
     }
 }

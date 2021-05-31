@@ -13,14 +13,15 @@ import {
     IDoesFilterPassParams,
     ProvidedFilter,
     Context,
-    FocusController,
+    FocusService,
+    ProvidedFilterModel,
 } from '@ag-grid-community/core';
 import { mock } from '../test-utils/mock';
 
 let eGui: jest.Mocked<HTMLElement>;
 let filterManager: jest.Mocked<FilterManager>;
 let userComponentFactory: jest.Mocked<UserComponentFactory>;
-let focusController: jest.Mocked<FocusController>;
+let focusService: jest.Mocked<FocusService>;
 
 let colDef: jest.Mocked<ColDef>;
 let column: jest.Mocked<Column>;
@@ -59,7 +60,7 @@ function createFilter(filterParams: any = {}): MultiFilter {
     (multiFilter as any).eGui = eGui;
     (multiFilter as any).filterManager = filterManager;
     (multiFilter as any).userComponentFactory = userComponentFactory;
-    (multiFilter as any).focusController = focusController;
+    (multiFilter as any).focusService = focusService;
     (multiFilter as any).context = context;
 
     multiFilter.init(params);
@@ -71,7 +72,7 @@ beforeEach(() => {
     eGui = mock<HTMLElement>('appendChild', 'insertAdjacentElement');
     filterManager = mock<FilterManager>('createFilterParams');
     userComponentFactory = mock<UserComponentFactory>('newFilterComponent');
-    focusController = mock<FocusController>('findFocusableElements');
+    focusService = mock<FocusService>('findFocusableElements');
     context = mock<Context>('createBean', 'destroyBean');
 
     colDef = mock<ColDef>();
@@ -183,14 +184,8 @@ describe('getModelFromUi', () => {
         filter2.getGui.mockReturnValue(document.createElement('div'));
     });
 
-    it('returns null if neither filter is active', () => {
-        const multiFilter = createFilter();
-
-        expect(multiFilter.getModelFromUi()).toBeNull();
-    });
-
     it('includes model from first filter', () => {
-        const providedFilter = mock<ProvidedFilter>('getGui', 'isFilterActive', 'getModelFromUi');
+        const providedFilter = mock<ProvidedFilter<ProvidedFilterModel>>('getGui', 'isFilterActive', 'getModelFromUi');
         providedFilter.getGui.mockReturnValue(document.createElement('div'));
         filter1 = providedFilter;
 
@@ -216,7 +211,7 @@ describe('getModelFromUi', () => {
     });
 
     it('includes model from second filter', () => {
-        const providedFilter = mock<ProvidedFilter>('getGui', 'isFilterActive', 'getModelFromUi');
+        const providedFilter = mock<ProvidedFilter<ProvidedFilterModel>>('getGui', 'isFilterActive', 'getModelFromUi');
         providedFilter.getGui.mockReturnValue(document.createElement('div'));
         filter2 = providedFilter;
 
@@ -254,7 +249,7 @@ describe('getModel', () => {
     it('returns null if neither filter is active', () => {
         const multiFilter = createFilter();
 
-        expect(multiFilter.getModelFromUi()).toBeNull();
+        expect(multiFilter.getModel()).toBeNull();
     });
 
     it('includes model from first filter', () => {
@@ -374,7 +369,7 @@ describe('afterGuiAttached', () => {
         filter2.getGui.mockReturnValue(filter2Gui);
 
         context.createBean.mockImplementation(bean => bean);
-        focusController.findFocusableElements.mockReturnValue([]);
+        focusService.findFocusableElements.mockReturnValue([]);
     });
 
     it('passes through to filter if it has afterGuiAttached function', () => {

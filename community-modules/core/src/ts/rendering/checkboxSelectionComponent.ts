@@ -3,7 +3,6 @@ import { PostConstruct } from '../context/context';
 import { Column } from '../entities/column';
 import { Component } from '../widgets/component';
 import { Events } from '../events';
-import { IsRowSelectable } from '../entities/gridOptions';
 import { RefSelector } from '../widgets/componentAnnotations';
 import { RowNode } from '../entities/rowNode';
 import { stopPropagationForAgGrid } from '../utils/event';
@@ -13,12 +12,11 @@ export class CheckboxSelectionComponent extends Component {
     @RefSelector('eCheckbox') private eCheckbox: AgCheckbox;
 
     private rowNode: RowNode;
-    private column: Column;
-    private isRowSelectableFunc: IsRowSelectable | undefined;
+    private column: Column | undefined;
 
     constructor() {
         super(/* html*/`
-            <div class="ag-selection-checkbox">
+            <div class="ag-selection-checkbox" role="presentation">
                 <ag-checkbox role="presentation" ref="eCheckbox"></ag-checkbox>
             </div>`
         );
@@ -27,6 +25,10 @@ export class CheckboxSelectionComponent extends Component {
     @PostConstruct
     private postConstruct(): void {
         this.eCheckbox.setPassive(true);
+    }
+
+    public getCheckboxId(): string {
+        return this.eCheckbox.getInputElement().id;
     }
 
     private onDataChanged(): void {
@@ -66,7 +68,7 @@ export class CheckboxSelectionComponent extends Component {
         return updatedCount;
     }
 
-    public init(params: any): void {
+    public init(params: {rowNode: RowNode, column?: Column}): void {
         this.rowNode = params.rowNode;
         this.column = params.column;
 
@@ -98,11 +100,14 @@ export class CheckboxSelectionComponent extends Component {
         this.addManagedListener(this.rowNode, RowNode.EVENT_DATA_CHANGED, this.onDataChanged.bind(this));
         this.addManagedListener(this.rowNode, RowNode.EVENT_SELECTABLE_CHANGED, this.onSelectableChanged.bind(this));
 
-        this.isRowSelectableFunc = this.gridOptionsWrapper.getIsRowSelectableFunc();
-        const checkboxVisibleIsDynamic = this.isRowSelectableFunc || this.checkboxCallbackExists();
+        const isRowSelectableFunc = this.gridOptionsWrapper.getIsRowSelectableFunc();
+        const checkboxVisibleIsDynamic = isRowSelectableFunc || this.checkboxCallbackExists();
 
         if (checkboxVisibleIsDynamic) {
-            this.addManagedListener(this.eventService, Events.EVENT_DISPLAYED_COLUMNS_CHANGED, this.showOrHideSelect.bind(this));
+            const showOrHideSelectListener = this.showOrHideSelect.bind(this);
+            this.addManagedListener(this.eventService, Events.EVENT_DISPLAYED_COLUMNS_CHANGED, showOrHideSelectListener);
+            this.addManagedListener(this.rowNode, RowNode.EVENT_DATA_CHANGED, showOrHideSelectListener);
+            this.addManagedListener(this.rowNode, RowNode.EVENT_CELL_CHANGED, showOrHideSelectListener);
             this.showOrHideSelect();
         }
 
@@ -117,11 +122,11 @@ export class CheckboxSelectionComponent extends Component {
         // If selectable, then also check the colDef callback. if not selectable, this it short circuits - no need
         // to call the colDef callback.
         if (selectable && this.checkboxCallbackExists()) {
-            selectable = this.column.isCellCheckboxSelection(this.rowNode);
+            selectable = this.column!.isCellCheckboxSelection(this.rowNode);
         }
 
         // show checkbox if both conditions are true
-        this.setDisplayed(selectable);
+        this.setVisible(selectable);
     }
 
     private checkboxCallbackExists(): boolean {

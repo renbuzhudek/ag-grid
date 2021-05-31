@@ -9,6 +9,9 @@
         "data": {
             "description": "The data as provided by the application."
         },
+        "displayed": {
+            "description": "This will be `true` if it has a rowIndex assigned, otherwise `false`."
+        },
         "parent": {
             "description": "The parent node to this node, or empty if top level."
         },
@@ -38,6 +41,9 @@
         },
         "rowHeight": {
             "description": "The row height in pixels."
+        },
+        "rowIndex": {
+            "description": "The current row index. If the row is filtered out or in a collapsed group, this value will be `null`."
         },
         "rowTop": {
             "description": "The row top position in pixels."
@@ -104,7 +110,7 @@
             "description": "Select (or deselect) the node. <code>newValue=true</code> for selection, <code>newValue=false</code> for deselection. If selecting, then passing <code>true</code> for <code>clearSelection</code> will select the node exclusively (i.e. NOT do multi select). If doing deselection, <code>clearSelection</code> has no impact."
         },
         "isSelected()": {
-            "description": "Returns <code>true</code> if node is selected, otherwise <code>false</code>."
+            "description": "Returns <code>true</code> if node is selected, <code>false</code> if the not isn't selected or `undefined` if it's partially selected (group where not all children are selected)."
         },
         "addEventListener(eventType: string, listener: Function)": {
             "description": "Add an event listener. Currently only <code>rowSelected</code> event supported."

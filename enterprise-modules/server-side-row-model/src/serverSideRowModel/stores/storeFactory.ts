@@ -8,7 +8,7 @@ import {
     ServerSideStoreParams,
     GetServerSideStoreParamsParams,
     ServerSideStoreType,
-    ColumnController
+    ColumnModel
 } from "@ag-grid-community/core";
 import { PartialStore } from "./partialStore";
 import { SSRMParams } from "../serverSideRowModel";
@@ -18,7 +18,7 @@ import { FullStore } from "./fullStore";
 export class StoreFactory {
 
     @Autowired('gridOptionsWrapper') private gridOptionsWrapper: GridOptionsWrapper;
-    @Autowired('columnController') private columnController: ColumnController;
+    @Autowired('columnModel') private columnModel: ColumnModel;
 
     public createStore(ssrmParams: SSRMParams, parentNode: RowNode): IServerSideStore {
         const storeParams = this.getStoreParams(ssrmParams, parentNode);
@@ -62,14 +62,14 @@ export class StoreFactory {
         }
 
         if (ssrmParams.dynamicRowHeight) {
-            const message = 'ag-Grid: Server Side Row Model does not support Dynamic Row Height and Cache Purging. ' +
+            const message = 'AG Grid: Server Side Row Model does not support Dynamic Row Height and Cache Purging. ' +
                 'Either a) remove getRowHeight() callback or b) remove maxBlocksInCache property. Purging has been disabled.';
             _.doOnce(() => console.warn(message), 'storeFactory.maxBlocksInCache.dynamicRowHeight');
             return undefined;
         }
 
-        if (this.columnController.isAutoRowHeightActive()) {
-            const message = 'ag-Grid: Server Side Row Model does not support Auto Row Height and Cache Purging. ' +
+        if (this.columnModel.isAutoRowHeightActive()) {
+            const message = 'AG Grid: Server Side Row Model does not support Auto Row Height and Cache Purging. ' +
                 'Either a) remove colDef.autoHeight or b) remove maxBlocksInCache property. Purging has been disabled.';
             _.doOnce(() => console.warn(message), 'storeFactory.maxBlocksInCache.autoRowHeightActive');
             return undefined;
@@ -100,9 +100,9 @@ export class StoreFactory {
         const params: GetServerSideStoreParamsParams = {
             level: parentNode.level + 1,
             parentRowNode: parentNode.level >= 0 ? parentNode : undefined,
-            rowGroupColumns: this.columnController.getRowGroupColumns(),
-            pivotColumns: this.columnController.getPivotColumns(),
-            pivotMode: this.columnController.isPivotMode()
+            rowGroupColumns: this.columnModel.getRowGroupColumns(),
+            pivotColumns: this.columnModel.getPivotColumns(),
+            pivotMode: this.columnModel.isPivotMode()
         };
 
         return callback(params);
@@ -123,7 +123,7 @@ export class StoreFactory {
                 return ServerSideStoreType.Full;
             default :
                 const types = Object.keys(ServerSideStoreType).join(', ');
-                console.warn(`ag-Grid: invalid Server Side Store Type ${storeType}, valid types are [${types}]`);
+                console.warn(`AG Grid: invalid Server Side Store Type ${storeType}, valid types are [${types}]`);
                 return ServerSideStoreType.Partial;
         }
     }

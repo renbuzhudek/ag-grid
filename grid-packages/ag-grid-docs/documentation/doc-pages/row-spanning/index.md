@@ -14,71 +14,21 @@ Row spanning is then configured at the column definition level. To have a cell
 span more than one row, return how many rows to span in the callback
 `colDef.rowSpan`.
 
-[[only-javascript]]
-| ```js
-| const gridOptions = { 
-|     suppressRowTransform: true, // turn off row translation
-|     columnDefs: [
-|         {
-|             field: 'country',
-|             // row span is 2 for rows with Russia, but 1 for everything else
-|             rowSpan: params => params.data.country === 'Russia' ? 2 : 1,
-|         },
-|         // other column definitions ...
-|     ],
-|
-|     // other grid options ...
-| }
-| ```
 
-[[only-angular]]
-| ```js
-| <ag-grid-angular
-|     [suppressRowTransform]="true" // turn off row translation
-|     [columnDefs]="columnDefs"
-|     // other grid options ...>
-| </ag-grid-angular>
-|
-| this.columnDefs = [
-|     {
-|         field: 'country',
-|         // row span is 2 for rows with Russia, but 1 for everything else
-|         rowSpan: params => params.data.country === 'Russia' ? 2 : 1,
-|     },
-|     // other column definitions ...
-| ];
-| ```
-
-[[only-react]]
-| ```js
-| <AgGridReact 
-|     suppressRowTransform={true} // turn off row translation
-|     // other grid options ...
-| > 
-|     // row span is 2 for rows with Russia, but 1 for everything else
-|     <AgGridColumn field='country' rowSpan={params => params.data.country === 'Russia' ? 2 : 1} />
-|
-|     // other column definitions ...
-| </AgGridReact>
-| ```
-
-[[only-vue]]
-| ```js
-| <ag-grid-vue
-|     :suppressRowTransform="true" // turn off row translation
-|     :columnDefs="columnDefs"  
-|     // other grid options ...>
-| </ag-grid-vue>
-|
-| this.columnDefs = [
-|     {
-|         field: 'country',
-|         // row span is 2 for rows with Russia, but 1 for everything else
-|         rowSpan: params => params.data.country === 'Russia' ? 2 : 1,
-|     },
-|     // other column definitions ...
-| ];
-| ```
+<snippet spaceBetweenProperties="true">
+const gridOptions = {
+    // turn off row translation
+    suppressRowTransform: true,
+    columnDefs: [
+        {
+            field: 'country',
+            // row span is 2 for rows with Russia, but 1 for everything else
+            rowSpan: params => params.data.country === 'Russia' ? 2 : 1,
+        },
+        // other column definitions ...
+    ]
+}
+</snippet>
 
 [[note]]
 | The property `suppressRowTransform=true` is used to stop the grid positioning rows using CSS
@@ -124,7 +74,7 @@ it just arbitrarily sets row span on some cells for demonstration purposes.
 
 ## Row Spanning Complex Example
 
-Row spanning will typically be used for creating reports with ag-Grid. Below
+Row spanning will typically be used for creating reports with AG Grid. Below
 is something that would be more typical of the row spanning feature. The following
 can be noted from the example:
 
@@ -152,4 +102,4 @@ If using Row Spanning, be aware of the following:
 
 - Sorting and filtering will provide strange results when row spanning. For example a cell may span 4 rows, however applying a filter or a sort will probably change the requirements of what rows should be spanned.
 
-- [Range Selection](../range-selection/) will not work correctly when spanning cells. This is because it is not possible to cover all scenarios, as a range is no longer a perfect rectangle.
+- [Range Selection](/range-selection/) will not work correctly when spanning cells. This is because it is not possible to cover all scenarios, as a range is no longer a perfect rectangle.

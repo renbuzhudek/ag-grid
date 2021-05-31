@@ -53,11 +53,11 @@ The Join Operator decides how Condition 1 and Condition 2 are joined, using eith
 
 Simple Filters are configured though the `filterParams` attribute of the column definition. All of the parameters from Provided Filters are available:
 
-<api-documentation source='filter-provided/resources/providedFilters.json' section="filterParams"></api-documentation>
+<api-documentation source='filter-provided/resources/provided-filters.json' section="filterParams"></api-documentation>
 
 In addition, the following parameters are also available, depending on the type of filter being used:
 
-<api-documentation source='filter-provided-simple/resources/simpleFilters.json' section="filterParams"></api-documentation>
+<api-documentation source='filter-provided-simple/resources/simple-filters.json' section="filterParams"></api-documentation>
 
 ### Example: Simple Filter Options
 
@@ -92,7 +92,7 @@ Each simple filter presents a list of options to the user. The list of options f
 | In Range                | `inRange`             | Number, Date        |
 | Choose One              | `empty`               | Text, Number, Date  |
 
-Note that the `empty` filter option is primarily used when creating [Custom Filter Options](../filter-provided-simple/#custom-filter-options). When 'Choose One' is displayed, the filter is not active.
+Note that the `empty` filter option is primarily used when creating [Custom Filter Options](/filter-provided-simple/#custom-filter-options). When 'Choose One' is displayed, the filter is not active.
 
 ### Default Filter Options
 
@@ -108,25 +108,22 @@ Each of the three filter types has the following default options and default sel
 
 When saving or restoring state on a filter, the Filter Model is used. The Filter Model represents the state of the filter. For example, the code below first gets and then sets the Filter Model for the Athlete column:
 
-```js
-// get filter instance (Note - React users must use the async version
-// of this method by passing a callback parameter)
-var filterInstance = gridOptions.api.getFilterInstance('athlete');
-
-// get filter model
-var model = filterInstance.getModel();
-
-// set filter model and update
-filterInstance.setModel({
-    type: 'endsWith',
-    filter: 'thing'
-});
-
-// tell the grid to refresh rows based on the filter. The filter does
-// not do this automatically, allowing you to batch multiple filter
-// updates for performance
-gridOptions.api.onFilterChanged();
-```
+<snippet>
+|// get filter instance
+|const filterInstance = gridOptions.api.getFilterInstance('athlete');
+|
+|// get filter model
+|const model = filterInstance.getModel();
+|
+|// set filter model and update
+|filterInstance.setModel({
+|    type: 'endsWith',
+|    filter: 'thing'
+|});
+|
+|// refresh rows based on the filter (not automatic to allow for batching multiple filters)
+|gridOptions.api.onFilterChanged();
+</snippet>
 
 This section explains what the Filter Model looks like for each of the simple filters. The interface used by each filter type is as follows:
 
@@ -189,7 +186,7 @@ Examples of filter model instances are as follows:
 
 ```js
 // number filter with one condition, with equals type
-var numberLessThan35 = {
+const numberLessThan35 = {
     filterType: 'number',
     type: 'lessThan',
     filter: 35
@@ -198,7 +195,7 @@ var numberLessThan35 = {
 
 ```js
 // number filter with one condition, with inRange type
-var numberBetween35And40 = {
+const numberBetween35And40 = {
     filterType: 'number',
     type: 'inRange',
     filter: 35,
@@ -232,9 +229,9 @@ An example of a filter model with two conditions is as follows:
 
 ```js
 // number filter with two conditions, both are equals type
-var numberEquals18OrEquals20 = {
+const numberEquals18OrEquals20 = {
     filterType: 'number',
-    operator: 'OR'
+    operator: 'OR',
     condition1: {
         filterType: 'number',
         type: 'equals',
@@ -264,7 +261,7 @@ interface IFilterOptionDef {
 ```
 
 
-The `displayKey` should contain a unique key value that doesn't clash with the built-in filter keys. A default `displayName` should also be provided but can be replaced by a locale-specific value using a [localeTextFunc](../localisation/#locale-callback).
+The `displayKey` should contain a unique key value that doesn't clash with the built-in filter keys. A default `displayName` should also be provided but can be replaced by a locale-specific value using a [localeTextFunc](/localisation/#locale-callback).
 
 The custom filter logic is implemented through the `test` function, which receives the `filterValue` typed by the user along with the `cellValue` from the grid, and returns `true` or `false`.
 
@@ -272,32 +269,32 @@ It is also possible to hide the filter input field by enabling the optional prop
 
 Custom `FilterOptionDef`s can be supplied alongside the built-in filter option `string` keys as shown below:
 
-```js
-{
-    field: 'age',
-    filter: 'agNumberColumnFilter',
-    filterParams: {
-        filterOptions: [
-            'lessThan',
-            {
-                displayKey: 'lessThanWithNulls',
-                displayName: 'Less Than with Nulls',
-                test: function(filterValue, cellValue) {
-                    return cellValue == null || cellValue < filterValue;
-                }
-            },
-            'greaterThan',
-            {
-                displayKey: 'greaterThanWithNulls',
-                displayName: 'Greater Than with Nulls',
-                test: function(filterValue, cellValue) {
-                    return cellValue == null || cellValue > filterValue;
-                }
-            }
-        ]
-    }
-}
-```
+<snippet>
+|const gridOptions = {
+|    columnDefs: [
+|        {
+|            field: 'age',
+|            filter: 'agNumberColumnFilter',
+|            filterParams: {
+|                filterOptions: [
+|                    'lessThan',
+|                    {
+|                        displayKey: 'lessThanWithNulls',
+|                        displayName: 'Less Than with Nulls',
+|                        test: (filterValue, cellValue) => cellValue == null || cellValue < filterValue,
+|                    },
+|                    'greaterThan',
+|                    {
+|                        displayKey: 'greaterThanWithNulls',
+|                        displayName: 'Greater Than with Nulls',
+|                        test: (filterValue, cellValue) => cellValue == null || cellValue > filterValue,
+|                    }
+|                ]
+|            }
+|        }
+|    ]
+|}
+</snippet>
 
 The following example demonstrates several custom filter options:
 
@@ -315,11 +312,11 @@ The following example demonstrates several custom filter options:
 If the row data contains blanks (i.e. `null` or `undefined`), by default the row won't be included in filter results. To change this, use the filter params `includeBlanksInEquals`, `includeBlanksInLessThan`, `includeBlanksInGreaterThan` and `includeBlanksInRange`. For example, the code snippet below configures a filter to include `null` for equals, but not for less than, greater than or in range:
 
 ```js
-filterParams = {
+const filterParams = {
     includeBlanksInEquals: true,
     includeBlanksInLessThan: false,
     includeBlanksInGreaterThan: false,
-    includeBlanksInRange: false
+    includeBlanksInRange: false,
 };
 ```
 

@@ -1,16 +1,29 @@
 import { withPrefix } from 'gatsby';
 import { encodeQueryParams } from 'use-query-params';
 import { stringify } from 'query-string';
-import { agGridVersion, localPrefix, getLocalPrefix } from './consts';
+import { agGridVersion, localPrefix } from 'utils/consts';
 import { getIndexHtml } from './index-html-helper';
-import { ParameterConfig } from '../../pages/example-runner';
-import isDevelopment from '../../utils/is-development';
+import { ParameterConfig } from '../../../pages/example-runner';
+import isDevelopment from 'utils/is-development';
 
-const getInternalFramework = (framework, useFunctionalReact) => {
+/**
+ * The "internalFramework" is the framework name we use inside the example runner depending on which options the
+ * user has selected. It can be one of the following:
+ *
+ * - 'vanilla' (JavaScript)
+ * - 'react' (React Classes)
+ * - 'reactFunctional' (React Hooks)
+ * - 'angular' (Angular)
+ * - 'vue' (Vue)
+ * - 'vue3' (Vue 3)
+ */
+const getInternalFramework = (framework, useFunctionalReact, useVue3) => {
     if (framework === 'javascript') {
         return 'vanilla';
     } else if (framework === 'react' && useFunctionalReact) {
         return 'reactFunctional';
+    } else if(framework === 'vue' && useVue3) {
+        return 'vue3'
     }
 
     return framework;
@@ -25,15 +38,17 @@ export const getExampleInfo = (
     type,
     options = {},
     framework = 'javascript',
-    importType = 'modules',
-    useFunctionalReact = false) => {
+    useFunctionalReact = false,
+    useVue3 = false,
+    importType = 'modules') => {
     if (library === 'charts') {
-        // no support for modules or React Hooks in charts yet
+        // no support for modules or React Hooks or Vue 3 in charts yet
         importType = 'packages';
         useFunctionalReact = false;
+        useVue3 = false;
     }
 
-    const internalFramework = getInternalFramework(framework, useFunctionalReact);
+    const internalFramework = getInternalFramework(framework, useFunctionalReact, useVue3);
     const boilerplatePath = `/example-runner/${library}-${framework}-boilerplate/`;
 
     let sourcePath = `${pageName}/examples/${name}/`;
@@ -160,14 +175,7 @@ export const openPlunker = exampleInfo => {
         addHiddenInput('description', title);
 
         Object.keys(files).forEach(key => {
-            let { source } = files[key];
-
-            if (isDevelopment() && window.location) {
-                // swap out to match hostname so Plunkers from localhost can be shared
-                source = source.replace(new RegExp(localPrefix, 'g'), getLocalPrefix(`${window.location.hostname}:8080`));
-            }
-
-            addHiddenInput(`files[${key}]`, source);
+            addHiddenInput(`files[${key}]`, files[key].source);
         });
 
         document.body.appendChild(form);
@@ -211,6 +219,7 @@ export const getIndexHtmlUrl = exampleInfo => {
             library,
             framework,
             useFunctionalReact,
+            useVue3,
             importType,
             name,
             title,
@@ -225,6 +234,7 @@ export const getIndexHtmlUrl = exampleInfo => {
                 library,
                 framework,
                 useFunctionalReact,
+                useVue3,
                 importType,
                 name,
                 title,

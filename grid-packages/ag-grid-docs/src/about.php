@@ -1,6 +1,6 @@
 <?php
         $navKey = "about";
-        include_once 'includes/html-helpers.php';
+        require_once 'includes/html-helpers.php';
         gtm_data_layer('about');
         ?>
 <!DOCTYPE html>
@@ -8,7 +8,7 @@
 
 <head lang="en">
     <?php
-            meta_and_links("Our Mission, Our Principles and Our Team at ag-Grid", "About ag-Grid", "ag-Grid is a feature-rich datagrid available in Free or Enterprise versions. This is the story of ag-Grid and explains our mission, where we came from and who we are.", true);
+            meta_and_links("Our Mission, Our Principles and Our Team at AG Grid", "About AG Grid", "AG Grid is a feature-rich datagrid available in Community or Enterprise versions. This is the story of AG Grid and explains our mission, where we came from and who we are.", "about.php", true);
             ?>
     <link rel="stylesheet" href="dist/homepage.css">
     <script src="dist/homepage.js"></script>
@@ -25,16 +25,19 @@
     <div class="about-page">
         <div class="row">
             <section>
-                <h1>Our Mission</h1>
+                <h1>About AG Grid</h1>
+            </section>
+            <section>
+                <h2>Our Mission</h2>
                 <article>
                     <p class="lead">
-                        At ag-Grid, our mission is simple: <strong>Build the best datagrid in the world</strong>.
+                        At AG Grid, our mission is simple: <strong>Build the best datagrid in the world</strong>.
                     </p>
                     <p>
-                        Born out of frustration with existing solutions, <strong>ag-Grid</strong> evolved from a side
+                        Born out of frustration with existing solutions, <strong>AG Grid</strong> evolved from a side
                         project to becoming the leading JavaScript datagrid on the market. We are a company built by
-                        developers for developers, and - true to our roots - we offer <strong>ag-Grid Community</strong>:
-                        a free and open-source project that delivers world class grid performance. <strong>ag-Grid
+                        developers for developers, and - true to our roots - we offer <strong>AG Grid Community</strong>:
+                        a free and open-source project that delivers world class grid performance. <strong>AG Grid
                         Enterprise</strong> is our commercially-licensed offering which has enjoyed widespread adoption
                         and facilitates us to keep delivering on our mission.
                     </p>
@@ -43,18 +46,18 @@
                         London-based financial institutions, <strong>Niall Crosby</strong> - founder and CEO - struggled
                         to find any datagrid component that could deliver the performance required in tandem with a
                         complete feature list. This struggle ultimately led Niall to pulling out the keyboard one
-                        Christmas holiday period and starting <strong>ag-Grid</strong> as a side project. This was then
+                        Christmas holiday period and starting <strong>AG Grid</strong> as a side project. This was then
                         released as open source and quickly developed a following.
                     </p>
                     <p>
                         Niall found himself having to devote considerable time and effort to maintaining
-                        <strong>ag-Grid</strong>, even fielding feature requests from users. It became apparent that
-                        this thing had legs - and the idea of <strong>ag-Grid Enterprise</strong> took seed in Niall’s
+                        <strong>AG Grid</strong>, even fielding feature requests from users. It became apparent that
+                        this thing had legs - and the idea of <strong>AG Grid Enterprise</strong> took seed in Niall’s
                         mind. A little over one year after the project started the first commercial version was
                         launched.
                     </p>
                     <p>
-                        Today, <strong>ag-Grid</strong> is a self-funded, bootstrapped company with thousands of
+                        Today, <strong>AG Grid</strong> is a self-funded, bootstrapped company with thousands of
                         customers globally. Our product has resonated in the market - as our users face the same
                         challenges Niall did - and this has been central to our rapid growth. And we’re not stopping
                         here: we are working on the next great features to continue our mission.
@@ -62,20 +65,20 @@
                 </article>
             </section>
             <section>
-                <h1> Our Principles</h1>
+                <h2>Our Principles</h2>
                 <article>
                     <p>We believe that a datagrid should be agnostic to the framework that developers choose. This
-                        allows flexibility and future-proofs your development. This is also where the 'ag' in <strong>ag-Grid</strong>
+                        allows flexibility and future-proofs your development. This is also where the 'ag' in <strong>AG Grid</strong>
                         comes from. </p>
                     <p>Our experience is in building Enterprise applications: we know that the datagrid is at the core
                         of an Enterprise application, and needs to deliver performance and a rich feature set. </p>
-                    <p>We give away what others charge for. <strong>ag-Grid Community</strong> provides all of the
+                    <p>We give away what others charge for. <strong>AG Grid Community</strong> provides all of the
                         features of our competition. We only charge when we go above and beyond, with features that
                         other grids don’t provide. </p>
                 </article>
             </section>
             <section>
-                <h1 id="core-development-team">The Dev Team</h1>
+                <h2 id="core-development-team">The Dev Team</h2>
                 <article class="inline-container team">
                     <div class="row">
                         <div class="col-md-4">
@@ -140,10 +143,10 @@
                         </div>
                         <div class="col-md-4">
                             <div>
-                                <img src='images/team/davis2.jpg' alt=" Davis Jaunbruns, Developer"/>
+                                <img src='images/team/alan.jpg' alt="Alan Richardson, Digital Marketing"/>
                             </div>
-                            <h3>Davis Jaunbruns</h3>
-                            <h4>Developer</h4>
+                            <h3>Alan Richardson</h3>
+                            <h4>Digital Marketing</h4>
                         </div>
                     </div>
                     <div class="row">
@@ -184,18 +187,11 @@
                             <h3>Kiril Matev</h3>
                             <h4>Developer</h4>
                         </div>
-                        <div class="col-md-4">
-                            <div>
-                                <img src='images/team/max.jpg' alt="Max Koretskyi, Developer Advocate"/>
-                            </div>
-                            <h3>Max Koretskyi</h3>
-                            <h4>Developer Advocate</h4>
-                        </div>
                     </div>
                 </article>
             </section>
             <section>
-                <h1 id="operations_team">The Operations Team</h1>
+                <h2 id="operations_team">The Operations Team</h2>
                 <article class="inline-container team">
                     <div class="row">
                         <div class="col-md-4">
@@ -295,16 +291,16 @@
             </section>
 
             <section>
-                <h1 id="contact"> Contact Us </h1>
+                <h2 id="contact">Contact Us</h2>
                 <article class="inline-container row">
                     <div class="col-md-6">
                         <h3>Our Address</h3>
                         <address>
-                            <strong>ag-Grid Ltd.</strong><br/>
-                            Bank Chambers,<br/>
+                            <strong>AG Grid Ltd.</strong><br/>
+                            Bank Chambers<br/>
                             6 Borough High Street<br/>
-                            London,<br/>
-                            SE1 9QQ,<br/>
+                            London<br/>
+                            SE1 9QQ<br/>
                             United Kingdom
                         </address>
                         <p>Email Enquiries: <a href="mailto:info@ag-grid.com">info@ag-grid.com</a></p>
@@ -313,7 +309,7 @@
                         <h3>Want to work with us?</h3>
                         <p> We are always looking for Javascript Developers with Enterprise Applications
                             experience. </p>
-                        <p>Check the <a href="./ag-grid-jobs-board/">jobs board</a>.</p>
+                        <p>Check the <a href="/ag-grid-jobs-board/">jobs board</a>.</p>
                     </div>
                 </article>
             </section>

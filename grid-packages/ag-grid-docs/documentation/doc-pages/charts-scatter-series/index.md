@@ -5,7 +5,7 @@ title: "Scatter Series"
 Scatter charts use two axes to plot `(x,y)` pairs of numeric variables as points at the intersection of `x` and `y`.
 
 [[note]]
-| Scatter series configuration is largely the same as line series configuration (please refer to the [line series documentation](../charts-line-series/) to learn more),so here we'll just give some examples and cover only the differences.
+| Scatter series configuration is largely the same as line series configuration (please refer to the [line series documentation](/charts-line-series/) to learn more),so here we'll just give some examples and cover only the differences.
 
 ## Scatter Plot
 
@@ -38,7 +38,7 @@ marker: {
 
 So for example, if the `sizeKey` data ranges from `-100` to `200`, the above config means that `-100` will correspond to marker of size `8` (the `minSize`), `200` to a marker of size `30` (the `size`), and any value between `-100` and `200` will be interpolated to a value between `8` and `30`.
 
-Finally, the bubble chart is so called because the circle is the most common marker type used for this kind of scatter plot, but with ag-Charts any other marker shape can be used as well.
+Finally, the bubble chart is so called because the circle is the most common marker type used for this kind of scatter plot, but with AG Charts any other marker shape can be used as well.
 
 The example below uses both `'circle'` and `'square'` markers to represent the age of females and males respectively. We provide the names of all keys to get nice looking tooltips and the `title` of the series to have it reflected in the legend. The series title is shown in the tooltips as well.
 
@@ -50,4 +50,4 @@ The example below uses both `'circle'` and `'square'` markers to represent the a
 
 ## Next Up
 
-Continue to the next section to learn about [pie and doughnut series](../charts-pie-series/).
+Continue to the next section to learn about [pie and doughnut series](/charts-pie-series/).

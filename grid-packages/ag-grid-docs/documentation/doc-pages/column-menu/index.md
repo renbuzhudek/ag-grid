@@ -3,7 +3,7 @@ title: "Column Menu"
 enterprise: true
 ---
 
-The column menu appears when you click on the menu icon in the column header. For ag-Grid Community, only the filter is shown. For ag-Grid Enterprise, a tabbed component containing a 1) Menu, 2) Filter and 3) Column Management panel is shown.
+The column menu appears when you click on the menu icon in the column header. For AG Grid Community, only the filter is shown. For AG Grid Enterprise, a tabbed component containing a 1) Menu, 2) Filter and 3) Column Management panel is shown.
 
 ## Showing the Column Menu
 
@@ -120,7 +120,7 @@ You can override the menu width by overriding the corresponding CSS:
 
 ## Hiding the Column Menu
 
-Hide the column menu with the grid API `hidePopupMenu()`, which will hide either the [context menu](../context-menu/) or the column menu, whichever is showing.
+Hide the column menu with the grid API `hidePopupMenu()`, which will hide either the [context menu](/context-menu/) or the column menu, whichever is showing.
 
 ## Example Column Menu
 
@@ -178,4 +178,4 @@ The following example demonstrates all of the above columns menu tab properties.
 
 Under most scenarios, the menu will fit inside the grid. However if the grid is small and / or the menu is very large, then the menu will not fit inside the grid and it will be clipped. This will lead to a bad user experience.
 
-To fix this, you should set property `popupParent` which is explained in the [popup parent](../context-menu/#popup-parent) for context menus.
+To fix this, you should set property `popupParent` which is explained in the [popup parent](/context-menu/#popup-parent) for context menus.

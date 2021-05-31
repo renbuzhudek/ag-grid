@@ -3,7 +3,7 @@ import { getTemplates } from './templates.jsx';
 import { Chart } from './Chart.jsx';
 import { Options } from './Options.jsx';
 import { ChartTypeSelector } from './ChartTypeSelector.jsx';
-import { Code } from './Code.jsx';
+import { CodeView } from './CodeView.jsx';
 import styles from './ChartsApiExplorer.module.scss';
 
 const createOptionsJson = (chartType, options) => {
@@ -94,6 +94,11 @@ const createOptionsJson = (chartType, options) => {
 
 const isFullScreen = () => window.self === window.top;
 
+/**
+ * The Standalone Charts API Explorer is an interactive tool for exploring the charts API. The user can change different
+ * settings and see how they affect the appearance of the chart, and it will generate the code they would need to use in
+ * the framework of their choice.
+ */
 export const ChartsApiExplorer = ({ framework }) => {
     const [chartType, setChartType] = useState('bar');
     const [options, setOptions] = useState({});
@@ -195,7 +200,7 @@ export const ChartsApiExplorer = ({ framework }) => {
                 </div>
                 <div className={styles['explorer-container__right']}>
                     <div className={styles['explorer-container__chart']}><Chart options={optionsJson} /></div>
-                    <div className={styles['explorer-container__code']}><Code framework={framework} options={optionsJson} /></div>
+                    <div className={styles['explorer-container__code']}><CodeView framework={framework} options={optionsJson} /></div>
                 </div>
             </div>
         </div>

@@ -1,63 +1,100 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import VisibilitySensor from 'react-visibility-sensor';
 import classnames from 'classnames';
 import fs from 'fs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay, faCode, faWindowRestore, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import CodeViewer from './CodeViewer';
-import GlobalContextConsumer from '../GlobalContext';
+import GlobalContextConsumer from 'components/GlobalContext';
 import ExampleRunnerResult from './ExampleRunnerResult';
 import { useExampleFileNodes } from './use-example-file-nodes';
 import { getExampleInfo, getIndexHtmlUrl, openPlunker } from './helpers';
-import { doOnEnter } from '../key-handlers';
-import isServerSideRendering from '../../utils/is-server-side-rendering';
+import { doOnEnter } from 'components/key-handlers';
+import isServerSideRendering from 'utils/is-server-side-rendering';
 import { getIndexHtml } from './index-html-helper';
-import anchorIcon from '../../images/anchor';
+import anchorIcon from 'images/anchor';
 import styles from './ExampleRunner.module.scss';
 
-const writeIndexHtmlFiles = exampleInfo => {
-    const indexHtml = getIndexHtml(exampleInfo, true);
-    const { appLocation, type, framework, library } = exampleInfo;
+/**
+ * The example runner is used for displaying examples in the documentation, showing the example executing
+ * along with a view of the example code. Users are also able to open the example in a new window, or create
+ * a Plunker based on the example code.
+ */
+export const ExampleRunner = props => {
+    return <GlobalContextConsumer>
+        {({ exampleImportType, useFunctionalReact, enableVue3, useVue3, set }) => {
+            const innerProps = {
+                ...props,
+                exampleImportType,
+                useFunctionalReact,
+                enableVue3,
+                useVue3: enableVue3 ? useVue3 : false,
+                set,
+            };
 
-    if (type === 'generated' || type === 'mixed') {
-        const modulesLocation = appLocation; // because modules is the default
+            return <ExampleRunnerInner {...innerProps} />;
+        }}
+    </GlobalContextConsumer>;
+};
 
-        fs.writeFileSync(`public${modulesLocation}index.html`, indexHtml);
+const saveIndexHtmlPermutations = (nodes, library, pageName, name, title, type, options, framework, useFunctionalReact, useVue3, exampleImportType) => {
+    if (isGeneratedExample(type)) {
+        // Need to generate the different permutations of index.html file:
+        // 1. Default version (already saved)
 
-        const packagesLocation = modulesLocation.replace('/modules/', '/packages/');
+        // 2. Alternative imports version
+        const alternativeImport = exampleImportType === 'packages' ? 'modules' : 'packages';
+        const alternativeImportExampleInfo =
+            getExampleInfo(nodes, library, pageName, name, title, type, options, framework, useFunctionalReact, useVue3, alternativeImport);
 
-        fs.writeFileSync(`public${packagesLocation}index.html`, indexHtml);
+        writeIndexHtmlFile(alternativeImportExampleInfo);
 
-        if (framework === 'react' && library === 'grid') {
-            // need to ensure functional version is also generated
-            fs.writeFileSync(`public${modulesLocation.replace('/react/', '/reactFunctional/')}index.html`, indexHtml);
-            fs.writeFileSync(`public${packagesLocation.replace('/react/', '/reactFunctional/')}index.html`, indexHtml);
+        // 3. For React, the different styles
+        if (framework === 'react') {
+            const alternativeStyleModulesExampleInfo =
+                getExampleInfo(nodes, library, pageName, name, title, type, options, framework, !useFunctionalReact, useVue3, 'modules');
+
+            writeIndexHtmlFile(alternativeStyleModulesExampleInfo);
+
+            const alternativeStylePackagesExampleInfo =
+                getExampleInfo(nodes, library, pageName, name, title, type, options, framework, !useFunctionalReact, useVue3, 'packages');
+
+            writeIndexHtmlFile(alternativeStylePackagesExampleInfo);
         }
-    } else if (type === 'polymer') {
-        fs.writeFileSync(`public${appLocation}index.html`, indexHtml);
+    } else if (type === 'multi' && framework === 'react') {
+        // Also generate the alternative React style
+        const functionalExampleInfo = getExampleInfo(nodes, library, pageName, name, title, type, options, framework, !useFunctionalReact, useVue3);
+
+        writeIndexHtmlFile(functionalExampleInfo);
+    } else if (type === 'multi' && framework === 'vue') {
+        // Also generate the alternative React style
+        const functionalExampleInfo = getExampleInfo(nodes, library, pageName, name, title, type, options, framework, useFunctionalReact, !useVue3);
+
+        writeIndexHtmlFile(functionalExampleInfo);
     }
 };
 
-const ExampleRunnerInner = ({ pageName, framework, name, title, type, options, library, exampleImportType, useFunctionalReact, set }) => {
+const ExampleRunnerInner = ({ pageName, framework, name, title, type, options, library, exampleImportType, useFunctionalReact, enableVue3, useVue3, set }) => {
     const nodes = useExampleFileNodes();
     const [showCode, setShowCode] = useState(!!(options && options.showCode));
-    const [exampleInfo, setExampleInfo] = useState(null);
+    const exampleInfo = useMemo(
+        () => getExampleInfo(nodes, library, pageName, name, title, type, options, framework, useFunctionalReact, useVue3, exampleImportType),
+        [nodes, library, pageName, name, title, type, options, framework, useFunctionalReact, useVue3, exampleImportType]
+    );
 
+    /*
+     * During server side rendering, we generate the relevant index.html(s) for each example, so that in production
+     * every example uses the pre-generated index.html, which can also be opened if the user wants to open the example
+     * in a new window.
+     */
     if (isServerSideRendering()) {
-        const exampleInfo = getExampleInfo(
-            nodes, library, pageName, name, title, type, options, framework, exampleImportType, useFunctionalReact);
+        writeIndexHtmlFile(exampleInfo);
 
-        writeIndexHtmlFiles(exampleInfo);
+        if (library === 'grid') {
+            // grid examples can have multiple permutations
+            saveIndexHtmlPermutations(nodes, library, pageName, name, title, type, options, framework, useFunctionalReact, useVue3, exampleImportType);
+        }
     }
-
-    useEffect(() => {
-        const updatedExampleInfo = getExampleInfo(
-            nodes, library, pageName, name, title, type, options, framework, exampleImportType, useFunctionalReact);
-
-        setExampleInfo(updatedExampleInfo);
-    }, [nodes, library, pageName, name, title, type, options, framework, exampleImportType, useFunctionalReact]);
-
-    if (!exampleInfo) { return null; }
 
     const exampleStyle = {
         width: '100%',
@@ -76,6 +113,11 @@ const ExampleRunnerInner = ({ pageName, framework, name, title, type, options, l
                 <ReactStyleSelector
                     useFunctionalReact={useFunctionalReact}
                     onChange={event => set({ useFunctionalReact: JSON.parse(event.target.value) })} />
+            }
+            {library === 'grid' && enableVue3 && exampleInfo.framework === 'vue' &&
+                <VueStyleSelector
+                    useVue3={useVue3}
+                    onChange={event => set({ useVue3: JSON.parse(event.target.value) })} />
             }
             {library === 'grid' && exampleInfo.framework !== 'javascript' && isGenerated &&
                 <ImportTypeSelector
@@ -119,7 +161,7 @@ const ExampleRunnerInner = ({ pageName, framework, name, title, type, options, l
             <div className={styles['example-runner__content']}>
                 <VisibilitySensor partialVisibility={true}>
                     {({ isVisible }) =>
-                        <ExampleRunnerResult isActive={!showCode} isVisible={isVisible} exampleInfo={exampleInfo} />
+                        <ExampleRunnerResult resultFrameIsVisible={!showCode} isOnScreen={isVisible} exampleInfo={exampleInfo} />
                     }
                 </VisibilitySensor>
                 <CodeViewer isActive={showCode} exampleInfo={exampleInfo} />
@@ -128,38 +170,48 @@ const ExampleRunnerInner = ({ pageName, framework, name, title, type, options, l
     </div>;
 };
 
-export const ExampleRunner = props => {
-    return <GlobalContextConsumer>
-        {({ exampleImportType, useFunctionalReact, set }) => {
-            const innerProps = {
-                ...props,
-                exampleImportType,
-                useFunctionalReact,
-                set,
-            };
-
-            return <ExampleRunnerInner {...innerProps} />;
-        }}
-    </GlobalContextConsumer>;
-};
-
 const ImportTypeSelector = ({ importType, onChange }) => {
     return <div className={styles['example-runner__import-type']}>
-        <select className={styles['example-runner__import-type__select']} style={{ width: 120 }} value={importType} onChange={onChange} onBlur={onChange}>
+        {!isServerSideRendering() && <select className={styles['example-runner__import-type__select']} style={{ width: 120 }} value={importType} onChange={onChange} onBlur={onChange}>
             {['packages', 'modules'].map(type =>
                 <option key={type} value={type}>{type[0].toUpperCase()}{type.substring(1)}</option>
             )}
-        </select>
+        </select>}
     </div >;
 };
 
 const ReactStyleSelector = ({ useFunctionalReact, onChange }) => {
     return <div className={styles['example-runner__react-style']}>
-        <select className={styles['example-runner__react-style__select']} style={{ width: 120 }} value={JSON.stringify(useFunctionalReact)} onChange={onChange} onBlur={onChange}>
+        {!isServerSideRendering() && <select className={styles['example-runner__react-style__select']} style={{ width: 120 }} value={JSON.stringify(useFunctionalReact)} onChange={onChange} onBlur={onChange}>
             <option value="false">Classes</option>
             <option value="true">Hooks</option>
-        </select>
+        </select>}
     </div>;
+};
+
+const VueStyleSelector = ({ useVue3, onChange }) => {
+    return <div className={styles['example-runner__react-style']}>
+        {!isServerSideRendering() && <select className={styles['example-runner__react-style__select']} style={{ width: 120 }} value={JSON.stringify(useVue3)} onChange={onChange} onBlur={onChange}>
+            <option value="false">Vue 2</option>
+            <option value="true">Vue 3</option>
+        </select>}
+    </div>;
+};
+
+const isGeneratedExample = type => ['generated', 'mixed'].includes(type);
+
+const writeIndexHtmlFile = exampleInfo => {
+    const { appLocation, type } = exampleInfo;
+    const indexHtml = getIndexHtml(exampleInfo, true);
+
+    fs.writeFileSync(`public${appLocation}index.html`, indexHtml);
+
+    const templateIndexHtmlPath = `public${appLocation}../../index.html`;
+
+    if (isGeneratedExample(type) && fs.existsSync(templateIndexHtmlPath)) {
+        // don't publish the template index.html
+        fs.rmSync(templateIndexHtmlPath);
+    }
 };
 
 export default ExampleRunner;

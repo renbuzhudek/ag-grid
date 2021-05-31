@@ -4,7 +4,7 @@ title: "Value Setters"
 
 After editing a cell, the grid normally inserts the new value into your data using the column definition `field` attribute. If it's not possible to use a field attribute, you can provide a Value Setter instead.
 
-A Value Setter is the inverse of a [Value Getter](../value-getters/). Where the value getter allows getting values from your data using a function rather than a field, the value setter allows you to set values into your data using a function rather than specifying a field.
+A Value Setter is the inverse of a [Value Getter](/value-getters/). Where the value getter allows getting values from your data using a function rather than a field, the value setter allows you to set values into your data using a function rather than specifying a field.
 
 The parameters provided to a value setter are as follows:
 
@@ -27,24 +27,25 @@ A value setter should return `true` if the value was updated successfully and `f
 
 The following is an example of how you would configure a column using the field attribute and then follows how the same can be done using value getters and value setters.
 
-```js
-// Option 1 - using field
-colDef = {
-    field: 'name';
-};
-
-// Options 2 - using valueGetter and valueSetter
-// value getter used to get data
-colDef = {
-    valueGetter: function(params) {
-        return params.data.name;
-    },
-    valueSetter: function(params) {
-        params.data.name = params.newValue;
-        return true;
-    }
-};
-```
+<snippet>
+|const gridOptions = {
+|    columnDefs: [
+|        // Option 1: using field
+|        { field: 'name' },
+|
+|        // Options 2: using valueGetter and valueSetter - value getter used to get data
+|        {
+|            valueGetter: params => {
+|                return params.data.name;
+|            },
+|            valueSetter: params => {
+|                params.data.name = params.newValue;
+|                return true;
+|            }
+|        }
+|    ]
+|}
+</snippet>
 
 ## Example: Value Setter
 

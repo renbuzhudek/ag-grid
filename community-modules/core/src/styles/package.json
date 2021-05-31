@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "node generator.js"
+    "build": "node generate-web-fonts.js"
   },
-  "author": "ag-Grid",
+  "author": "AG Grid",
   "license": "ISC",
   "devDependencies": {
     "@vusion/webfonts-generator": "^0.6.0",

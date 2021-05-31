@@ -25,7 +25,7 @@ interface ValueGetterParams {
 }
 
 // example value getter, adds two fields together
-colDef.valueGetter = function(params) {
+colDef.valueGetter = params => {
     return params.data.firstName + params.data.lastName;
 }
 ```
@@ -49,7 +49,7 @@ The example below demonstrates `valueGetter`. The following can be noted from th
 - Columns A and B are simple columns using `field`
 
 - Value Getters are used in all subsequent columns as follows:
-    - Column 'Row Num' prints the row number, taken from the [Row Node](../row-object/).
+    - Column 'Row Num' prints the row number, taken from the [Row Node](/row-object/).
     - Column 'A+B' adds A and B.
     - Column 'A * 1000' multiplies A by 1000.
     - Column 'B * 137' multiplies B by 137.
@@ -68,11 +68,11 @@ The parameters for `headerValueGetter` differ from standard `valueGetter` as fol
 - Only one of column or columnGroup will be present, depending on whether it's a column or a column group.
 - Parameter `location` allows you to have different column names depending on where the column is appearing, eg you might want to have a different name when the column is in the column drop zone or the toolbar.
 
-See the [Column Tool Panel Example](../tool-panel-columns/#column-tool-panel-example) for an example of `headerValueGetter` used in different locations, where you can change the header name depending on where the name appears.
+See the [Column Tool Panel Example](/tool-panel-columns/#column-tool-panel-example) for an example of `headerValueGetter` used in different locations, where you can change the header name depending on where the name appears.
 
 ### Filter Value Getters
 
-See [Filtering in Row Grouping](../grouping/#filtering-on-group-columns) for more information on Filter Value Getters.
+See [Filtering in Row Grouping](/grouping/#filtering-on-group-columns) for more information on Filter Value Getters.
 
 ## Value Cache
 
@@ -85,7 +85,7 @@ When the value cache is turned on, each time a value getter is executed, its res
 This value cache is for advanced users who have time-consuming value getters and want to speed up their applications by introducing a cache to reduce the number of times value getters get executed.
 
 [[note]]
-| One client of ag-Grid had 1,000 rows and 20 columns in a grid. A lot of the columns were doing advanced
+| One client of AG Grid had 1,000 rows and 20 columns in a grid. A lot of the columns were doing advanced
 | maths, using third-party maths API in the valueGetter for 8 of the columns. The client was also grouping
 | and the summing by the columns containing the value getters. This meant, if more rows were added, the grid
 | recomputed the aggregations, resulting in all the value getters getting called again, causing the grid to
@@ -151,7 +151,7 @@ As before, we focus on the value getter of the **'Total'** column and can see ho
 - If you close and then re-open a group, the value getters are not re-executed, even though the values are needed to re-create the DOM elements that represent the cells.
 - Hitting **'Refresh Cells'** will refresh all the cells, but again the value getters will not get re-executed.
 - Hitting **'Invalidate Cache'** and then **'Refresh Cells'** will result in the value getters getting re-executed, as the cell refresh operation requires the values and the cache was invalidated. You will notice invalidating and then refreshing doesn't do anything noticeable to the grid, the data is the same, the only hint that anything happened is the value getter's console messages.
-- Changing any value in the grid, either editing via the UI directly or hitting the **'Change One Value'** button, will result in the value cache getting cleared and all cells getting refreshed (where [change detection](../change-detection/) then updates any changes cells and only changed cells).
+- Changing any value in the grid, either editing via the UI directly or hitting the **'Change One Value'** button, will result in the value cache getting cleared and all cells getting refreshed (where [change detection](/change-detection/) then updates any changes cells and only changed cells).
 
 <grid-example title='Expiring Cache through Editing' name='expiring-through-editing' type='generated' options='{ "enterprise": true }'></grid-example>
 
@@ -171,10 +171,26 @@ If you have `valueCacheNeverExpires=true`, then the only event that will expire 
 
 ### Example: Never Expire
 
-This example is again almost identical to the example above. The difference here is the value cache is turned on but to never invalidate. Note the following:
+This example is again almost identical to the example above. The difference here is the value cache is turned on but
+to never invalidate. Note the following:
 
-- When the grid initialises, there are 12 value getter calls. The values are getting cached.
-- After you edit a cell, either through the UI or through the API by pressing **'Update One Value'**, the value getters are not called again, so the total columns are not correctly refreshed. Because the grid already executed the value getters for this column, it will not do it again, it will instead take values from the value cache.
-- If you click **'Invalidate Value Cache'** after you have done some edits, and then click **'Refresh Cells'**, the total columns will update.
+- When the grid initialises, there are 12 value getter calls. The values are getting cached.<p/>
+
+- After you edit a cell, either through the UI or through the API by pressing **'Update One Value'**,
+  the value getters are not called again, so the total columns are not correctly refreshed.
+  Because the grid already executed the value getters for this column, it will not do it again,
+  it will instead take values from the value cache.<p/>
+
+- To get the total column to update after edits, press **'Expire Value Cache'**
+  (calls grid API `expireValueCache()`) and then press **'Aggregate Data & Refresh Cells'**
+  (calls grid API `refreshClientSideRowModel('aggregate')` followed by grid API `refreshCells()`).
+
+  The call `refreshClientSideRowModel('aggregate')` is required as aggregations use Value Getters,
+  thus the aggregations at group level (that is the two total column at the two group rows) need aggregation
+  to be re-run for their values to be updated.
+
+  The call `refreshCells()` is required to update the UI, which
+  in turn also calls Value Getters.
+
 
 <grid-example title='Never expire Value change' name='never-expire' type='generated' options='{ "enterprise": true, "exampleHeight": 610, "modules": ["clientside", "rowgrouping"] }'></grid-example>
