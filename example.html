@@ -91,12 +91,10 @@
             },       
         };
         document.addEventListener("DOMContentLoaded",function(e){
-            // console.log(AgGrid);
-            window.AgGridCore=AgGridCore;
-            window.ClientSideRowModelModule=ClientSideRowModelModule;
+            const {ClientSideRowModelModule}=window["client-side-row-model"];
             console.log("e:",e,AgGridCore,ClientSideRowModelModule);
             const { ModuleRegistry } = AgGridCore;
-            ModuleRegistry.register(ClientSideRowModelModule.ClientSideRowModelModule, false);
+            ModuleRegistry.register(ClientSideRowModelModule, false);
             // import { InfiniteRowModelModule } from '@ag-grid-community/infinite-row-model'
             // import { CsvExportModule } from '@ag-grid-community/csv-export'
             // ModuleRegistry.register(InfiniteRowModelModule, false);

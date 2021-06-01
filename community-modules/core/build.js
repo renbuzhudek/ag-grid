@@ -54,7 +54,8 @@ const  bundle =() => {
         .pipe(source('core.umd.js'))
         .pipe(gulp.dest("dist"));
 }
-gulp.task("default",series("clean", bundle));
+// gulp.task("default",series("clean", bundle));
+gulp.task("default",bundle);
 watchedBrowserify.on("update", bundle);
 watchedBrowserify.on("log", e=>{
     gutil.log(e);

@@ -6,6 +6,7 @@
   "module": "./dist/es6/main.js",
   "types": "./dist/cjs/main.d.ts",
   "scripts": {
+    "dev": "webpack -w --config webpack.config.js",
     "gulp": "gulp -f ./build.js",
     "build-cjs": "tsc -p tsconfig.json",
     "build-es6": "tsc -p tsconfig.es6.json",
@@ -47,13 +48,18 @@
   },
   "devDependencies": {
     "browserify": "^17.0.0",
+    "clean-webpack-plugin": "^4.0.0-alpha.0",
     "gulp": "^4.0.2",
     "gulp-clean": "^0.4.0",
     "gulp-util": "^3.0.8",
+    "ts-loader": "^9.2.2",
+    "tsconfig-paths-webpack-plugin": "^3.5.1",
     "tsify": "^5.0.4",
     "typescript": "~3.6.5",
     "vinyl-source-stream": "^2.0.0",
-    "watchify": "^4.0.0"
+    "watchify": "^4.0.0",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.0"
   },
   "publishConfig": {
     "access": "public"

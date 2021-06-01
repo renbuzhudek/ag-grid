@@ -6,7 +6,7 @@
   "module": "./dist/es6/main.js",
   "types": "./dist/cjs/main.d.ts",
   "scripts": {
-    "gulp": "gulp -f ./build.js",
+    "dev": "gulp -f ./build.js",
     "lint": "tslint -p tsconfig.json src/ts/**/*.ts",
     "lint-fix": "tslint -p tsconfig.json -c tslint-fix.json --fix src/ts/**/*.ts",
     "precheck": "tsc -p tsconfig-precheck.json",
@@ -109,12 +109,14 @@
     "vinyl-buffer": "^1.0.0",
     "vinyl-named": "^1.1.0",
     "webpack": "^4.39.0",
-	"webpack-stream": "5.0.0"
+    "webpack-stream": "5.0.0"
   },
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "flagged-respawn": "*"
+    "flagged-respawn": "*",
+    "vinyl-source-stream": "^2.0.0",
+    "watchify": "^4.0.0"
   }
 }
