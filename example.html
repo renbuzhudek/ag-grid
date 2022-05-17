@@ -92,6 +92,7 @@
         };
         document.addEventListener("DOMContentLoaded",function(e){
             const {ClientSideRowModelModule}=window["client-side-row-model"];
+            // const {ClientSideRowModelModule}=window["ClientSideRowModel"];
             console.log("e:",e,AgGridCore,ClientSideRowModelModule);
             const { ModuleRegistry } = AgGridCore;
             ModuleRegistry.register(ClientSideRowModelModule, false);

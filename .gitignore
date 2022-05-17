@@ -17,6 +17,8 @@ node_modules
 .scannerwork
 
 package-lock.json
+yarn.lock
+yarn-error.log
 docs_are_running
 
 *.nosync
